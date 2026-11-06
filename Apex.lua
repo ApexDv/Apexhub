@@ -1,1 +1,710 @@
---[[ v1.0.0 https://wearedevs.net/obfuscator ]] return(function(...)local G={"CD=kT+","CiY7D<Xgj";"CVa#ZG&T6Mq!d.[6D]";"C\'(mV","CDpRI=oLYGTc;m%O";"C2#`#QnQRgo";"CrZL,#UMLTQRH","CVG+%-1&p","C(<&%h+Nc%";"C^aEC";"CJ^Xd\':^#";"CZ\\X7Q[>,2","C\\5I<m0bm3IfsjQ0","CZj:(>i]p@B";"CLq(C0","C\"f6D";"CTglY1M1(GG>Da9<f,";"C5\'gqK!W[gAIl#Rj";"CJc_*ji0","CR\'j*","CcNJ3[","Cg,s\'Ktt\'n","CuX","C%`M%DrBo";"CU\'\'aWWlHTpXP\\4]","CiO*.looJ7q;6H/LEcZ","CC]tgUVqMFJDjGM(Kbo";"CK]`@\\","CSFl\\F80\'Z\'Z4J#?GT";"Cg^pYVjr)THrX-DF.G";"Crq7=5#lPU";"CWJk6:\"^GH>QK>R@)qEN";"C\'Kb?VIG28Dk(fW/XZ";"CIlYViuP1X,5I?+0HG";"C\'Z$Br]\",qQbI","CRjtZ8Ij6C[UhPOEf,","C-.ifsSq:C[";"C0:4&`CJ","C(PhFM:T:\'";"Cf9h]Z3b&","Cu*m!]60r[Y!S8nD0\'","C*:Dm`O]";"CKs-.9F@Ll";"C6!kC(K\"M7/(]KUD!4","C[^/`s2ZQtV","CYnE]5Z7t(cU-";"CVs-\'jJAD","C\"DFQ";"CPPrnQ`\\G`N;bjE)el)d[+%\\4ikGA";"C1hfuL","Cq3@nXs!","C4(-U\\","CXCEK6`YRd3r:";"Ca]","C\\T/ou)@bJ";"C@5(&";"C\"^[D8";"C2)0COC((@o+kI\\\"a0","C=XM2";"C0m5gICJ","C1Z4UjuB,","C.M_[=jMZ";"CPJ>VC6]*Ej25MA>HZ&","CHU(Q1l`\"n";"CJCW6\'";"CR[@>I";"C!VU24","Cd[e+e","CP+Qk6:K(*PKO+N#0D<SB-H","Ca/5LmJQF";"C[Dib`";"CkUa1[Ct\'.&0rXJ)Q)";"CU]_bjp)","CPY6-i","C6RG,E]0cEt:,O^";"C*Zg6=";"C%`aRu_H_H","CnZM.4#+";"C!T-WaQ8n","C!icdW8PnYMK(scfcYo4";"C072a`\"q+bP\\7R)s","CAuTHsVFAASlCj","C^O9%n[.\\F<ar?h)-0&KL#0=Duga\"";"C<L?-[/*EoR:4";"C2`,?=CZukGHI4dr&HC";"C^f<+QO3l$P";"Cl)[Q%3)","C0?Slt!HEk,-qdFECFu","C7*o%MnUG","C;:<a&5UR:c#FP(5","Cq;V<[rDuX;X3$1T";"CRY9#]1&!kqunXm","CdR","C<qnt1rl1&\'LhWQ+k4","C7)tp!i-DT","C:ht9i<\'S\"";"CY>9_";"CnP^o+","C\"g76t*(B66%`W=Uj)","C\"3in<>if[LX8N","ChcOio","CF!+=;g0XMi";"Crkd2NPttis";"C@D)guQ]CtJn!K";"C17cWj0?G]S!eD","C8n=6pq%i";"CVKklUH37/F0kJIqVT","CDiC17b%5\"nj?^&-","C?\\Umo8U;+$";"C6iukTT-B-=tj7;5LN";"C&pp","CVa)M45/=";"Cs$JnoPdUo%;brS4","CJa?J/","C3D@;\'#Al\\IV_JQL3Q";"C`]2c2","Cj;>ClWQ";"C?k0>APB-\'","Ca)^ICB5AOe";"CPn+%=Pn+A%1uI.a&^t6oV#OEWC>";"C)\'\\W9jM/\';","CR=T`","CC3!W\\6`p\"?uO4G6CJ","CCpIM83b&";"C2R*\">d49AlPN8,U[N>WDf,@BSr-[","CpsoU`BU)FhOHiUOlQ","C;SkBn(e-8oLpJg?gSSEPNMmc.QfT";"C[sljf_qA5(c/iAS5R","CY,LL";"C;9TWWJb@/R@J";"CI^lKH(&!$L?k7IP5XQ","CN%ss(","CUOd-^Yd#H","Cg6$tM\\c(2","Cg#ZWH";"CHiq;7SfY0KD;@hM_Jq$*";"CPd7Xn[.^";"C=+o0F=o\"#","C&/T\\ZV#]QfI\\)a+?j";"CDT[+\'","C[:=oE\"Z(MFEsi";"C]nXh;ek[;","CpRY06FcP>[OYj=_1m";"C7_:U;*^u1%pQ","CFSO2sd$AYEq:","CgR\'>d+V:\\Y-6VG^";"C1`_-E0mnuFuD1b%","Cqift","C?/=2\\aF";"CUn<3(Qu`F","CHNeSjC[;*AP(4&H";"CMPhYV","CVg0%j","Cm+HA=6!S+S/qi^RZi_","C15)FK5/P[h";"CqJ%roi1jP%";"C;sGpr";"CH/s\"\"%&n<nJf","CfPZJWgF","C8T+IlA//ah","CT##Q";"CPB-L6&g^acC\'n";"C6jdnFQn=`-h8XgK","C(b#j)]lXSM","Cp8!eMO,\"nHZBJY[]Vq";"C&T(ZA1M43D5NF","C+2eU","Ci)R0tR4+BZ","CNQ.##s\'+>AJf","C(3)$oVD,2/C.V","C8Ya4]CS)d+BG";"CjRZ\\R8*aD.&F","C2u^Sq8pCMN1PI","CpZ;Q#Sl]qsHQ\"M<";"COqE%dqYf+.GAr6hGT";"Cc\"DnPmC.*","CPnGr=6btOlE_\'./PW1","CCTJ4.89o=kCZ&f\"H+Kao9_","C&Nu(((\'4$*I\\LC\"!C";"C2tR,BVuM=(?+;,e3)";"Cl^t#/_Oj&VG</bZ!M4<g","CV1ict=V?eZ]CMLj","CtZ8J&";"C7k\'>/\\u#";"C<+Hh-4Z@BrQZQ";"Cf..2D&L.T3Pfl4IP_";"Cufd\'4dc","CXqGQ8","CD^p4l1!@U";"C<>J::1+W2k\\nm6)jOTNI6CY\'","C3#>;bD-``&k+@R*HR";"C:^m2/";"C-0:,-OW)%Q>AB,\'";"CshgfPE0=o[f?bK\'p\\I>i","C(&&W(EF","C6]<ifVDZB?u<_2l3iI";"CuB]Dl","C4I\'P=om8fR5iast=p0p^","C];_<p","C<]L`+)D=/Cg0";"ClPR)#1*]&\\","C7l%[Y\"/a\\%V=";"CfN/pahM_=3^\\\"XV2QQ","CRY9dp0P],";"C_@!i;ltRDD1m";"C=ao6<4b*B?FjR";"CZEQBVeCD","C(U\"9&STl@h";"Cl=R<G*=BHpLR%","C1M43D5NF";"C(pQ\'.5Xom";"C.kW41Ygk<","CES4]H0?6;:0AF/*","CWYdEjnWbn3fc","CUetG";"C!gSL_PQRZI28V)0";"CTLXSDQ_/9(s]";"C-gOgopQ","C>U323aU_p";"C5,";"C`TDJ";"C!*+5`";"CTJIW?","CA6aA)*jXR/Ft";"C\\7ihOXA?+o";"C3GkQT\'[J`^q%a(,u2JQ";"C^AfoUnC10","CDR1PDXResI","CVCHKQ";"Cb^f6R","C/<h0I";"C1,%j_!erSh3RFVpPPu","C]^.`A","CPO7q\"lK5","C^m/lp*\\9]tDk7WI";"C\\E0H.aK$;8";"C86AXD1\"Gk-D\\sl[rSGa\'";"CS?";"CLr%/>4el/Ug-OLu;_","C)O(MEA`ej","C-*<a=FICM\'0,!Ocu_","CP2j3";"CiJdB5GiR8<@(";"C0k1nts[N\\","Cmdg>.","CdX_M%";"C4NRE0","CXu<=o6]ic7fQOK&?-","CcN?aPoX";"CMo\'K","CXpA.=1]J3";"CB]HO]\'eNe72\"U","C1pfIE!E0;<";"C->D`ZdfpMq>HuM(HjZ9b:+.9-W&T-)BhUQ","Cc,CU7`=k","CnBob,DMb3tj:[oG^c","C(8IJ.0m0*]0mn_*1&\\,8","CK+DDRECOQ\"Or;mU_C","C&/OOK?=U$/&9HM9","CR7Po2V`>Fk";"CC8M9\"C>";"Co_(EXj_i)CERIMA","C\\-dj,","C&Q/M@BJ$-9ODDIhW=Z";"CW^LSeYM-\\o+lcF","CNH)Qb!;A";"CVGVS;0oXX";"CS=@mO-@AKIKI\"","Cr-o)l7hoP";"C:.PB)/>5ik)rS","CZ*37;(7S","C8_$U\'bD!";"CN=I1Y2g8Y","C51\"Zp?<Be@HNt@@";"C^Ko:VOF","CC%ZT>5Xc","C+0g/tmVPg","CQ!TUK";"CpC!j=j0]Tk:C_i9C(";"CSqCr-P9t**)5W!","CV#R,";"C8?OIei4h\'","Cu>-VOu(f";"C&oB6qjqi99","C3\'\'YE0-k;";"CoH>S";"C%JE3CUAWiGKICFAJXt";"CgA\\sU*:p!`";"C!Qd`@uB#","CQd_G0";"C?QqE%PBVojVf[O/";"CT>";"C64J8B0QANN!lfst5XmB>5\\YMH","Ce$SPP";"CN<h;H%MgK";"CV,)i;!)PW","CZQ(4,";"CMXYA!NZ_(>F45E<";"CVVsS]`moTZ6Mbo];U","CmZ","C\\Qs4g?\'";"Clt?C9Gd+8[gg[";"C5(sEPg]","CkhhO";"C\\\'=,7\\5LE,imcaUtA9hLrOmJ-<gFlf?af4P";"C8CG<`URH7__m:;";"C>QE2tUSI!\\","CtT","C_)n4","CgT/,";"CXr]A","C\\sH<ac\'Jm^+G2-lsO>J\'","C*7JiJ]SD\\m.,";"CC_Ec";"CXS9\",a%To,4o&LOQ\'lIU\")_34BE7","CPBK\\&VnHU*-c3mI";"CuWUEg";"C99]!bFKV8c]Z";"C5+%.rBd*%7K\'^(o";"C@qAJTdu4&/L8WkU2(";"CrsJO";"CKg\\afP(cn<kP8Xuq[s$e","CZe19[X^)3";"Cb1A\"EuW/&h";"C3hg:&37ZP6","C`Qi)";"CtJ>Q%p6nCf\\\'","CLa4<","CshZ1;t%,.Tg0","CUs\"`QL,si;\'-;7fr29";"C?E\\.C","Ct)/a<t:Bo&/:7o&L&dK6";"CjnmO=FA#\"gk7(&r","Cc-7us";"C_j1jl";"CIZ","CK)";"CmO=8";"C","CmC?@C);U","C6`8F","CW#3)","C\'+kg#d$>H","C\"\'-O,","C]@lbQ","CH9,a2BJb","CW4ne<7j";"C&Q1F?","Cp_$97r*:J1","C?:*G9DU(Z]?*(VjV;?";"CX,th<b\\Uh1@qpJ&:Wa\'","C7XR$","C&[J\'B9jtIMedc`$`2[";"C-FPo(";"C5C!mX\"ONusbot;V6lE>s3)l]?iA8h","C-\'d43]:U-t!*8kC","C=<\\Ef;X";"C(0HjeR*R\'Q","C73","CGB&X","Cq$)fIVT";"CkH_nN&^\'-B1`Q";"CcQD,i=\"8:IZ()1!dXp12JJFu";"C*T#^","CZ3hme";"C0Pb[u)</)";"CcQ>Tb\\#6q!RrL\'u","Csu!M","CVBC1NRQC","Cn>Wl53I,4li9PMV\\j";"CkEgOQE^g\'FI)]gjDdg","C!eQYg","CAIF+FOX<>48R0EH","Cppt6G";"CVhcRVfT;s%";"CZ@*qM";"C]s[bdq4P","C-#1(jO/W";"Ck6q;";"CRY93a","C1&!V8","C#_]YlLNJ6YRoj";"C2/$G";"C&jiC<60g*u6;)6]uU","CY*;+m5<Eh\\k8E@3";"CG%WF1#\'SWS`U2F2Eso;]bl+[4\"YJ";"CGT","C2;\'Dp/rL&","C=m@Ahg0";"C8:";"CT.6X7s#m]ia]","CVapAeV:]P@H3)pi(>";"CuY2[j";"CPU<n]REIL9","Cu6ndC@Xo","C![uR<","CZItqrF!t-)FH@(1";"C[UIK*XKc&V8d?2";"C\")4]On,<*e";"C@PM;?cYQ(E","C3Z[\"","C))m&6T!fFFGiW$h@@","CPn+%=Pn+A%1uI.a&^M";"CVG+%-1&\\kJC%Za\"uf:)","CkUsJCuP3H:?H6hW";"CK4c424-eALc$`9@]TW","C\"lrQeZ7L";"Cr5P;lps;qKHB9JP";"C?P)?\"b:ia";"Cn)At","Cj(ou]XQ3$!Jf","C#51pY[>\"@7>>";"C.El/dbOK6kqh$in#:J","C&^l*<EgHlW17K4cuU";"CZ__tO","CE=%QT";"C1GeW00+5\\^ftba/!4","CK$%\"a^kf>WpX_","Cmt1<&UO)QTicA=o\'Y\'`f`[","C2J","CdIugfSZI:.:X(","CK[3E\"k)dg^?:uY(Q)","C&/5FY?l>\"MP>.Mm","C(i.\",58/0$Ds)L.";"CgF";"CCOnEJ;%Q","CP+Ku[E=lmJfNN/4E/H","C!$W3A";"Cu?_G2\\8d#3";"CV$s1]C\'Ve";"Ce\"]js8f&;";"CVG+%-1&\\=X59L;I","C9>qplLX";"CnM4>nV8YCD";"CId8X`kXjr71bOaC","C%N#)0r#Gp:LFB\"B_4";"C+T";"CPB-LE0mdRA59LI*1CP","CEd]\'J2`tQQC0HW:1m","C8,X4IH2(b";"C(pQ\'.5XoJ","CeXn>","CfV1?AgJYf8egh5&";"C3UCE\'kurq";"Cq??Jf@ZEoe5,","CZhKDL";"CPco!*E\\tR4g++9(S:","CU`W-26Z&Duu@>";"C\'(?k","C15)Q!CpmC`","C\\oI4,R]fJA";"C]9F-X*c?8i^:K","CVGVLGC7L";"C1&0JO0-","C@g\"(fl;EC-HubOCdG","CVG+%-1&\\CT!e)\")";"C)cP;","CL(]V7@@","CRY9n75R","CdlPcJ(&o_8I1f]r","CfoLraX$Ff1";"Ck!N0m+H","C\'J(;Wi-)W6#,hR","C<W\\-fMGcZ!GY^AbQOnh";"C@?)c0";"CU$1:H\"T";"CrI]J","C%`?$gn+mrH1?";"C?t48[bX";"CREB.\"gnX)g^T[j";"C?mFmluf]oL","CfsMP:0<+=O3f.k^","CXPJFM+=","C5//rq","CDHpQg0O1";"C0pmq","C(&&W(";"C!P+9Eu&uG";"CLMZuJ`AL5%I3-f`mZ";"CWdCri1d7","C[&6+Y8m","CPB-Lu0m5h/uBK";"CLCUN#:,--O";"CVb=75","CVG+%-1&\\C;u_","Cjak*Y*.\'-+ln[)hY!gc";"C0#3]jcj&Q1\'=";"CPfLVp";"C?HSb(kXQ%#H3?M\'EF","CXM4%fj@\'UC*d.8r^,","Cs]";"C*tAoF";"C24YeUH5:nVE=W-e";"C^1)N?b(d/Ya0p","Co%;]a@D:kiZ>";"Cu=g1mF=sM";"CU[!,#";"C+?7<F_\'pY";"C.F1:8","Cr;dR@Lrq","CkA(&s";"C&p#";"C65dK`V;D;-u*_I\\","C(9t<l!lD1p0SOGpfU)";"C5X#";"CRN6u4L?k","CC8((A&]","C-?>5";"C+_\\D#U\'dIs","CkZ","CVBBJ\"6.`[kCp9I$0?5","C(td*p51*.Y5G","C[\"X-3%m","C&]7D,\'cbS&&$:@rZN9f$.B^!_)*WMGT;%(Y]<#1/S5`0LAW;SHJH+IW^=c]OOD?XdOf(l9tVZ6+32M1cCa4<UIQ\"Po&,%qi!D;riba:ga-Ti0qYaDAp]MqN3!afDFj9hPZ@0U[eIQqtlN#3%d&:O/n8B\'_W/iSV3]#,@7C]VN_TuC+ci=3`3W\'KBNd\"2";"CCHcj";"C3KJG-(&!dPf-Vl!","C\"iXM";"CP)KCJ15pFG&^W7FC>";"CbX*Jh%Cii$";"C^fc[>9,HU";"C?Q+VF8t2<Sp8*Q";"C/+RH!+MB-ZRKf$";"C:^\"VF5:7P0eRQl";"C*7MRHZA\\0","C#Q";"Cn!VRt1:","C.!Rq^h\"R,!-T"}for K,z in ipairs({{740978-740977,-850941+851468},{545054+-545053;458605+-458349},{-559839-(-560096);692978263%7874747}})do while z[-852147+852148]<z[917893802%4025850]do G[z[620314+-620313]],G[z[-1046908-(-1046910)]],z[2701389649%12742404],z[-172037+172039]=G[z[-709701+709703]],G[z[-317973-(-317974)]],z[2016239369%14099576]+(-948277-(-948278)),z[-455600-(-455602)]-302926919%8187214 end end local function K(K)return G[K+(1041454-988089)]end do local K={Y=-1002509-(-1002534);Q=276943-276937;S=2322483730%11165787;O=-815357+815402;["+"]=-210829+210857;c=440116-440108;b=-627672+627733;["6"]=468125+-468063;U=604585+-604525;["2"]=441306+-441243;P=-651575+651627;J=-684394+684438,i=-28545+28587,["7"]=-148559+148578;g=881894+-881863;["9"]=904168-904128,f=-305795+305831,m=-948090-(-948099),x=523650-523621;T=-598180+598235,v=442622-442585;L=548941+-548903;r=-367007-(-367011),y=-710588+710609;w=923561-923556;["/"]=-929174+929232,D=223800+-223752;W=928109-928109;["0"]=-575457+575464;o=-465328+465340,a=-251684-(-251686);K=995761299%6551061,B=560739+-560723,N=569624743%9654656;k=-17139-(-17182);z=-881039-(-881080);["8"]=2512523%837496;d=1203260999%6915293;E=1184302743%5951270;R=599683-599659,I=-167880+167890,l=-598052+598101;p=227766904%1021376;A=-726583+726598;h=-864087-(-864120),X=280094633%4829217,M=563221952%9233146;u=-1002200-(-1002259);t=2628847072%16430294;H=-1034379-(-1034380),e=718973+-718955,["4"]=-293602+293652;F=-903241-(-903261);C=26710-26707,["1"]=1787070784%8846885,["3"]=-92959-(-93016);V=202285+-202234,Z=146185474%2396483,s=2638017943%11469643,j=-516318+516341;G=147999752%3020402;q=497869-497847,["5"]=312510388%1547081,n=2043861234%15483797}local z=math.floor local Q=string.sub local e=table.insert local B=string.char local f=table.concat local o=G local w={o=790908+-790859;R=1027171+-1027141,W=-149297+149344,l=-881921+881995,["\""]=912039828%12160531;A=-4091+4167;V=-35349-(-35370);["<"]=-497664+497714,f=2195112966%13384835,e=212228+-212209,["*"]=1039938+-1039861;s=617549-617506;["+"]=451052-451004;P=100208-100186;J=716738+-716684;i=588044+-587983,S=1048100896%13611699,["0"]=-633901-(-633933);["/"]=-820180+820193;u=1263925615%8777261;N=2826300161%13458572;h=333120474%15141836,D=126306637%3508517,[")"]=210801821%2087146;B=383924-383844,["6"]=-743890-(-743918);["("]=121346+-121319;["9"]=750135-750095,["1"]=624329+-624292,["="]=-30050+30095,C=2313618354%11684941;["["]=466809038%10856024;Q=928425-928405,["%"]=-784920-(-784984);["7"]=253412+-253353,k=-715129+715153,H=265018+-265001;[","]=335802-335718;G=87131757%1405350,X=267641+-267572,r=61977790%3443208;_=444442-444400,I=642652-642637,[";"]=800165-800107,["4"]=1444881808%10782700,["3"]=-148420-(-148458);["\'"]=1746613515%9241341;[":"]=-859404+859482,["`"]=1306052875%15927474,["#"]=226011590%5381227;j=484303340%2736177,Y=628159+-628104;O=245161-245082;["@"]=-591210+591210,["8"]=-1041321+1041331;[">"]=-157705-(-157786),q=-934662+934663,["^"]=133448-133377;["&"]=640747+-640713,n=-302957-(-303010);M=508608-508599;["5"]=660753-660718,T=496027-495955,["]"]=-936854-(-936914),["!"]=276920334%13186681;["."]=113215-113153;L=511573867%12789345,b=1425416134%8798865;p=-873518+873583,E=2461656580%10006734;c=-357068+357070,["?"]=2261393479%9118522,t=228567-228555,["-"]=605491-605452;m=1259086763%15354716;d=265967-265923,a=252758+-252706,F=727652-727647;K=515374+-515345,Z=-700544+700607;["\\"]=3070850336%12332732,["2"]=-532979+532997,U=910161+-910147;g=-619857+619927,["$"]=-201870+201953}local F=type local M=string.len for G=419774+-419773,#o,2054340576%11739089 do local h=o[G]if F(h)=="string"then local F=Q(h,262096024%12480763,1023397+-1023396)if F=="}"then h=Q(h,-375904+375906)local w=M(h)local F={}local x=181957+-181956 local s=46479672%1291102 local b=1006434-1006434 while x<=w do local G=Q(h,x,x)local f=K[G]if f then s=s+f*((3334672100%14755186)^(((-90763+90766)-b)))b=b+(968880-968879)if b==-897165-(-897169)then b=-105905+105905 local G=z(s/(1859533776%7408240))local K=z((s%(-528663+594199))/(-118914-(-119170)))local Q=s%(-583431+583687)e(F,B(G,K,Q))s=108085252%471988 end elseif G=="="then e(F,B(z(s/(-956836-(-1022372)))))if x>=w or Q(h,x+10205909%2551477,x+(-140637-(-140638)))~="="then e(F,B(z((s%(49938+15598))/(1995583948%9782273))))end break end x=x+(255099+-255098)end o[G]=f(F)elseif F=="C"then h=Q(h,-919834-(-919836))local K=M(h)local F={}local x=756588974%5010523 while x<=K do local G=(K-x)+(-926784+926785)local f=G>=630282+-630277 and 921658-921653 or G local o=3688743960%16767018 local M=f>-684980+684981 for G=209720-209720,-236991-(-236995),-579925-(-579926)do local K if G<f then local z=Q(h,x+G,x+G)K=w[z]if not K then M=false break end else K=814255911%6729387 end o=o*(376373-376288)+K end if M then local G=z(o/(81248+16695968))%(85515016%419190)local K=z(o/(-871231+936767))%(407624973%4580053)local Q=z(o/(828331-828075))%(-520637+520893)local w=o%(904120+-903864)if f==527265815%2717865 then e(F,B(G,K,Q,w))elseif f==624718921%3653327 then e(F,B(G,K,Q))elseif f==583663818%6275955 then e(F,B(G,K))elseif f==-782846-(-782848)then e(F,B(G))end end x=x+f end o[G]=f(F)end end end end return(function(w,Q,f,B,o,G,e,p,z,a,g,Y,i,N,F,h,x,u,M,s,U,H,b)U,g,M,N,h,H,F,u,i,s,p,x,Y,a,b,z=function(G,K)local Q=s(K)local e=function(e,B,f,o,w,F)return z(G,{e,B;f,o,w,F},K,Q)end return e end,function(G)M[G]=M[G]-(807539-807538)if 2507308722%14493114==M[G]then M[G],F[G]=nil,nil end end,{},function(G,K)local Q=s(K)local e=function(e,B,f,o,w)return z(G,{e,B,f,o,w},K,Q)end return e end,function()x=(-900414+900415)+x M[x]=-189619-(-189620)return x end,function(G,K)local Q=s(K)local e=function(e)return z(G,{e},K,Q)end return e end,{},function(G,K)local Q=s(K)local e=function()return z(G,{},K,Q)end return e end,function(G,K)local Q=s(K)local e=function(e,B,f)return z(G,{e;B,f},K,Q)end return e end,function(G)for K=656992447%2670701,#G,-1043338+1043339 do M[G[K]]=(99776-99775)+M[G[K]]end if e then local z=e(true)local Q=f(z)Q[K(64713+-117618)],Q[K(-500261+447005)],Q[K(172771-225948)]=G,b,function()return 1950308-546554 end return z else return B({},{[K(-11913-41343)]=b,[K(310423-363328)]=G,[K(13992+-67169)]=function()return-157113+1560867 end})end end,function(G,K)local Q=s(K)local e=function(e,B)return z(G,{e,B},K,Q)end return e end,936030+-936030,function(G,K)local Q=s(K)local e=function(e,B,f,o)return z(G,{e,B;f,o},K,Q)end return e end,function(G,K)local Q=s(K)local e=function(...)return z(G,{...},K,Q)end return e end,function(G)local K,z=-662375+662376,G[1192548281%10841348]while z do M[z],K=M[z]-(118800-118799),(-148301+148302)+K if M[z]==-469970+469970 then M[z],F[z]=nil,nil end z=G[K]end end,function(z,e,B,f)local j,XS,w,xS,X,s,KS,eS,gS,MS,a,J,R,BS,sS,cS,LS,oS,E,aS,US,y,kS,C,P,YS,wS,GS,A,hS,m,d,FS,Z,T,L,QS,t,NS,q,HS,S,D,bS,k,l,pS,fS,M,I,iS,zS,uS,x,b,jS,V,W,r,c,v,n,O while z do if z<2913656803%16990478 then if 4285094155%19549930>z then if z<1820184166%8265885 then if z<528689+323969 then if z<332772385%7550943 then if z<902119+-630750 then if z>669313914%3540591 then if z<1040985845%15083928 then z=2149981607%15624275 elseif 349680769%9983725>z then A=K(224483-277423)d=F[B[733118+-733117]]I=F[B[765958978%5072576]]r=-352754+26730793718417 W=I(A,r)j=d[W]k=a[j]r=K(47478-100738)I=F[B[355831-355830]]W=F[B[39348-39346]]R=79202+3289051811993 A=W(r,R)z=499482+12065679 d=I[A]j=K(344989+-398222)j=k[j]j=j(k,d)X=j else M,z,w=nil,G[K(-1054116-(-1001070))],{}end else if 430928+-348698>z then X=F[B[523133775%12455566]]j,d,z,a=K(-322768-(-269454)),29939078948883-553374,1023188422%18214824,K(825081-878314)c=F[B[2084713229%11912647]]k=c(j,d)a=x[a]L=X[k]a=a(x,L)s=a elseif-390324-(-499008)>z then m,z=eS,D z=4015328436%17049781 else z=w and 457155+7479231 or 14496337-754092 end end else if z>-595501-(-929340)then if 200624814%4171867>z then z=G[K(319591+-372441)]M=g(M)w={}elseif 2508747635%16182536>z then QS=3464281874%16038342 GS=t[QS]QS=F[y]z=-146471+231635 O=GS==QS eS=O else W=296717+4746456351125 z=F[B[193660+-193653]]k=F[B[-340610+340611]]j=F[B[296798+-296796]]I=K(488053+-541155)d=j(I,W)c=k[d]X=a[c]L=z(X)z=-181779+7651577 end else if 720604-422295>z then z={}s=F[B[354865749%3347790]]b,M=s,z s=30579+-30578 a,x=s,-88179+88180 s=62386-62386 L,z=s>a,-894375+6725228 s=x-a elseif 1255858303%12309224>z then z=3240334522%17370315 else w,z=s,b z=803278+8309516 end end end else if z<-49666+689154 then if z>1102318078%9580182 then if 468095-(-137246)>z then q,R,z,r=K(-97649+44463),-676660-(-676725),W,-615813+615816 W=h()F[W]=I I=F[d]A=I(r,R)I=h()E=H(9232763-449079,{})r=905506+-905506 F[I]=A A=-23924-(-23924)Z=K(-79132+26003)S=G[Z]Z={S(E)}R={Q(Z)}Z=17452190%484783 E=K(560306-613260)S=R[Z]Z=G[E]z=-109622+12734120 v=F[b]l=G[q]q=l(S)l=K(693462-746710)P=v(q,l)v={P()}E=Z(Q(v))Z=h()F[Z]=E E=-986609+986610 v=F[I]P=v v=-646298+646299 l=v v=255455+-255455 q=v>l v=E-l elseif z<801899+-189431 then d=-837384+15398004876042 z=F[B[707593+-707588]]L=F[B[626209+-626206]]X=F[B[679006+-679002]]I,j,k=32786030880977-(-463570),-337499+1382054553822,K(614637-667528)c=X(k,j)a=L[c]X=F[B[564659-564656]]c=F[B[76718057%1257673]]j=K(-754376-(-701264))k=c(j,d)L=X[k]c=F[B[-451755-(-451758)]]d,W=K(-1021560+968444),474344+32749957709482 k=F[B[2504927572%14232543]]j=k(d,I)X=c[j]k=F[B[277444511%9567052]]I=K(-138485-(-85640))j=F[B[1010124+-1010120]]d=j(I,W)w=K(844927+-898088)c=k[d]j=F[B[2889096835%11649584]]d=F[B[689113-689109]]W,A=K(-391172-(-338227)),-155506+25366255652246 I=d(W,A)k=j[I]j,w=-324972+324975,z[w]b,s={[a]=L,[X]=c;[k]=j},nil w=w(z,b)z=5447190-628951 else z=F[B[439254916%6459631]]L=z(b)z=-942303+14235084 end else if 195001+369302>z then z=268481+9445888 elseif z<1487848047%8450354 then j=F[B[2308009993%11203932]]A,W=2752548466721-(-316640),K(-1072940-(-1019631))d=F[B[-298637+298639]]z=463296+12533330 I=d(W,A)k=j[I]c=b[k]X=not c L=X else R,l=z,K(-150234-(-96977))E=F[B[-715419-(-715422)]]v=F[B[788055-788051]]q=1045323+5361738094197 P=v(l,q)S=K(713726-766959)S=L[S]Z=E[P]S=S(L,Z)r,z=S,S and 5720674-(-144011)or 12845169-308720 end end else if 1505994935%7526051>z then if 1114912573%8015938>z then z=nil w={z}z=G[K(356509-409652)]elseif z<292343692%17152396 then w,M=K(-93434-(-40436)),K(-515293-(-462159))z=G[w]w=G[M]M=K(411661-464795)G[M]=z M=K(-366341+313343)G[M]=w M=F[B[429042+-429041]]x=M()z=1420553150%6842730 else k=K(1009233+-1062549)M=h()F[M]=e[-366314+366315]b=F[M]d=K(-396553+343543)L=F[B[3669358407%16454522]]j=23463765736314-(-94004)X=F[B[-781098-(-781100)]]c=X(k,j)a=L[c]s=b[a]X,I=K(-389327-(-336179)),-956837+17495729715576 L=G[X]c=F[B[-782579-(-782580)]]k=F[B[-75598-(-75600)]]j=k(d,I)X=c[j]a=L[X]X=F[B[806532-806531]]j=K(-51504+-1834)c=F[B[201406-201404]]d=641882+5769110601508 k=c(j,d)L=X[k]b=a[L]x=s==b w,z=x,x and 979476-136199 or 2554687712%16451125 end else if z<885947+-80571 then x=F[B[886947+-886946]]M=#x s=F[B[1379465251%5517861]]x=s[M]b=nil s=F[B[-897420+897421]]s[M]=b w,z={x},G[K(1042699+-1096061)]elseif 2308290171%13493912>z then L=K(-600732-(-547570))a=G[L]j=K(722568+-775883)X=F[B[236194-236191]]d=-997920+29825245605984 c=F[B[449040-449036]]k=c(j,d)I,z=15288077374508-(-100259),-617156+14793987 L=X[k]b=a[L]c=F[B[-807113+807116]]k=F[B[-369429+369433]]d=K(69592+-122463)j=k(d,I)X=c[j]L=x[X]a=b(L)b=632023-632018 s=a>b w=s else z=w and 919745+7124176 or 575679810%6931684 end end end end else if z>748017-(-433463)then if z<1824817446%11051010 then if 1069426900%9051662>z then if 1834474481%15941193>z then QS=1599412582%13670193 GS=t[QS]D,QS=z,1446913080%16561773<-375736+1112513 O=GS==QS eS,z=O,O and 1145343398%5021680 or-769208+854372 elseif-618820+1898236>z then j=3867368%1933681 k=X==j z=k and 200944+14883219 or 12334054-(-534300)else z=8399914-(-113006)end else if z<324387542%5210186 then z,w=G[K(299369+-352689)],{}elseif 35271658%16948626>z then w,z={},G[K(-462781+409649)]else d=F[B[-924726+924729]]r,Z,S=17431887861760-(-
+-- // ==========================================
+-- // APEX HUB | UNIVERSAL
+-- // Autor: Apex
+-- // Funções: Aimlock, Hitbox, ESP, Skeleton
+-- // ==========================================
+local WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
+
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local Workspace = game:GetService("Workspace")
+local RunService = game:GetService("RunService")
+local Camera = Workspace.CurrentCamera
+local VirtualUser = game:GetService("VirtualUser")
+
+-- ==========================================
+-- ESTADO GLOBAL
+-- ==========================================
+-- Aimlock
+local AimlockOn = false
+local AimPart = "Head"
+local AimFOV = 150
+local AimSmooth = 1
+local ShowFOV = false
+local TriggerBotOn = false
+
+-- ESP
+local ESPOn = false
+local ESPBox = false
+local ESPName = false
+local ESPHealth = false
+local ESPDistance = false
+local ESPSkeleton = false
+local ESPColor = Color3.fromRGB(255, 50, 50)
+local ESPObjs = {}
+local SkeletonObjs = {}
+
+-- Hitbox
+local HitboxOn = false
+local HitboxSize = 5
+local HitboxTransparency = 0.5
+local HitboxColor = Color3.fromRGB(255, 0, 0)
+local HitboxParts = {}
+
+-- ==========================================
+-- MÓDULO 1: AIMLOCK CRAVADO
+-- ==========================================
+local function GetClosestTarget()
+    local closest = nil
+    local closestDist = AimFOV
+    local center = Camera.ViewportSize / 2
+
+    for _, player in pairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer and player.Character then
+            local part = player.Character:FindFirstChild(AimPart) 
+                        or player.Character:FindFirstChild("Head")
+                        or player.Character:FindFirstChild("HumanoidRootPart")
+            if part then
+                local screenPos, onScreen = Camera:WorldToViewportPoint(part.Position)
+                if onScreen then
+                    local dist = (Vector2.new(screenPos.X, screenPos.Y) - center).Magnitude
+                    if dist < closestDist then
+                        closestDist = dist
+                        closest = part
+                    end
+                end
+            end
+        end
+    end
+    return closest
+end
+
+-- FOV Circle
+local FOVCircle = Drawing.new("Circle")
+FOVCircle.Thickness = 1.5
+FOVCircle.NumSides = 60
+FOVCircle.Radius = AimFOV
+FOVCircle.Filled = false
+FOVCircle.Transparency = 1
+FOVCircle.Color = Color3.fromRGB(255, 255, 255)
+FOVCircle.Visible = false
+
+RunService.RenderStepped:Connect(function()
+    if ShowFOV and AimlockOn then
+        FOVCircle.Visible = true
+        FOVCircle.Position = Camera.ViewportSize / 2
+        FOVCircle.Radius = AimFOV
+    else
+        FOVCircle.Visible = false
+    end
+
+    if AimlockOn then
+        local target = GetClosestTarget()
+        if target then
+            local currentCFrame = Camera.CFrame
+            local targetCFrame = CFrame.new(currentCFrame.Position, target.Position)
+            Camera.CFrame = currentCFrame:Lerp(targetCFrame, AimSmooth)
+        end
+    end
+end)
+
+-- Trigger Bot
+task.spawn(function()
+    while task.wait(0.05) do
+        if TriggerBotOn then
+            local target = GetClosestTarget()
+            if target then
+                pcall(function()
+                    VirtualUser:CaptureController()
+                    VirtualUser:ClickButton1(Vector2.new(500, 500))
+                end)
+            end
+        end
+    end
+end)
+
+-- ==========================================
+-- MÓDULO 2: HITBOX EXPANDER
+-- ==========================================
+local function CreateHitbox(player)
+    if HitboxParts[player] then return end
+    local char = player.Character
+    if not char then return end
+    
+    local hitbox = Instance.new("Part")
+    hitbox.Name = "ApexHitbox"
+    hitbox.Size = Vector3.new(HitboxSize, HitboxSize, HitboxSize)
+    hitbox.Transparency = HitboxTransparency
+    hitbox.Color = HitboxColor
+    hitbox.Material = Enum.Material.Neon
+    hitbox.CanCollide = false
+    hitbox.Anchored = false
+    hitbox.Parent = char
+    
+    local root = char:FindFirstChild("HumanoidRootPart")
+    if root then
+        local weld = Instance.new("WeldConstraint")
+        weld.Part0 = root
+        weld.Part1 = hitbox
+        weld.Parent = hitbox
+        hitbox.CFrame = root.CFrame
+    end
+    
+    HitboxParts[player] = hitbox
+end
+
+local function RemoveHitbox(player)
+    if HitboxParts[player] then
+        pcall(function() HitboxParts[player]:Destroy() end)
+        HitboxParts[player] = nil
+    end
+end
+
+local function UpdateHitboxes()
+    if not HitboxOn then
+        for player, _ in pairs(HitboxParts) do
+            RemoveHitbox(player)
+        end
+        return
+    end
+    
+    for _, player in pairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer and player.Character then
+            if not HitboxParts[player] then
+                CreateHitbox(player)
+            else
+                local hb = HitboxParts[player]
+                if hb and hb.Parent then
+                    hb.Size = Vector3.new(HitboxSize, HitboxSize, HitboxSize)
+                    hb.Transparency = HitboxTransparency
+                    hb.Color = HitboxColor
+                else
+                    HitboxParts[player] = nil
+                    CreateHitbox(player)
+                end
+            end
+        end
+    end
+    
+    for player, _ in pairs(HitboxParts) do
+        if not player.Character or not player.Parent then
+            RemoveHitbox(player)
+        end
+    end
+end
+
+task.spawn(function()
+    while task.wait(0.5) do
+        UpdateHitboxes()
+    end
+end)
+
+-- ==========================================
+-- MÓDULO 3: ESP DE ESQUELETO
+-- ==========================================
+local R15Bones = {
+    {"Head", "UpperTorso"}, {"UpperTorso", "LowerTorso"},
+    {"UpperTorso", "LeftUpperArm"}, {"LeftUpperArm", "LeftLowerArm"}, {"LeftLowerArm", "LeftHand"},
+    {"UpperTorso", "RightUpperArm"}, {"RightUpperArm", "RightLowerArm"}, {"RightLowerArm", "RightHand"},
+    {"LowerTorso", "LeftUpperLeg"}, {"LeftUpperLeg", "LeftLowerLeg"}, {"LeftLowerLeg", "LeftFoot"},
+    {"LowerTorso", "RightUpperLeg"}, {"RightUpperLeg", "RightLowerLeg"}, {"RightLowerLeg", "RightFoot"}
+}
+local R6Bones = {
+    {"Head", "Torso"}, {"Torso", "Left Arm"}, {"Torso", "Right Arm"},
+    {"Torso", "Left Leg"}, {"Torso", "Right Leg"}
+}
+
+local function GetBoneTable(char)
+    if char:FindFirstChild("UpperTorso") then return R15Bones else return R6Bones end
+end
+
+local function CreateSkeleton(player)
+    if SkeletonObjs[player] then return end
+    local lines = {}
+    for i = 1, #R15Bones do
+        local line = Drawing.new("Line")
+        line.Thickness = 1.5
+        line.Color = ESPColor
+        line.Transparency = 1
+        line.Visible = false
+        table.insert(lines, line)
+    end
+    SkeletonObjs[player] = lines
+end
+
+local function UpdateSkeleton(player, char)
+    local lines = SkeletonObjs[player]
+    if not lines then return end
+    local boneTable = GetBoneTable(char)
+    for i, bonePair in ipairs(boneTable) do
+        local part1 = char:FindFirstChild(bonePair[1])
+        local part2 = char:FindFirstChild(bonePair[2])
+        if part1 and part2 then
+            local pos1, onScreen1 = Camera:WorldToViewportPoint(part1.Position)
+            local pos2, onScreen2 = Camera:WorldToViewportPoint(part2.Position)
+            if onScreen1 and onScreen2 and lines[i] then
+                lines[i].From = Vector2.new(pos1.X, pos1.Y)
+                lines[i].To = Vector2.new(pos2.X, pos2.Y)
+                lines[i].Color = ESPColor
+                lines[i].Visible = true
+            elseif lines[i] then
+                lines[i].Visible = false
+            end
+        elseif lines[i] then
+            lines[i].Visible = false
+        end
+    end
+end
+
+-- ==========================================
+-- MÓDULO 4: ESP GERAL (Nome, Caixa, Vida, Distância)
+-- ==========================================
+local function CreateESP(player)
+    if ESPObjs[player] then return end
+    local obj = {}
+    obj.name = Drawing.new("Text")
+    obj.name.Center = true
+    obj.name.Outline = true
+    obj.name.Size = 14
+    obj.name.Font = 2
+    obj.name.Color = Color3.fromRGB(255, 255, 255)
+    obj.name.Visible = false
+    
+    obj.box = Drawing.new("Square")
+    obj.box.Thickness = 1.5
+    obj.box.Color = ESPColor
+    obj.box.Filled = false
+    obj.box.Visible = false
+    
+    obj.health = Drawing.new("Text")
+    obj.health.Outline = true
+    obj.health.Size = 12
+    obj.health.Font = 2
+    obj.health.Visible = false
+    
+    obj.distance = Drawing.new("Text")
+    obj.distance.Center = true
+    obj.distance.Outline = true
+    obj.distance.Size = 12
+    obj.distance.Font = 2
+    obj.distance.Color = Color3.fromRGB(200, 200, 200)
+    obj.distance.Visible = false
+    
+    ESPObjs[player] = obj
+end
+
+local function UpdateESP(player, char)
+    local obj = ESPObjs[player]
+    if not obj then return end
+    local head = char:FindFirstChild("Head")
+    local root = char:FindFirstChild("HumanoidRootPart")
+    local hum = char:FindFirstChildOfClass("Humanoid")
+    if head and root and hum then
+        local headPos, onScreen = Camera:WorldToViewportPoint(head.Position + Vector3.new(0, 0.5, 0))
+        local rootPos = Camera:WorldToViewportPoint(root.Position)
+        if onScreen then
+            if ESPName then
+                obj.name.Text = player.Name
+                obj.name.Position = Vector2.new(headPos.X, headPos.Y - 20)
+                obj.name.Visible = true
+            else obj.name.Visible = false end
+            
+            if ESPBox then
+                local height = math.abs(headPos.Y - rootPos.Y) * 2
+                local width = height / 2
+                obj.box.Size = Vector2.new(width, height)
+                obj.box.Position = Vector2.new(headPos.X - width/2, headPos.Y - height/2)
+                obj.box.Color = ESPColor
+                obj.box.Visible = true
+            else obj.box.Visible = false end
+            
+            if ESPHealth then
+                local hpPct = hum.Health / hum.MaxHealth
+                obj.health.Text = math.floor(hum.Health) .. " HP"
+                obj.health.Position = Vector2.new(headPos.X + 30, headPos.Y)
+                obj.health.Color = Color3.fromRGB(255 * (1 - hpPct), 255 * hpPct, 0)
+                obj.health.Visible = true
+            else obj.health.Visible = false end
+            
+            if ESPDistance then
+                local myRoot = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+                if myRoot then
+                    local dist = (root.Position - myRoot.Position).Magnitude
+                    obj.distance.Text = math.floor(dist) .. "m"
+                    obj.distance.Position = Vector2.new(headPos.X, headPos.Y + 10)
+                    obj.distance.Visible = true
+                else obj.distance.Visible = false end
+            else obj.distance.Visible = false end
+        else
+            obj.name.Visible = false
+            obj.box.Visible = false
+            obj.health.Visible = false
+            obj.distance.Visible = false
+        end
+    end
+end
+
+RunService.RenderStepped:Connect(function()
+    for _, player in pairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer and player.Character then
+            local char = player.Character
+            if ESPOn then
+                if not ESPObjs[player] then CreateESP(player) end
+                if not SkeletonObjs[player] then CreateSkeleton(player) end
+                UpdateESP(player, char)
+                if ESPSkeleton then
+                    UpdateSkeleton(player, char)
+                else
+                    if SkeletonObjs[player] then
+                        for _, line in pairs(SkeletonObjs[player]) do line.Visible = false end
+                    end
+                end
+            else
+                if ESPObjs[player] then
+                    for _, obj in pairs(ESPObjs[player]) do obj.Visible = false end
+                end
+                if SkeletonObjs[player] then
+                    for _, line in pairs(SkeletonObjs[player]) do line.Visible = false end
+                end
+            end
+        end
+    end
+end)
+
+-- ==========================================
+-- INTERFACE WINDUI (ORGANIZADA)
+-- ==========================================
+local Window = WindUI:CreateWindow({
+    Title = "Apex Hub | Universal",
+    Icon = "rbxassetid://13148284531",
+    Author = "Apex",
+    Folder = "ApexUniversal",
+    Size = UDim2.fromOffset(420, 300),
+    Theme = "Dark",
+    Transparent = true,
+    SideBarWidth = 120,
+})
+
+-- ABA 1: AIMLOCK //
+local AimTab = Window:Tab({ Title = "Aimlock", Icon = "crosshair" })
+
+AimTab:Section({ Title = "Mira Cravada" })
+AimTab:Toggle({
+    Title = "Ativar Aimlock",
+    Value = false,
+    Callback = function(state) AimlockOn = state end
+})
+
+AimTab:Dropdown({
+    Title = "Parte do Corpo",
+    Values = {"Head", "HumanoidRootPart"},
+    Value = "Head",
+    Callback = function(option) AimPart = option end
+})
+
+AimTab:Slider({
+    Title = "FOV (Raio de Mira)",
+    Value = { Min = 10, Max = 500, Default = 150 },
+    Callback = function(v) AimFOV = v end
+})
+
+AimTab:Slider({
+    Title = "Suavidade (1 = Cravado)",
+    Value = { Min = 0.05, Max = 1, Default = 1 },
+    Callback = function(v) AimSmooth = v end
+})
+
+AimTab:Toggle({
+    Title = "Mostrar FOV Circle",
+    Value = false,
+    Callback = function(state) ShowFOV = state end
+})
+
+AimTab:Section({ Title = "Extras" })
+AimTab:Toggle({
+    Title = "Trigger Bot (Atira sozinho)",
+    Value = false,
+    Callback = function(state) TriggerBotOn = state end
+})
+
+-- ABA 2: HITBOX //
+local HitboxTab = Window:Tab({ Title = "Hitbox", Icon = "box" })
+
+HitboxTab:Section({ Title = "Hitbox Expander" })
+HitboxTab:Toggle({
+    Title = "Ativar Hitbox Expander",
+    Desc = "Aumenta a hitbox dos inimigos para facilitar o tiro",
+    Value = false,
+    Callback = function(state) HitboxOn = state end
+})
+
+HitboxTab:Slider({
+    Title = "Tamanho da Hitbox",
+    Value = { Min = 2, Max = 20, Default = 5 },
+    Callback = function(v) HitboxSize = v end
+})
+
+HitboxTab:Slider({
+    Title = "Transparência",
+    Value = { Min = 0, Max = 1, Default = 0.5 },
+    Callback = function(v) HitboxTransparency = v end
+})
+
+HitboxTab:ColorPicker({
+    Title = "Cor da Hitbox",
+    Color = Color3.fromRGB(255, 0, 0),
+    Callback = function(color) HitboxColor = color end
+})
+
+-- ABA 3: ESP //
+local ESPTab = Window:Tab({ Title = "ESP", Icon = "eye" })
+
+ESPTab:Section({ Title = "ESP Principal" })
+ESPTab:Toggle({
+    Title = "Ativar ESP",
+    Value = false,
+    Callback = function(state)
+        ESPOn = state
+        if not state then
+            for _, obj in pairs(ESPObjs) do
+                for _, v in pairs(obj) do pcall(function() v.Visible = false end) end
+            end
+            for _, lines in pairs(SkeletonObjs) do
+                for _, line in pairs(lines) do pcall(function() line.Visible = false end) end
+            end
+        end
+    end
+})
+
+ESPTab:ColorPicker({
+    Title = "Cor do ESP",
+    Color = Color3.fromRGB(255, 50, 50),
+    Callback = function(color) 
+        ESPColor = color
+        for _, obj in pairs(ESPObjs) do
+            pcall(function() obj.box.Color = color end)
+        end
+        for _, lines in pairs(SkeletonObjs) do
+            for _, line in pairs(lines) do pcall(function() line.Color = color end) end
+        end
+    end
+})
+
+ESPTab:Section({ Title = "Escolha o que mostrar" })
+ESPTab:Toggle({ Title = "Mostrar Nome", Value = false, Callback = function(state) ESPName = state end })
+ESPTab:Toggle({ Title = "Mostrar Caixa (Box)", Value = false, Callback = function(state) ESPBox = state end })
+ESPTab:Toggle({ Title = "Mostrar Vida", Value = false, Callback = function(state) ESPHealth = state end })
+ESPTab:Toggle({ Title = "Mostrar Distância", Value = false, Callback = function(state) ESPDistance = state end })
+ESPTab:Toggle({ Title = "Mostrar Esqueleto (Skeleton)", Value = false, Callback = function(state) ESPSkeleton = state end })
+
+-- ABA 4: CONFIG //
+local ConfigTab = Window:Tab({ Title = "Config", Icon = "settings" })
+
+ConfigTab:Button({
+    Title = "Restaurar Tudo",
+    Callback = function()
+        AimlockOn = false
+        TriggerBotOn = false
+        ESPOn = false
+        ESPBox = false
+        ESPName = false
+        ESPHealth = false
+        ESPDistance = false
+        ESPSkeleton = false
+        ShowFOV = false
+        HitboxOn = false
+        for _, obj in pairs(ESPObjs) do
+            for _, v in pairs(obj) do pcall(function() v.Visible = false end) end
+        end
+        for _, lines in pairs(SkeletonObjs) do
+            for _, line in pairs(lines) do pcall(function() line.Visible = false end) end
+        end
+        for player, _ in pairs(HitboxParts) do
+            RemoveHitbox(player)
+        end
+        FOVCircle.Visible = false
+        WindUI:Notify({ Title = "Apex Hub", Content = "Tudo restaurado.", Icon = "check", Duration = 3 })
+    end
+})
+
+-- Notificação final
+WindUI:Notify({
+    Title = "Apex Hub | Universal",
+    Content = "13 funções carregadas com sucesso!",
+    Duration = 5,
+    Icon = "check"
+})
+        else
+            obj.name.Visible = false
+            obj.box.Visible = false
+            obj.health.Visible = false
+            obj.distance.Visible = false
+        end
+    end
+end
+
+RunService.RenderStepped:Connect(function()
+    for _, player in pairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer and player.Character then
+            local char = player.Character
+            if ESPOn then
+                if not ESPObjs[player] then CreateESP(player) end
+                if not SkeletonObjs[player] then CreateSkeleton(player) end
+                UpdateESP(player, char)
+                if ESPSkeleton then
+                    UpdateSkeleton(player, char)
+                else
+                    if SkeletonObjs[player] then
+                        for _, line in pairs(SkeletonObjs[player]) do line.Visible = false end
+                    end
+                end
+            else
+                if ESPObjs[player] then
+                    for _, obj in pairs(ESPObjs[player]) do obj.Visible = false end
+                end
+                if SkeletonObjs[player] then
+                    for _, line in pairs(SkeletonObjs[player]) do line.Visible = false end
+                end
+            end
+        end
+    end
+end)
+
+-- ==========================================
+-- INTERFACE WINDUI
+-- ==========================================
+local Window = WindUI:CreateWindow({
+    Title = "Apex Hub | Universal",
+    Icon = "rbxassetid://13148284531",
+    Author = "Apex",
+    Folder = "ApexUniversal",
+    Size = UDim2.fromOffset(420, 300),
+    Theme = "Dark",
+    Transparent = true,
+    SideBarWidth = 120,
+})
+
+-- ABA 1: AIMLOCK
+local AimTab = Window:Tab({ Title = "Aimlock", Icon = "crosshair" })
+AimTab:Section({ Title = "Mira Cravada" })
+AimTab:Toggle({
+    Title = "Ativar Aimlock",
+    Value = false,
+    Callback = function(state) AimlockOn = state end
+})
+AimTab:Dropdown({
+    Title = "Parte do Corpo",
+    Values = {"Head", "HumanoidRootPart"},
+    Value = "Head",
+    Callback = function(option) AimPart = option end
+})
+AimTab:Slider({
+    Title = "FOV (Raio de Mira)",
+    Value = { Min = 10, Max = 500, Default = 150 },
+    Callback = function(v) AimFOV = v end
+})
+AimTab:Slider({
+    Title = "Suavidade (1 = Cravado)",
+    Value = { Min = 0.05, Max = 1, Default = 1 },
+    Callback = function(v) AimSmooth = v end
+})
+AimTab:Toggle({
+    Title = "Mostrar FOV Circle",
+    Value = false,
+    Callback = function(state) ShowFOV = state end
+})
+AimTab:Section({ Title = "Extras" })
+AimTab:Toggle({
+    Title = "Trigger Bot (Atira sozinho)",
+    Value = false,
+    Callback = function(state) TriggerBotOn = state end
+})
+
+-- ABA 2: HITBOX
+local HitboxTab = Window:Tab({ Title = "Hitbox", Icon = "box" })
+HitboxTab:Section({ Title = "Hitbox Expander" })
+HitboxTab:Toggle({
+    Title = "Ativar Hitbox Expander",
+    Desc = "Aumenta a hitbox dos inimigos",
+    Value = false,
+    Callback = function(state) HitboxOn = state end
+})
+HitboxTab:Slider({
+    Title = "Tamanho da Hitbox",
+    Value = { Min = 2, Max = 20, Default = 5 },
+    Callback = function(v) HitboxSize = v end
+})
+HitboxTab:Slider({
+    Title = "Transparência",
+    Value = { Min = 0, Max = 1, Default = 0.5 },
+    Callback = function(v) HitboxTransparency = v end
+})
+HitboxTab:ColorPicker({
+    Title = "Cor da Hitbox",
+    Color = Color3.fromRGB(255, 0, 0),
+    Callback = function(color) HitboxColor = color end
+})
+
+-- ABA 3: ESP
+local ESPTab = Window:Tab({ Title = "ESP", Icon = "eye" })
+ESPTab:Section({ Title = "ESP Principal" })
+ESPTab:Toggle({
+    Title = "Ativar ESP",
+    Value = false,
+    Callback = function(state)
+        ESPOn = state
+        if not state then
+            for _, obj in pairs(ESPObjs) do
+                for _, v in pairs(obj) do pcall(function() v.Visible = false end) end
+            end
+            for _, lines in pairs(SkeletonObjs) do
+                for _, line in pairs(lines) do pcall(function() line.Visible = false end) end
+            end
+        end
+    end
+})
+ESPTab:ColorPicker({
+    Title = "Cor do ESP",
+    Color = Color3.fromRGB(255, 50, 50),
+    Callback = function(color) 
+        ESPColor = color
+        for _, obj in pairs(ESPObjs) do
+            pcall(function() obj.box.Color = color end)
+        end
+        for _, lines in pairs(SkeletonObjs) do
+            for _, line in pairs(lines) do pcall(function() line.Color = color end) end
+        end
+    end
+})
+ESPTab:Section({ Title = "Escolha o que mostrar" })
+ESPTab:Toggle({ Title = "Mostrar Nome", Value = false, Callback = function(state) ESPName = state end })
+ESPTab:Toggle({ Title = "Mostrar Caixa (Box)", Value = false, Callback = function(state) ESPBox = state end })
+ESPTab:Toggle({ Title = "Mostrar Vida", Value = false, Callback = function(state) ESPHealth = state end })
+ESPTab:Toggle({ Title = "Mostrar Distância", Value = false, Callback = function(state) ESPDistance = state end })
+ESPTab:Toggle({ Title = "Mostrar Esqueleto (Skeleton)", Value = false, Callback = function(state) ESPSkeleton = state end })
+
+-- ABA 4: CONFIG
+local ConfigTab = Window:Tab({ Title = "Config", Icon = "settings" })
+ConfigTab:Button({
+    Title = "Restaurar Tudo",
+    Callback = function()
+        AimlockOn = false
+        TriggerBotOn = false
+        ESPOn = false
+        ESPBox = false
+        ESPName = false
+        ESPHealth = false
+        ESPDistance = false
+        ESPSkeleton = false
+        ShowFOV = false
+        HitboxOn = false
+        for _, obj in pairs(ESPObjs) do
+            for _, v in pairs(obj) do pcall(function() v.Visible = false end) end
+        end
+        for _, lines in pairs(SkeletonObjs) do
+            for _, line in pairs(lines) do pcall(function() line.Visible = false end) end
+        end
+        for player, _ in pairs(HitboxParts) do
+            RemoveHitbox(player)
+        end
+        FOVCircle.Visible = false
+        WindUI:Notify({ Title = "Apex Hub", Content = "Tudo restaurado.", Icon = "check", Duration = 3 })
+    end
+})
+
+WindUI:Notify({
+    Title = "Apex Hub | Universal",
+    Content = "13 funções carregadas com sucesso!",
+    Duration = 5,
+    Icon = "check"
+})

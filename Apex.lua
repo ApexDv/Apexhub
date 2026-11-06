@@ -1,8 +1,4 @@
--- // ==========================================
--- // APEX HUB | UNIVERSAL
--- // Autor: Apex
--- // Funções: Aimlock, Hitbox, ESP, Skeleton
--- // ==========================================
+
 local WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
 
 local Players = game:GetService("Players")
@@ -15,7 +11,6 @@ local VirtualUser = game:GetService("VirtualUser")
 -- ==========================================
 -- ESTADO GLOBAL
 -- ==========================================
--- Aimlock
 local AimlockOn = false
 local AimPart = "Head"
 local AimFOV = 150
@@ -23,7 +18,6 @@ local AimSmooth = 1
 local ShowFOV = false
 local TriggerBotOn = false
 
--- ESP
 local ESPOn = false
 local ESPBox = false
 local ESPName = false
@@ -34,7 +28,6 @@ local ESPColor = Color3.fromRGB(255, 50, 50)
 local ESPObjs = {}
 local SkeletonObjs = {}
 
--- Hitbox
 local HitboxOn = false
 local HitboxSize = 5
 local HitboxTransparency = 0.5
@@ -42,13 +35,12 @@ local HitboxColor = Color3.fromRGB(255, 0, 0)
 local HitboxParts = {}
 
 -- ==========================================
--- MÓDULO 1: AIMLOCK CRAVADO
+-- MÓDULO 1: AIMLOCK
 -- ==========================================
 local function GetClosestTarget()
     local closest = nil
     local closestDist = AimFOV
     local center = Camera.ViewportSize / 2
-
     for _, player in pairs(Players:GetPlayers()) do
         if player ~= LocalPlayer and player.Character then
             local part = player.Character:FindFirstChild(AimPart) 
@@ -69,7 +61,6 @@ local function GetClosestTarget()
     return closest
 end
 
--- FOV Circle
 local FOVCircle = Drawing.new("Circle")
 FOVCircle.Thickness = 1.5
 FOVCircle.NumSides = 60
@@ -87,7 +78,6 @@ RunService.RenderStepped:Connect(function()
     else
         FOVCircle.Visible = false
     end
-
     if AimlockOn then
         local target = GetClosestTarget()
         if target then
@@ -98,7 +88,6 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 
--- Trigger Bot
 task.spawn(function()
     while task.wait(0.05) do
         if TriggerBotOn then
@@ -114,13 +103,12 @@ task.spawn(function()
 end)
 
 -- ==========================================
--- MÓDULO 2: HITBOX EXPANDER
+-- MÓDULO 2: HITBOX
 -- ==========================================
 local function CreateHitbox(player)
     if HitboxParts[player] then return end
     local char = player.Character
     if not char then return end
-    
     local hitbox = Instance.new("Part")
     hitbox.Name = "ApexHitbox"
     hitbox.Size = Vector3.new(HitboxSize, HitboxSize, HitboxSize)
@@ -130,7 +118,6 @@ local function CreateHitbox(player)
     hitbox.CanCollide = false
     hitbox.Anchored = false
     hitbox.Parent = char
-    
     local root = char:FindFirstChild("HumanoidRootPart")
     if root then
         local weld = Instance.new("WeldConstraint")
@@ -139,7 +126,6 @@ local function CreateHitbox(player)
         weld.Parent = hitbox
         hitbox.CFrame = root.CFrame
     end
-    
     HitboxParts[player] = hitbox
 end
 
@@ -150,47 +136,36 @@ local function RemoveHitbox(player)
     end
 end
 
-local function UpdateHitboxes()
-    if not HitboxOn then
-        for player, _ in pairs(HitboxParts) do
-            RemoveHitbox(player)
-        end
-        return
-    end
-    
-    for _, player in pairs(Players:GetPlayers()) do
-        if player ~= LocalPlayer and player.Character then
-            if not HitboxParts[player] then
-                CreateHitbox(player)
-            else
-                local hb = HitboxParts[player]
-                if hb and hb.Parent then
-                    hb.Size = Vector3.new(HitboxSize, HitboxSize, HitboxSize)
-                    hb.Transparency = HitboxTransparency
-                    hb.Color = HitboxColor
-                else
-                    HitboxParts[player] = nil
-                    CreateHitbox(player)
+task.spawn(function()
+    while task.wait(0.5) do
+        if not HitboxOn then
+            for player, _ in pairs(HitboxParts) do
+                RemoveHitbox(player)
+            end
+        else
+            for _, player in pairs(Players:GetPlayers()) do
+                if player ~= LocalPlayer and player.Character then
+                    if not HitboxParts[player] then
+                        CreateHitbox(player)
+                    else
+                        local hb = HitboxParts[player]
+                        if hb and hb.Parent then
+                            hb.Size = Vector3.new(HitboxSize, HitboxSize, HitboxSize)
+                            hb.Transparency = HitboxTransparency
+                            hb.Color = HitboxColor
+                        else
+                            HitboxParts[player] = nil
+                            CreateHitbox(player)
+                        end
+                    end
                 end
             end
         end
     end
-    
-    for player, _ in pairs(HitboxParts) do
-        if not player.Character or not player.Parent then
-            RemoveHitbox(player)
-        end
-    end
-end
-
-task.spawn(function()
-    while task.wait(0.5) do
-        UpdateHitboxes()
-    end
 end)
 
 -- ==========================================
--- MÓDULO 3: ESP DE ESQUELETO
+-- MÓDULO 3: ESP
 -- ==========================================
 local R15Bones = {
     {"Head", "UpperTorso"}, {"UpperTorso", "LowerTorso"},
@@ -246,9 +221,6 @@ local function UpdateSkeleton(player, char)
     end
 end
 
--- ==========================================
--- MÓDULO 4: ESP GERAL (Nome, Caixa, Vida, Distância)
--- ==========================================
 local function CreateESP(player)
     if ESPObjs[player] then return end
     local obj = {}
@@ -259,19 +231,16 @@ local function CreateESP(player)
     obj.name.Font = 2
     obj.name.Color = Color3.fromRGB(255, 255, 255)
     obj.name.Visible = false
-    
     obj.box = Drawing.new("Square")
     obj.box.Thickness = 1.5
     obj.box.Color = ESPColor
     obj.box.Filled = false
     obj.box.Visible = false
-    
     obj.health = Drawing.new("Text")
     obj.health.Outline = true
     obj.health.Size = 12
     obj.health.Font = 2
     obj.health.Visible = false
-    
     obj.distance = Drawing.new("Text")
     obj.distance.Center = true
     obj.distance.Outline = true
@@ -279,7 +248,6 @@ local function CreateESP(player)
     obj.distance.Font = 2
     obj.distance.Color = Color3.fromRGB(200, 200, 200)
     obj.distance.Visible = false
-    
     ESPObjs[player] = obj
 end
 
@@ -298,7 +266,6 @@ local function UpdateESP(player, char)
                 obj.name.Position = Vector2.new(headPos.X, headPos.Y - 20)
                 obj.name.Visible = true
             else obj.name.Visible = false end
-            
             if ESPBox then
                 local height = math.abs(headPos.Y - rootPos.Y) * 2
                 local width = height / 2
@@ -307,7 +274,6 @@ local function UpdateESP(player, char)
                 obj.box.Color = ESPColor
                 obj.box.Visible = true
             else obj.box.Visible = false end
-            
             if ESPHealth then
                 local hpPct = hum.Health / hum.MaxHealth
                 obj.health.Text = math.floor(hum.Health) .. " HP"
@@ -315,7 +281,6 @@ local function UpdateESP(player, char)
                 obj.health.Color = Color3.fromRGB(255 * (1 - hpPct), 255 * hpPct, 0)
                 obj.health.Visible = true
             else obj.health.Visible = false end
-            
             if ESPDistance then
                 local myRoot = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
                 if myRoot then
@@ -362,7 +327,7 @@ RunService.RenderStepped:Connect(function()
 end)
 
 -- ==========================================
--- INTERFACE WINDUI (ORGANIZADA)
+-- INTERFACE WINDUI
 -- ==========================================
 local Window = WindUI:CreateWindow({
     Title = "Apex Hub | Universal",
@@ -375,41 +340,35 @@ local Window = WindUI:CreateWindow({
     SideBarWidth = 120,
 })
 
--- ABA 1: AIMLOCK //
+-- ABA 1: AIMLOCK
 local AimTab = Window:Tab({ Title = "Aimlock", Icon = "crosshair" })
-
 AimTab:Section({ Title = "Mira Cravada" })
 AimTab:Toggle({
     Title = "Ativar Aimlock",
     Value = false,
     Callback = function(state) AimlockOn = state end
 })
-
 AimTab:Dropdown({
     Title = "Parte do Corpo",
     Values = {"Head", "HumanoidRootPart"},
     Value = "Head",
     Callback = function(option) AimPart = option end
 })
-
 AimTab:Slider({
     Title = "FOV (Raio de Mira)",
     Value = { Min = 10, Max = 500, Default = 150 },
     Callback = function(v) AimFOV = v end
 })
-
 AimTab:Slider({
     Title = "Suavidade (1 = Cravado)",
     Value = { Min = 0.05, Max = 1, Default = 1 },
     Callback = function(v) AimSmooth = v end
 })
-
 AimTab:Toggle({
     Title = "Mostrar FOV Circle",
     Value = false,
     Callback = function(state) ShowFOV = state end
 })
-
 AimTab:Section({ Title = "Extras" })
 AimTab:Toggle({
     Title = "Trigger Bot (Atira sozinho)",
@@ -417,38 +376,33 @@ AimTab:Toggle({
     Callback = function(state) TriggerBotOn = state end
 })
 
--- ABA 2: HITBOX //
+-- ABA 2: HITBOX
 local HitboxTab = Window:Tab({ Title = "Hitbox", Icon = "box" })
-
 HitboxTab:Section({ Title = "Hitbox Expander" })
 HitboxTab:Toggle({
     Title = "Ativar Hitbox Expander",
-    Desc = "Aumenta a hitbox dos inimigos para facilitar o tiro",
+    Desc = "Aumenta a hitbox dos inimigos",
     Value = false,
     Callback = function(state) HitboxOn = state end
 })
-
 HitboxTab:Slider({
     Title = "Tamanho da Hitbox",
     Value = { Min = 2, Max = 20, Default = 5 },
     Callback = function(v) HitboxSize = v end
 })
-
 HitboxTab:Slider({
     Title = "Transparência",
     Value = { Min = 0, Max = 1, Default = 0.5 },
     Callback = function(v) HitboxTransparency = v end
 })
-
 HitboxTab:ColorPicker({
     Title = "Cor da Hitbox",
     Color = Color3.fromRGB(255, 0, 0),
     Callback = function(color) HitboxColor = color end
 })
 
--- ABA 3: ESP //
+-- ABA 3: ESP
 local ESPTab = Window:Tab({ Title = "ESP", Icon = "eye" })
-
 ESPTab:Section({ Title = "ESP Principal" })
 ESPTab:Toggle({
     Title = "Ativar ESP",
@@ -465,7 +419,6 @@ ESPTab:Toggle({
         end
     end
 })
-
 ESPTab:ColorPicker({
     Title = "Cor do ESP",
     Color = Color3.fromRGB(255, 50, 50),
@@ -479,7 +432,6 @@ ESPTab:ColorPicker({
         end
     end
 })
-
 ESPTab:Section({ Title = "Escolha o que mostrar" })
 ESPTab:Toggle({ Title = "Mostrar Nome", Value = false, Callback = function(state) ESPName = state end })
 ESPTab:Toggle({ Title = "Mostrar Caixa (Box)", Value = false, Callback = function(state) ESPBox = state end })
@@ -487,9 +439,8 @@ ESPTab:Toggle({ Title = "Mostrar Vida", Value = false, Callback = function(state
 ESPTab:Toggle({ Title = "Mostrar Distância", Value = false, Callback = function(state) ESPDistance = state end })
 ESPTab:Toggle({ Title = "Mostrar Esqueleto (Skeleton)", Value = false, Callback = function(state) ESPSkeleton = state end })
 
--- ABA 4: CONFIG //
+-- ABA 4: CONFIG
 local ConfigTab = Window:Tab({ Title = "Config", Icon = "settings" })
-
 ConfigTab:Button({
     Title = "Restaurar Tudo",
     Callback = function()
@@ -517,7 +468,6 @@ ConfigTab:Button({
     end
 })
 
--- Notificação final
 WindUI:Notify({
     Title = "Apex Hub | Universal",
     Content = "13 funções carregadas com sucesso!",

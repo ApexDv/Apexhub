@@ -49,21 +49,30 @@ task.spawn(function()
 end)
 
 local TabMain = Window:Tab({ Title = "Main", Icon = "house" })
-TabMain:Section({ Title = "Informações do Jogo" })
+TabMain:Section({ Title = "Status do Jogo" })
 
-TabMain:Paragraph({
-    Title = "Status do Jogo",
-    Content = "O jogo está rodando na sua máquina. Use as funções com moderação para não ser banido."
+-- TEXTO 1: AVISO
+TabMain:Paragraph({ 
+    Title = "Aviso Importante", 
+    Content = "O uso de scripts pode resultar em banimento. Use com moderação." 
 })
 
-TabMain:Paragraph({
-    Title = "Aviso Importante",
-    Content = "O uso de scripts pode resultar em banimento da conta. Use por sua conta e risco."
+-- TEXTO 2: CRÉDITOS
+TabMain:Paragraph({ 
+    Title = "Créditos", 
+    Content = "Script desenvolvido por Apex | Universal." 
 })
 
-TabMain:Paragraph({
-    Title = "Créditos",
-    Content = "Script desenvolvido por Apex. Todos os direitos reservados."
+-- TEXTO 3: NOME DO JOGO (ATUALIZADO AUTOMATICAMENTE)
+local NomeDoJogo = "Carregando..."
+pcall(function()
+    local info = game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId)
+    NomeDoJogo = info.Name
+end)
+
+TabMain:Paragraph({ 
+    Title = "Jogo Atual", 
+    Content = "Você está jogando: " .. NomeDoJogo 
 })
 local TabCombat = Window:Tab({ Title = "Combat", Icon = "crosshair" })
 local TabPlayer = Window:Tab({ Title = "Player", Icon = "user" })

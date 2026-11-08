@@ -14,7 +14,7 @@ WindUI:AddTheme({
 local TriggerBotOn = false
 local ShootThroughWalls = false
 local FOV = 300
-local FireDelay = 0.2
+local FireDelay = 0.1 
 local ChamsObjects = {}
 local lastShotTime = 0
 
@@ -53,7 +53,7 @@ TabCombat:Section({ Title = "Trigger Bot" })
 TabCombat:Toggle({ Title = "Tiro Automático", Value = false, Callback = function(s) TriggerBotOn = s end })
 TabCombat:Toggle({ Title = "Atirar na Parede", Value = false, Callback = function(s) ShootThroughWalls = s end })
 TabCombat:Slider({ Title = "FOV", Value = { Min = 10, Max = 800, Default = 300 }, Callback = function(v) FOV = v end })
-TabCombat:Slider({ Title = "Velocidade", Value = { Min = 0.1, Max = 1, Default = 0.2 }, Callback = function(v) FireDelay = v end })
+TabCombat:Slider({ Title = "Velocidade", Value = { Min = 0.05, Max = 1, Default = 0.1 }, Callback = function(v) FireDelay = v end })
 
 -- FUNÇÃO PRA ACHAR O ALVO
 local function GetTarget()
@@ -84,19 +84,18 @@ local function HasLineOfSight(targetPart)
     if not myChar then return false end
     local myHead = myChar:FindFirstChild("Head")
     if not myHead then return false end
-    local rayOrigin = myHead.Position
-    local rayDirection = targetPart.Position - rayOrigin
     local raycastParams = RaycastParams.new()
     raycastParams.FilterDescendantsInstances = {myChar, targetPart.Parent}
     raycastParams.FilterType = Enum.RaycastFilterType.Exclude
-    local result = Workspace:Raycast(rayOrigin, rayDirection, raycastParams)
+    local result = Workspace:Raycast(myHead.Position, targetPart.Position - myHead.Position, raycastParams)
     return result == nil
 end
 
--- LOOP DO TRIGGER BOT
+-- LOOP DO TRIGGER BOT (COM SOM E LASER)
 RunService.RenderStepped:Connect(function()
     if TriggerBotOn then
         if tick() - lastShotTime < FireDelay then return end
+        
         local target = GetTarget()
         
         if target and LP.Character then
@@ -108,16 +107,42 @@ RunService.RenderStepped:Connect(function()
             if canShoot then
                 local myHead = LP.Character:FindFirstChild("Head")
                 local Remote = game:GetService("ReplicatedStorage"):FindFirstChild("Remotes") and game:GetService("ReplicatedStorage").Remotes:FindFirstChild("ShootGun")
-                local hasGun = false
+                
+                -- Procura a arma na mão
+                local equippedTool = nil
                 for _, tool in pairs(LP.Character:GetChildren()) do
-                    if tool:IsA("Tool") then hasGun = true break end
+                    if tool:IsA("Tool") then equippedTool = tool break end
                 end
-                if Remote and myHead and hasGun then
+
+                if Remote and myHead and equippedTool then
                     lastShotTime = tick()
                     pcall(function()
+                        -- 1. Manda o dano (ShootGun)
                         Remote:FireServer(table.unpack({
-                            [1] = myHead.Position, [2] = target.Position, [3] = target, [4] = target.Position, 
+                            [1] = myHead.Position, 
+                            [2] = target.Position, 
+                            [3] = target, 
+                            [4] = target.Position, 
                         }))
+                        
+                        -- 2. Manda o LASER da bala (GunBeam)
+                        local Events = game:GetService("ReplicatedStorage"):FindFirstChild("Events")
+                        local RemoteEvents = Events and Events:FindFirstChild("RemoteEvents")
+                        local GunBeam = RemoteEvents and RemoteEvents:FindFirstChild("GunBeam")
+                        
+                        if GunBeam and firesignal then
+                            firesignal(GunBeam.OnClientEvent, table.unpack({
+                                [1] = equippedTool, 
+                                [2] = target.Position, 
+                                [3] = target 
+                            }))
+                        end
+
+                        -- 3. Manda o SOM do tiro (PlaySound)
+                        local PlaySound = game:GetService("ReplicatedStorage"):FindFirstChild("Remotes") and game:GetService("ReplicatedStorage").Remotes:FindFirstChild("PlaySound")
+                        if PlaySound and firesignal then
+                            firesignal(PlaySound.OnClientEvent)
+                        end
                     end)
                 end
             end

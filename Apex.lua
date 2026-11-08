@@ -134,28 +134,32 @@ TabTheme:Section({ Title = "Select Theme" })
 TabTheme:Dropdown({ Title = "UI Theme", Values = {"Rose", "Black"}, Value = "Rose", Callback = function(selected) pcall(function() Window:SetTheme(selected) local OldSize = Window.Size Window:SetSize(UDim2.fromOffset(451, 361)) task.wait(0.05) Window:SetSize(OldSize) end) end })
 
 -- ABA COMBAT
-local AimbotOn, AimbotFOV, AimbotPart = false, 150, "Head"
-local TeamCheckOn = false
-local HitboxOn, HitboxSize = false, 10
-local HitboxParts = {}
-
-TabCombat:Section({ Title = "Aimbot" })
-TabCombat:Toggle({ Title = "Aimbot", Icon = "crosshair", Value = false, Callback = function(s) AimbotOn = s end })
-TabCombat:Toggle({ Title = "Team Check", Icon = "users", Value = false, Callback = function(s) TeamCheckOn = s end })
-TabCombat:Dropdown({ Title = "Target Part", Values = {"Head", "HumanoidRootPart"}, Value = "Head", Callback = function(v) AimbotPart = v end })
-TabCombat:Slider({ Title = "FOV", Value = { Min = 10, Max = 500, Default = 150 }, Callback = function(v) AimbotFOV = v end })
-
-TabCombat:Section({ Title = "Hitbox" })
-TabCombat:Toggle({ Title = "Hitbox", Icon = "box", Value = false, Callback = function(s) HitboxOn = s end })
-TabCombat:Slider({ Title = "Hitbox Size", Value = { Min = 2, Max = 30, Default = 10 }, Callback = function(v) HitboxSize = v end })
-
+-- BLOCO 1: AIMBOT (Com Team Check Melhorado)
 RunService.RenderStepped:Connect(function()
     if AimbotOn then
         local closest, minDist = nil, AimbotFOV
         local center = Camera.ViewportSize / 2
+        
+        local myTeam = LP.Team
+        local myShirt = LP.Character and LP.Character:FindFirstChild("Shirt")
+        local myColor = myShirt and myShirt.ShirtTemplate or nil
+        
         for _, p in pairs(Players:GetPlayers()) do
             local isTeammate = false
-            if TeamCheckOn and LP.Team and p.Team and LP.Team == p.Team then isTeammate = true end
+            
+            if TeamCheckOn and myTeam and p.Team and myTeam == p.Team then isTeammate = true end
+            
+            if TeamCheckOn and not isTeammate and myColor then
+                local pShirt = p.Character and p.Character:FindFirstChild("Shirt")
+                if pShirt and pShirt.ShirtTemplate == myColor then isTeammate = true end
+            end
+            
+            if TeamCheckOn and not isTeammate then
+                local myName = string.match(LP.Name, "^%[%w+%]")
+                local pName = string.match(p.Name, "^%[%w+%]")
+                if myName and pName and myName == pName then isTeammate = true end
+            end
+
             if p ~= LP and not isTeammate and p.Character and p.Character:FindFirstChild(AimbotPart) then
                 local hum = p.Character:FindFirstChildOfClass("Humanoid")
                 if hum and hum.Health > 0 then
@@ -168,34 +172,49 @@ RunService.RenderStepped:Connect(function()
                 end
             end
         end
-        if closest then pcall(function() Camera.CFrame = Camera.CFrame:Lerp(CFrame.new(Camera.CFrame.Position, closest.Position), 1) end) end
+        if closest then 
+            pcall(function() Camera.CFrame = Camera.CFrame:Lerp(CFrame.new(Camera.CFrame.Position, closest.Position), 1) end) 
+        end
     end
-    
+end)
+
+-- BLOCO 2: HITBOX (Corrigida e Funcional)
+RunService.RenderStepped:Connect(function()
     if HitboxOn then
         for _, p in pairs(Players:GetPlayers()) do
-            if p ~= LP and p.Character then
-                if not HitboxParts[p] then
-                    local hb = Instance.new("Part", p.Character)
+            if p ~= LP and p.Character and not HitboxParts[p] then
+                local root = p.Character:FindFirstChild("HumanoidRootPart")
+                if root then
+                    local hb = Instance.new("Part")
                     hb.Name = "ApexHitbox"
                     hb.Size = Vector3.new(HitboxSize, HitboxSize, HitboxSize)
-                    hb.Transparency = 1
+                    hb.Transparency = 1 
                     hb.CanCollide = false
-                    hb.CanQuery = true
+                    hb.CanQuery = true 
                     hb.Massless = true
-                    local weld = Instance.new("WeldConstraint", hb)
-                    weld.Part0 = p.Character:FindFirstChild("HumanoidRootPart")
+                    hb.Parent = p.Character
+                    
+                    local weld = Instance.new("WeldConstraint")
+                    weld.Part0 = root
                     weld.Part1 = hb
+                    weld.Parent = hb
+                    hb.CFrame = root.CFrame
+                    
                     HitboxParts[p] = hb
+                end
+            elseif p.Character and HitboxParts[p] then
+                local hb = HitboxParts[p]
+                if hb and hb.Parent then
+                    hb.Size = Vector3.new(HitboxSize, HitboxSize, HitboxSize)
                 else
-                    local hb = HitboxParts[p]
-                    if hb and hb.Parent then
-                        hb.Size = Vector3.new(HitboxSize, HitboxSize, HitboxSize)
-                    else HitboxParts[p] = nil end
+                    HitboxParts[p] = nil 
                 end
             end
         end
     else
-        for p, hb in pairs(HitboxParts) do if hb then hb:Destroy() HitboxParts[p] = nil end end
+        for p, hb in pairs(HitboxParts) do 
+            if hb then hb:Destroy() HitboxParts[p] = nil end 
+        end
     end
 end)
 

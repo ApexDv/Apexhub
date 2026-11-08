@@ -222,7 +222,16 @@ UIS.JumpRequest:Connect(function()
     if InfJumpOn and LP.Character and LP.Character:FindFirstChildOfClass("Humanoid") then pcall(function() LP.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping) end) end
 end)
 
--- ABA VISUALS (ESP CORRIGIDO - CAIXA PEGA O CORPO TODO)
+-- ABA VISUALS (ESP CORRIGIDO)
+local ESPOn, ESPBox, ESPLine, ESPHealth = false, false, false, false
+local ESPObjs = {}
+
+TabVisuals:Section({ Title = "Player ESP" })
+TabVisuals:Toggle({ Title = "Enable ESP", Icon = "eye", Value = false, Callback = function(s) ESPOn = s end })
+TabVisuals:Toggle({ Title = "Box", Icon = "box", Value = false, Callback = function(s) ESPBox = s end })
+TabVisuals:Toggle({ Title = "Tracer Line", Icon = "route", Value = false, Callback = function(s) ESPLine = s end })
+TabVisuals:Toggle({ Title = "Health Bar", Icon = "heart", Value = false, Callback = function(s) ESPHealth = s end })
+
 RunService.RenderStepped:Connect(function()
     if not ESPOn then
         for _, obj in pairs(ESPObjs) do 
@@ -237,7 +246,12 @@ RunService.RenderStepped:Connect(function()
     
     for player, obj in pairs(ESPObjs) do
         if not player or not player.Parent or not player.Character or not player.Character:FindFirstChild("Humanoid") or player.Character.Humanoid.Health <= 0 then
-            obj.Box:Remove() obj.BoxFill:Remove() obj.Line:Remove() obj.Health:Remove() obj.HealthOutline:Remove() ESPObjs[player] = nil
+            obj.Box:Remove() 
+            obj.BoxFill:Remove() 
+            obj.Line:Remove() 
+            obj.Health:Remove() 
+            obj.HealthOutline:Remove() 
+            ESPObjs[player] = nil
         end
     end
 
@@ -251,13 +265,33 @@ RunService.RenderStepped:Connect(function()
             
             if head and root and rightFoot and hum and hum.Health > 0 then
                 if not ESPObjs[p] then
-                    local box = Drawing.new("Square") box.Thickness = 1 box.Filled = false
-                    local boxFill = Drawing.new("Square") boxFill.Thickness = 1 boxFill.Filled = true boxFill.Color = Color3.new(0,0,0) boxFill.Transparency = 0.5
-                    local line = Drawing.new("Line") line.Thickness = 1
-                    local health = Drawing.new("Line") health.Thickness = 2
-                    local healthOutline = Drawing.new("Line") healthOutline.Thickness = 3 healthOutline.Color = Color3.new(0,0,0)
+                    local box = Drawing.new("Square") 
+                    box.Thickness = 1.5 
+                    box.Filled = false
                     
-                    ESPObjs[p] = {Box = box, BoxFill = boxFill, Line = line, Health = health, HealthOutline = healthOutline}
+                    local boxFill = Drawing.new("Square") 
+                    boxFill.Thickness = 1 
+                    boxFill.Filled = true 
+                    boxFill.Color = Color3.new(0,0,0) 
+                    boxFill.Transparency = 0.5
+                    
+                    local line = Drawing.new("Line") 
+                    line.Thickness = 1
+                    
+                    local health = Drawing.new("Line") 
+                    health.Thickness = 2
+                    
+                    local healthOutline = Drawing.new("Line") 
+                    healthOutline.Thickness = 3 
+                    healthOutline.Color = Color3.new(0,0,0)
+                    
+                    ESPObjs[p] = {
+                        Box = box, 
+                        BoxFill = boxFill, 
+                        Line = line, 
+                        Health = health, 
+                        HealthOutline = healthOutline
+                    }
                 end
                 
                 local obj = ESPObjs[p]
@@ -266,7 +300,9 @@ RunService.RenderStepped:Connect(function()
                 
                 if onScreen then
                     local espColor = Color3.fromRGB(255, 255, 255)
-                    if LP.Team and p.Team and LP.Team == p.Team then espColor = Color3.fromRGB(50, 255, 50) end
+                    if LP.Team and p.Team and LP.Team == p.Team then 
+                        espColor = Color3.fromRGB(50, 255, 50) 
+                    end
                     
                     local height = math.abs(hPos.Y - fPos.Y)
                     local width = height / 2.5 
@@ -289,7 +325,7 @@ RunService.RenderStepped:Connect(function()
                     obj.Line.Color = espColor
                     obj.Line.Visible = ESPLine
 
-                    -- BARRA DE VIDA CORRIGIDA
+                    -- Barra de Vida
                     if ESPHealth then
                         local hpPct = hum.Health / hum.MaxHealth
                         if hpPct < 0 then hpPct = 0 end
@@ -297,12 +333,10 @@ RunService.RenderStepped:Connect(function()
                         
                         local barHeight = height * hpPct
                         
-                        -- Desenha o fundo da barra (Preto)
                         obj.HealthOutline.From = Vector2.new(posX - 6, posY + height)
                         obj.HealthOutline.To = Vector2.new(posX - 6, posY)
                         obj.HealthOutline.Visible = true
                         
-                        -- Desenha a vida (Verde/Vermelho)
                         obj.Health.From = Vector2.new(posX - 6, posY + height)
                         obj.Health.To = Vector2.new(posX - 6, posY + height - barHeight)
                         obj.Health.Color = Color3.fromRGB(255 * (1 - hpPct), 255 * hpPct, 0)

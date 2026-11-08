@@ -99,7 +99,7 @@ TabInfo:Section({ Title = "Aviso" })
 
 -- A IMAGEM FICA AQUI
 TabInfo:Image({
-    Image = "rbxassetid://5252447904", -- ID da imagem de anime
+    Image = "rbxassetid://6239940100", -- ID da imagem de anime
     Height = 150, 
     Width = 380
 })

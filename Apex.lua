@@ -49,6 +49,16 @@ task.spawn(function()
 end)
 
 local TabMain = Window:Tab({ Title = "Main", Icon = "house" })
+TabMain:Image({
+    Image = "rbxassetid://137832913582842", -- ID da sua imagem
+    Height = 150, -- Tamanho da imagem
+    Width = 400
+})
+
+TabMain:Paragraph({
+    Title = "Apex | Universal",
+    Content = "Bem-vindo ao menu! Aqui você pode usar as funções de Aimbot, ESP e Hitbox nas abas ao lado. Ative as opções com cuidado para não tomar ban. Use o Team Check para não mirar nos seus aliados."
+})
 local TabCombat = Window:Tab({ Title = "Combat", Icon = "crosshair" })
 local TabPlayer = Window:Tab({ Title = "Player", Icon = "user" })
 local TabVisuals = Window:Tab({ Title = "Visuals", Icon = "eye" })

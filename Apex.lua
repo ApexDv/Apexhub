@@ -51,7 +51,7 @@ end)
 TabMain:Section({ Title = "Informações" })
 
 TabMain:Image({
-    Image = "rbxassetid://137832913582842",
+    Image = "rbxassetid://1794099698676",
     Height = 150, 
     Width = 400
 })

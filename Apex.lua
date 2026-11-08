@@ -134,7 +134,22 @@ TabTheme:Section({ Title = "Select Theme" })
 TabTheme:Dropdown({ Title = "UI Theme", Values = {"Rose", "Black"}, Value = "Rose", Callback = function(selected) pcall(function() Window:SetTheme(selected) local OldSize = Window.Size Window:SetSize(UDim2.fromOffset(451, 361)) task.wait(0.05) Window:SetSize(OldSize) end) end })
 
 -- ABA COMBAT
--- BLOCO 1: AIMBOT (Com Team Check Melhorado)
+-- ==========================================
+-- ABA COMBAT (BOTÕES + FUNÇÕES JUNTAS)
+-- ==========================================
+
+-- 1. CRIANDO OS BOTÕES NA TELA
+TabCombat:Section({ Title = "Aimbot" })
+TabCombat:Toggle({ Title = "Aimbot", Value = false, Callback = function(s) AimbotOn = s end })
+TabCombat:Toggle({ Title = "Team Check", Value = false, Callback = function(s) TeamCheckOn = s end })
+TabCombat:Dropdown({ Title = "Target Part", Values = {"Head", "HumanoidRootPart"}, Value = "Head", Callback = function(v) AimbotPart = v end })
+TabCombat:Slider({ Title = "FOV", Value = { Min = 10, Max = 500, Default = 150 }, Callback = function(v) AimbotFOV = v end })
+
+TabCombat:Section({ Title = "Hitbox" })
+TabCombat:Toggle({ Title = "Hitbox", Value = false, Callback = function(s) HitboxOn = s end })
+TabCombat:Slider({ Title = "Hitbox Size", Value = { Min = 2, Max = 30, Default = 10 }, Callback = function(v) HitboxSize = v end })
+
+-- 2. LOOP DO AIMBOT (Ação)
 RunService.RenderStepped:Connect(function()
     if AimbotOn then
         local closest, minDist = nil, AimbotFOV
@@ -178,7 +193,7 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 
--- BLOCO 2: HITBOX (Corrigida e Funcional)
+-- 3. LOOP DA HITBOX (Ação)
 RunService.RenderStepped:Connect(function()
     if HitboxOn then
         for _, p in pairs(Players:GetPlayers()) do
@@ -217,7 +232,6 @@ RunService.RenderStepped:Connect(function()
         end
     end
 end)
-
 -- ABA PLAYER
 local SpeedOn, SpeedVal = false, 16
 local JumpOn, JumpVal = false, 50

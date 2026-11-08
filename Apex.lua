@@ -49,6 +49,51 @@ task.spawn(function()
 end)
 
 local TabMain = Window:Tab({ Title = "Main", Icon = "house" })
+TabMain:Section({ Title = "Informações do Jogo" })
+
+TabMain:Paragraph({
+    Title = "Status do Jogo",
+    Content = "O jogo está rodando na sua máquina. Use as funções com moderação para não ser banido."
+})
+
+TabMain:Section({ Title = "Discord Server" })
+
+TabMain:Paragraph({
+    Title = "Não perca as atualizações!",
+    Content = "Entre no nosso servidor para ficar por dentro das novidades, tirar dúvidas e não perder nenhuma versão nova do script."
+})
+
+TabMain:Paragraph({
+    Title = "Link do Servidor:",
+    Content = "https://discord.gg/9uQjBAAaP"
+})
+
+TabMain:Button({
+    Title = "Copiar Link do Discord",
+    Icon = "copy",
+    IconAlign = "Left",
+    Callback = function()
+        setclipboard("https://discord.gg/9uQjBAAaP")
+        WindUI:Notify({ 
+            Title = "Copiado!", 
+            Content = "O link já está na sua área de transferência.", 
+            Duration = 3, 
+            Icon = "check" 
+        })
+    end
+})
+
+TabMain:Section({ Title = "Outras Informações" })
+
+TabMain:Paragraph({
+    Title = "Créditos",
+    Content = "Script desenvolvido por Apex. Todos os direitos reservados."
+})
+
+TabMain:Paragraph({
+    Title = "Aviso",
+    Content = "use o script com responsabilidade."
+})
 local TabCombat = Window:Tab({ Title = "Combat", Icon = "crosshair" })
 local TabPlayer = Window:Tab({ Title = "Player", Icon = "user" })
 local TabVisuals = Window:Tab({ Title = "Visuals", Icon = "eye" })

@@ -71,7 +71,32 @@ local TabVisuals = Window:Tab({ Title = "Visuals", Icon = "eye" })
 local TabTheme = Window:Tab({ Title = "Themes", Icon = "palette" })
 local TabConfig = Window:Tab({ Title = "Settings", Icon = "settings" })
 local TabInfo = Window:Tab({ Title = "Info", Icon = "info" })
+TabInfo:Section({ Title = "Discord Server" })
 
+TabInfo:Paragraph({
+    Title = "Não perca as atualizações!",
+    Content = "Entre no nosso servidor para ficar por dentro das novidades e não perder nenhuma versão nova do script."
+})
+
+TabInfo:Paragraph({
+    Title = "Link do Servidor:",
+    Content = "https://discord.gg/9uQjBAAaP"
+})
+
+TabInfo:Button({
+    Title = "Copiar Link do Discord",
+    Icon = "copy",
+    IconAlign = "Left",
+    Callback = function()
+        setclipboard("https://discord.gg/9uQjBAAaP")
+        WindUI:Notify({ 
+            Title = "Copiado!", 
+            Content = "O link já está na sua área de transferência.", 
+            Duration = 3, 
+            Icon = "check" 
+        })
+    end
+})
 -- ABA THEMES
 TabTheme:Section({ Title = "Select Theme" })
 TabTheme:Dropdown({ Title = "UI Theme", Values = {"Rose", "Black"}, Value = "Rose", Callback = function(selected) pcall(function() Window:SetTheme(selected) local OldSize = Window.Size Window:SetSize(UDim2.fromOffset(451, 361)) task.wait(0.05) Window:SetSize(OldSize) end) end })

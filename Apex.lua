@@ -311,3 +311,39 @@ TabInfo:Button({
         })
     end
 })
+                else
+                    obj.Box.Visible, obj.BoxFill.Visible, obj.Line.Visible, obj.Health.Visible, obj.HealthOutline.Visible = false, false, false, false, false
+                end
+            end
+        end
+    end
+end)
+
+-- ==========================================
+-- ABA INFO (DISCORD E ATUALIZAÇÕES)
+-- ==========================================
+TabInfo:Section({ Title = "Discord Server" })
+TabInfo:Paragraph({
+    Title = "Não perca as atualizações!",
+    Content = "Entre no nosso servidor do Discord para ficar por dentro das novidades e não perder nenhuma versão nova do script."
+})
+
+TabInfo:Paragraph({
+    Title = "Link do Servidor:",
+    Content = "https://discord.gg/9uQjBAAaP"
+})
+
+TabInfo:Button({
+    Title = "Copiar Link do Discord",
+    Icon = "copy",
+    IconAlign = "Left",
+    Callback = function()
+        setclipboard("https://discord.gg/9uQjBAAaP")
+        WindUI:Notify({ 
+            Title = "Copiado!", 
+            Content = "O link já está na sua área de transferência.", 
+            Duration = 3, 
+            Icon = "check" 
+        })
+    end
+})

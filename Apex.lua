@@ -48,18 +48,6 @@ task.spawn(function()
     end
 end)
 
-TabMain:Section({ Title = "Informações" })
-
-TabMain:Image({
-    Image = "rbxassetid://1794099698676",
-    Height = 150, 
-    Width = 400
-})
-
-TabMain:Paragraph({
-    Title = "Bem-vindo!",
-    Content = "Ative as funções nas abas Combat, Player e Visuals. Cuidado com o anti-cheat!"
-})
 local TabCombat = Window:Tab({ Title = "Combat", Icon = "crosshair" })
 local TabPlayer = Window:Tab({ Title = "Player", Icon = "user" })
 local TabVisuals = Window:Tab({ Title = "Visuals", Icon = "eye" })

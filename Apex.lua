@@ -3,347 +3,218 @@ local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 local Camera = Workspace.CurrentCamera
-local UIS = game:GetService("UserInputService")
 local LP = Players.LocalPlayer
 
--- ==========================================
--- VARIÁVEIS GLOBAIS
--- ==========================================
-local AimbotOn, AimbotFOV, AimbotPart = false, 150, "Head"
-local TeamCheckOn = false
-local HitboxOn, HitboxSize = false, 10
-local HitboxParts = {}
+-- TEMA ROSA
+WindUI:AddTheme({
+    Name = "Rose", Primary = Color3.fromHex("#ff4d6d"), White = Color3.new(1,1,1), Black = Color3.new(0,0,0), Dialog = Color3.fromHex("#1a0b12"), Background = Color3.fromHex("#14080e"), BackgroundTransparency = 0, Hover = Color3.fromHex("#FFFFFF"), PanelBackground = Color3.new(1,1,1), PanelBackgroundTransparency = .95, WindowBackground = Color3.fromHex("#14080e"), WindowShadow = Color3.new(0,0,0), WindowTopbarTitle = Color3.fromHex("#FFFFFF"), WindowTopbarAuthor = Color3.fromHex("#FFFFFF"), WindowTopbarIcon = Color3.fromHex("#ff4d6d"), WindowTopbarButtonIcon = Color3.fromHex("#ff4d6d"), WindowSearchBarBackground = Color3.fromHex("#14080e"), TabBackground = Color3.fromHex("#FFFFFF"), TabBackgroundHover = Color3.fromHex("#FFFFFF"), TabBackgroundHoverTransparency = .97, TabBackgroundActive = Color3.fromHex("#FFFFFF"), TabBackgroundActiveTransparency = 0.93, TabText = Color3.fromHex("#FFFFFF"), TabTextTransparency = 0.3, TabTextTransparencyActive = 0, TabTitle = Color3.fromHex("#FFFFFF"), TabIcon = Color3.fromHex("#ff4d6d"), TabIconTransparency = 0.4, TabIconTransparencyActive = 0.1, TabBorderTransparency = 1, TabBorderTransparencyActive = 0.75, TabBorder = Color3.fromHex("#ff4d6d"), ElementBackground = Color3.fromHex("#FFFFFF"), ElementBackgroundTransparency = .93, ElementBackgroundHover = WindUI.Creator:AddColor("ElementBackground", "#ffffff", 1/10), ElementTitle = Color3.fromHex("#FFFFFF"), ElementDesc = Color3.fromHex("#FFFFFF"), ElementIcon = Color3.fromHex("#ff4d6d"), PopupBackground = Color3.fromHex("#14080e"), PopupBackgroundTransparency = "BackgroundTransparency", PopupTitle = Color3.fromHex("#FFFFFF"), PopupContent = Color3.fromHex("#FFFFFF"), PopupIcon = Color3.fromHex("#ff4d6d"), DialogBackground = Color3.fromHex("#14080e"), DialogBackgroundTransparency = "BackgroundTransparency", DialogTitle = Color3.fromHex("#FFFFFF"), DialogContent = Color3.fromHex("#FFFFFF"), DialogIcon = Color3.fromHex("#ff4d6d"), Toggle = Color3.fromHex("#ff4d6d"), ToggleBar = Color3.new(1,1,1), Checkbox = Color3.fromHex("#ff4d6d"), CheckboxIcon = Color3.new(1,1,1), CheckboxBorder = Color3.new(1,1,1), CheckboxBorderTransparency = .75, SliderIcon = Color3.fromHex("#ff4d6d"), Slider = Color3.fromHex("#ff4d6d"), SliderThumb = Color3.new(1,1,1), SliderIconFrom = Color3.fromHex("#ff4d6d"), SliderIconTo = Color3.fromHex("#ff4d6d"), Tooltip = Color3.fromHex("4C4C4C"), TooltipText = Color3.new(1,1,1), TooltipSecondary = Color3.fromHex("#ff4d6d"), TooltipSecondaryText = Color3.new(1,1,1), TabSectionIcon = Color3.fromHex("#ff4d6d"), SectionIcon = Color3.fromHex("#ff4d6d"), SectionExpandIcon = Color3.new(1,1,1), SectionExpandIconTransparency = .4, SectionBox = Color3.new(1,1,1), SectionBoxTransparency = .95, SectionBoxBorder = Color3.new(1,1,1), SectionBoxBorderTransparency = .75, SectionBoxBackground = Color3.new(1,1,1), SectionBoxBackgroundTransparency = .95, SearchBarBorder = Color3.new(1,1,1), SearchBarBorderTransparency = .75, Notification = Color3.fromHex("#14080e"), NotificationTitle = Color3.fromHex("#FFFFFF"), NotificationTitleTransparency = 0, NotificationContent = Color3.fromHex("#FFFFFF"), NotificationContentTransparency = .4, NotificationDuration = Color3.new(1,1,1), NotificationDurationTransparency = .95, NotificationBorder = Color3.new(1,1,1), NotificationBorderTransparency = .75, DropdownTabBorder = Color3.new(1,1,1), LabelBackground = Color3.new(1,1,1), LabelBackgroundTransparency = .95,
+})
 
--- ==========================================
--- JANELA PRINCIPAL
--- ==========================================
+-- VARIÁVEIS
+local TriggerBotOn = false
+local ShootThroughWalls = false
+local FOV = 300
+local FireDelay = 0.2
+local ChamsObjects = {}
+local lastShotTime = 0
+
+-- JANELA
 local Window = WindUI:CreateWindow({
-    Title = "Apex | Universal",
+    Title = "Apex | MVSD",
     Icon = "rbxassetid://1794099698676",
     Author = "",
-    Folder = "ApexUniversal",
+    Folder = "ApexMVSD",
     Size = UDim2.fromOffset(450, 360),
-    Theme = "Dark",
+    Theme = "Rose",
     Transparent = true,
     KeySystem = {
         Title = "Verification",
-        KeyValidator = function(key) return string.lower(key) == "apex67" end,
+        KeyValidator = function(key) 
+            local success, result = pcall(function()
+                return string.lower(key) == "apex67" 
+            end)
+            if success then return result else return false end
+        end,
         SaveKey = false
     }
 })
 
--- ==========================================
--- ABAS
--- ==========================================
+-- FUNÇÃO DE LIMPEZA
+local function ClearAllESP()
+    for player, highlight in pairs(ChamsObjects) do
+        if highlight then highlight:Destroy() end
+    end
+    ChamsObjects = {}
+end
+
+-- ABA COMBAT (TRIGGER BOT)
 local TabCombat = Window:Tab({ Title = "Combat", Icon = "crosshair" })
+TabCombat:Section({ Title = "Trigger Bot" })
+TabCombat:Toggle({ Title = "Tiro Automático", Value = false, Callback = function(s) TriggerBotOn = s end })
+TabCombat:Toggle({ Title = "Atirar na Parede", Value = false, Callback = function(s) ShootThroughWalls = s end })
+TabCombat:Slider({ Title = "FOV", Value = { Min = 10, Max = 800, Default = 300 }, Callback = function(v) FOV = v end })
+TabCombat:Slider({ Title = "Velocidade", Value = { Min = 0.1, Max = 1, Default = 0.2 }, Callback = function(v) FireDelay = v end })
 
--- ==========================================
--- ABA COMBAT (Botões e Funções Juntos)
--- ==========================================
-TabCombat:Section({ Title = "Aimbot" })
-TabCombat:Toggle({ Title = "Aimbot", Value = false, Callback = function(s) AimbotOn = s end })
-TabCombat:Toggle({ Title = "Team Check", Value = false, Callback = function(s) TeamCheckOn = s end })
-TabCombat:Dropdown({ Title = "Target Part", Values = {"Head", "HumanoidRootPart"}, Value = "Head", Callback = function(v) AimbotPart = v end })
-TabCombat:Slider({ Title = "FOV", Value = { Min = 10, Max = 500, Default = 150 }, Callback = function(v) AimbotFOV = v end })
-
-TabCombat:Section({ Title = "Hitbox" })
-TabCombat:Toggle({ Title = "Hitbox", Value = false, Callback = function(s) HitboxOn = s end })
-TabCombat:Slider({ Title = "Hitbox Size", Value = { Min = 2, Max = 30, Default = 10 }, Callback = function(v) HitboxSize = v end })
-
--- ==========================================
--- LOOP DE AÇÃO (AIMBOT E HITBOX)
--- ==========================================
-RunService.RenderStepped:Connect(function()
-    -- 1. Lógica do Aimbot
-    if AimbotOn then
-        local closest, minDist = nil, AimbotFOV
-        local center = Camera.ViewportSize / 2
-        local myTeam = LP.Team
-        local myShirt = LP.Character and LP.Character:FindFirstChild("Shirt")
-        local myColor = myShirt and myShirt.ShirtTemplate or nil
-        
-        for _, p in pairs(Players:GetPlayers()) do
-            local isTeammate = false
-            
-            -- Team Check (Time Oficial, Camisa ou Tag no Nome)
-            if TeamCheckOn and myTeam and p.Team and myTeam == p.Team then isTeammate = true end
-            if TeamCheckOn and not isTeammate and myColor then
-                local pShirt = p.Character and p.Character:FindFirstChild("Shirt")
-                if pShirt and pShirt.ShirtTemplate == myColor then isTeammate = true end
-            end
-            if TeamCheckOn and not isTeammate then
-                local myName = string.match(LP.Name, "^%[%w+%]")
-                local pName = string.match(p.Name, "^%[%w+%]")
-                if myName and pName and myName == pName then isTeammate = true end
-            end
-
-            -- Se não for do time e tiver o personagem, mira
-            if p ~= LP and not isTeammate and p.Character and p.Character:FindFirstChild(AimbotPart) then
-                local hum = p.Character:FindFirstChildOfClass("Humanoid")
-                if hum and hum.Health > 0 then
-                    local part = p.Character[AimbotPart]
-                    local pos, onScreen = Camera:WorldToViewportPoint(part.Position)
-                    if onScreen then
-                        local dist = (Vector2.new(pos.X, pos.Y) - center).Magnitude
-                        if dist < minDist then minDist = dist closest = part end
+-- FUNÇÃO PRA ACHAR O ALVO
+local function GetTarget()
+    local closest, minDist = nil, FOV
+    local center = Camera.ViewportSize / 2
+    for _, p in pairs(Players:GetPlayers()) do
+        if p ~= LP and p.Character then
+            local hum = p.Character:FindFirstChildOfClass("Humanoid")
+            local head = p.Character:FindFirstChild("Head")
+            if hum and hum.Health > 0 and head then
+                local pos, onScreen = Camera:WorldToViewportPoint(head.Position)
+                if onScreen then
+                    local dist = (Vector2.new(pos.X, pos.Y) - center).Magnitude
+                    if dist < minDist then
+                        minDist = dist
+                        closest = head
                     end
                 end
             end
         end
-        if closest then pcall(function() Camera.CFrame = Camera.CFrame:Lerp(CFrame.new(Camera.CFrame.Position, closest.Position), 1) end) end
     end
+    return closest
+end
 
-    -- 2. Lógica da Hitbox
-    if HitboxOn then
-        for _, p in pairs(Players:GetPlayers()) do
-            if p ~= LP and p.Character and not HitboxParts[p] then
-                local root = p.Character:FindFirstChild("HumanoidRootPart")
-                if root then
-                    local hb = Instance.new("Part")
-                    hb.Name = "ApexHitbox"
-                    hb.Size = Vector3.new(HitboxSize, HitboxSize, HitboxSize)
-                    hb.Transparency = 1 
-                    hb.CanCollide = false
-                    hb.CanQuery = true 
-                    hb.Massless = true
-                    hb.Parent = p.Character
-                    
-                    local weld = Instance.new("WeldConstraint")
-                    weld.Part0 = root
-                    weld.Part1 = hb
-                    weld.Parent = hb
-                    hb.CFrame = root.CFrame
-                    
-                    HitboxParts[p] = hb
+-- FUNÇÃO DE PAREDE (WALL CHECK)
+local function HasLineOfSight(targetPart)
+    local myChar = LP.Character
+    if not myChar then return false end
+    local myHead = myChar:FindFirstChild("Head")
+    if not myHead then return false end
+    local rayOrigin = myHead.Position
+    local rayDirection = targetPart.Position - rayOrigin
+    local raycastParams = RaycastParams.new()
+    raycastParams.FilterDescendantsInstances = {myChar, targetPart.Parent}
+    raycastParams.FilterType = Enum.RaycastFilterType.Exclude
+    local result = Workspace:Raycast(rayOrigin, rayDirection, raycastParams)
+    return result == nil
+end
+
+-- LOOP DO TRIGGER BOT
+RunService.RenderStepped:Connect(function()
+    if TriggerBotOn then
+        if tick() - lastShotTime < FireDelay then return end
+        local target = GetTarget()
+        
+        if target and LP.Character then
+            local canShoot = true
+            if not ShootThroughWalls then
+                canShoot = HasLineOfSight(target)
+            end
+
+            if canShoot then
+                local myHead = LP.Character:FindFirstChild("Head")
+                local Remote = game:GetService("ReplicatedStorage"):FindFirstChild("Remotes") and game:GetService("ReplicatedStorage").Remotes:FindFirstChild("ShootGun")
+                local hasGun = false
+                for _, tool in pairs(LP.Character:GetChildren()) do
+                    if tool:IsA("Tool") then hasGun = true break end
                 end
-            elseif p.Character and HitboxParts[p] then
-                local hb = HitboxParts[p]
-                if hb and hb.Parent then
-                    hb.Size = Vector3.new(HitboxSize, HitboxSize, HitboxSize)
-                else
-                    HitboxParts[p] = nil 
+                if Remote and myHead and hasGun then
+                    lastShotTime = tick()
+                    pcall(function()
+                        Remote:FireServer(table.unpack({
+                            [1] = myHead.Position, [2] = target.Position, [3] = target, [4] = target.Position, 
+                        }))
+                    end)
                 end
             end
         end
-    else
-        for p, hb in pairs(HitboxParts) do 
-            if hb then hb:Destroy() HitboxParts[p] = nil end 
-        end
     end
 end)
--- ==========================================
--- CRIAÇÃO DAS OUTRAS ABAS
--- ==========================================
-local TabPlayer = Window:Tab({ Title = "Player", Icon = "user" })
+
+-- ABA VISUALS (SÓ O CHAMS AZUL)
 local TabVisuals = Window:Tab({ Title = "Visuals", Icon = "eye" })
-local TabInfo = Window:Tab({ Title = "Info", Icon = "info" })
+TabVisuals:Section({ Title = "Player" })
 
--- ==========================================
--- ABA PLAYER (SPEED E JUMP)
--- ==========================================
-local SpeedOn, SpeedVal = false, 16
-local JumpOn, JumpVal = false, 50
-local InfJumpOn = false
+TabVisuals:Toggle({ Title = "ESP", Value = false, Callback = function(s) 
+    if not s then ClearAllESP() end
+    _G.ChamsOn = s 
+end })
 
-TabPlayer:Section({ Title = "Movement" })
-TabPlayer:Toggle({ 
-    Title = "Speed", Value = false, 
-    Callback = function(s) 
-        SpeedOn = s 
-        if not s and LP.Character and LP.Character:FindFirstChildOfClass("Humanoid") then
-            pcall(function() LP.Character.Humanoid.WalkSpeed = 16 end)
-        end
-    end 
-})
-TabPlayer:Slider({ Title = "Speed Value", Value = { Min = 16, Max = 200, Default = 16 }, Callback = function(v) SpeedVal = v end })
-
-TabPlayer:Toggle({ 
-    Title = "Jump", Value = false, 
-    Callback = function(s) 
-        JumpOn = s 
-        if not s and LP.Character and LP.Character:FindFirstChildOfClass("Humanoid") then
-            pcall(function() LP.Character.Humanoid.JumpPower = 50 end)
-        end
-    end 
-})
-TabPlayer:Slider({ Title = "Jump Power", Value = { Min = 50, Max = 300, Default = 50 }, Callback = function(v) JumpVal = v end })
-
-TabPlayer:Toggle({ Title = "Infinite Jump", Value = false, Callback = function(s) InfJumpOn = s end })
-
--- Loop do Player
+-- LOOP DO CHAMS
 RunService.RenderStepped:Connect(function()
-    if LP.Character and LP.Character:FindFirstChildOfClass("Humanoid") then
-        local hum = LP.Character.Humanoid
-        if SpeedOn then pcall(function() hum.WalkSpeed = SpeedVal end) end
-        if JumpOn then pcall(function() hum.JumpPower = JumpVal hum.UseJumpPower = true end) end
-    end
-end)
-
-UIS.JumpRequest:Connect(function()
-    if InfJumpOn and LP.Character and LP.Character:FindFirstChildOfClass("Humanoid") then 
-        pcall(function() LP.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping) end) 
-    end
-end)
-
--- ==========================================
--- ABA VISUALS (ESP)
--- ==========================================
-local ESPOn, ESPBox, ESPLine, ESPHealth = false, false, false, false
-local ESPObjs = {}
-
-TabVisuals:Section({ Title = "Player ESP" })
-TabVisuals:Toggle({ Title = "Enable ESP", Icon = "eye", Value = false, Callback = function(s) ESPOn = s end })
-TabVisuals:Toggle({ Title = "Box", Icon = "box", Value = false, Callback = function(s) ESPBox = s end })
-TabVisuals:Toggle({ Title = "Tracer Line", Icon = "route", Value = false, Callback = function(s) ESPLine = s end })
-TabVisuals:Toggle({ Title = "Health Bar", Icon = "heart", Value = false, Callback = function(s) ESPHealth = s end })
-
--- Loop do ESP
-RunService.RenderStepped:Connect(function()
-    if not ESPOn then
-        for _, obj in pairs(ESPObjs) do 
-            obj.Box.Visible = false obj.BoxFill.Visible = false obj.Line.Visible = false obj.Health.Visible = false obj.HealthOutline.Visible = false
+    if not _G.ChamsOn then
+        for _, highlight in pairs(ChamsObjects) do
+            if highlight then highlight:Destroy() end
         end
+        ChamsObjects = {}
         return
     end
-    
-    for player, obj in pairs(ESPObjs) do
+
+    for player, highlight in pairs(ChamsObjects) do
         if not player or not player.Parent or not player.Character or not player.Character:FindFirstChild("Humanoid") or player.Character.Humanoid.Health <= 0 then
-            obj.Box:Remove() obj.BoxFill:Remove() obj.Line:Remove() obj.Health:Remove() obj.HealthOutline:Remove() ESPObjs[player] = nil
+            highlight:Destroy()
+            ChamsObjects[player] = nil
         end
     end
 
     for _, p in pairs(Players:GetPlayers()) do
         if p ~= LP and p.Character then
             local char = p.Character
-            local head = char:FindFirstChild("Head")
-            local root = char:FindFirstChild("HumanoidRootPart")
-            local rightFoot = char:FindFirstChild("RightFoot") or char:FindFirstChild("Right Leg")
             local hum = char:FindFirstChildOfClass("Humanoid")
+            local root = char:FindFirstChild("HumanoidRootPart")
             
-            if head and root and rightFoot and hum and hum.Health > 0 then
-                if not ESPObjs[p] then
-                    local box = Drawing.new("Square") box.Thickness = 1.5 box.Filled = false
-                    local boxFill = Drawing.new("Square") boxFill.Thickness = 1 boxFill.Filled = true boxFill.Color = Color3.new(0,0,0) boxFill.Transparency = 0.5
-                    local line = Drawing.new("Line") line.Thickness = 1
-                    local health = Drawing.new("Line") health.Thickness = 2
-                    local healthOutline = Drawing.new("Line") healthOutline.Thickness = 3 healthOutline.Color = Color3.new(0,0,0)
-                    ESPObjs[p] = {Box = box, BoxFill = boxFill, Line = line, Health = health, HealthOutline = healthOutline}
-                end
+            if hum and root and hum.Health > 0 then
+                local myRoot = LP.Character and LP.Character:FindFirstChild("HumanoidRootPart")
+                local distance = myRoot and (myRoot.Position - root.Position).Magnitude or 9999
                 
-                local obj = ESPObjs[p]
-                local hPos, onScreen = Camera:WorldToViewportPoint(head.Position + Vector3.new(0, 1, 0))
-                local fPos = Camera:WorldToViewportPoint(rightFoot.Position - Vector3.new(0, 1, 0))
-                
-                if onScreen then
-                    local espColor = Color3.fromRGB(255, 255, 255)
-                    if LP.Team and p.Team and LP.Team == p.Team then espColor = Color3.fromRGB(50, 255, 50) end
-                    
-                    local height = math.abs(hPos.Y - fPos.Y)
-                    local width = height / 2.5 
-                    local posX = hPos.X - width/2
-                    local posY = hPos.Y
-
-                    obj.Box.Size = Vector2.new(width, height)
-                    obj.Box.Position = Vector2.new(posX, posY)
-                    obj.Box.Color = espColor
-                    obj.Box.Visible = ESPBox
-                    
-                    obj.BoxFill.Size = Vector2.new(width, height)
-                    obj.BoxFill.Position = Vector2.new(posX, posY)
-                    obj.BoxFill.Visible = ESPBox
-                    
-                    obj.Line.From = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)
-                    obj.Line.To = Vector2.new(hPos.X, hPos.Y)
-                    obj.Line.Color = espColor
-                    obj.Line.Visible = ESPLine
-
-                    if ESPHealth then
-                        local hpPct = hum.Health / hum.MaxHealth
-                        if hpPct < 0 then hpPct = 0 end
-                        if hpPct > 1 then hpPct = 1 end
-                        local barHeight = height * hpPct
-                        
-                        obj.HealthOutline.From = Vector2.new(posX - 6, posY + height)
-                        obj.HealthOutline.To = Vector2.new(posX - 6, posY)
-                        obj.HealthOutline.Visible = true
-                        
-                        obj.Health.From = Vector2.new(posX - 6, posY + height)
-                        obj.Health.To = Vector2.new(posX - 6, posY + height - barHeight)
-                        obj.Health.Color = Color3.fromRGB(255 * (1 - hpPct), 255 * hpPct, 0)
-                        obj.Health.Visible = true
-                    else
-                        obj.Health.Visible = false
-                        obj.HealthOutline.Visible = false
+                if distance < 1000 then 
+                    if not ChamsObjects[p] then
+                        local highlight = Instance.new("Highlight")
+                        highlight.Parent = char
+                        highlight.FillColor = Color3.fromRGB(0, 150, 255)
+                        highlight.OutlineColor = Color3.fromRGB(0, 100, 255)
+                        highlight.FillTransparency = 0.3
+                        highlight.OutlineTransparency = 0
+                        highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+                        ChamsObjects[p] = highlight
                     end
                 else
-                    obj.Box.Visible, obj.BoxFill.Visible, obj.Line.Visible, obj.Health.Visible, obj.HealthOutline.Visible = false, false, false, false, false
+                    if ChamsObjects[p] then
+                        ChamsObjects[p]:Destroy()
+                        ChamsObjects[p] = nil
+                    end
                 end
             end
         end
     end
 end)
 
--- ==========================================
--- ABA INFO (DISCORD E ATUALIZAÇÕES)
--- ==========================================
-TabInfo:Section({ Title = "Discord Server" })
-TabInfo:Paragraph({
-    Title = "Não perca as atualizações!",
-    Content = "Entre no nosso servidor do Discord para ficar por dentro das novidades e não perder nenhuma versão nova do script."
+-- ABA SETTINGS
+local TabConfig = Window:Tab({ Title = "Settings", Icon = "settings" })
+TabConfig:Section({ Title = "Sistema" })
+TabConfig:Button({
+    Title = "Sair do Script",
+    Icon = "log-out",
+    Callback = function()
+        ClearAllESP()
+        _G.ChamsOn = false
+        TriggerBotOn = false
+        Window:Destroy()
+    end
 })
 
-TabInfo:Paragraph({
-    Title = "Link do Servidor:",
-    Content = "https://discord.gg/9uQjBAAaP"
+-- ABA SOCIAL (DISCORD)
+local TabSocial = Window:Tab({ Title = "Social", Icon = "users" })
+TabSocial:Section({ Title = "Discord" })
+TabSocial:Paragraph({
+    Title = "Discord",
+    Desc = "Entre para não perder as atualizações!",
+    Image = "message-circle",
+    ImageSize = 24,
+    Thumbnail = "rbxassetid://1794099698676",
+    ThumbnailSize = 64,
+    Color = Color3.fromRGB(100, 200, 255)
 })
-
-TabInfo:Button({
-    Title = "Copiar Link do Discord",
+TabSocial:Button({
+    Title = "Copiar Link",
     Icon = "copy",
     IconAlign = "Left",
     Callback = function()
         setclipboard("https://discord.gg/9uQjBAAaP")
-        WindUI:Notify({ 
-            Title = "Copiado!", 
-            Content = "O link já está na sua área de transferência.", 
-            Duration = 3, 
-            Icon = "check" 
-        })
-    end
-})
-                else
-                    obj.Box.Visible, obj.BoxFill.Visible, obj.Line.Visible, obj.Health.Visible, obj.HealthOutline.Visible = false, false, false, false, false
-                end
-            end
-        end
-    end
-end)
-
--- ==========================================
--- ABA INFO (DISCORD E ATUALIZAÇÕES)
--- ==========================================
-TabInfo:Section({ Title = "Discord Server" })
-TabInfo:Paragraph({
-    Title = "Não perca as atualizações!",
-    Content = "Entre no nosso servidor do Discord para ficar por dentro das novidades e não perder nenhuma versão nova do script."
-})
-
-TabInfo:Paragraph({
-    Title = "Link do Servidor:",
-    Content = "https://discord.gg/9uQjBAAaP"
-})
-
-TabInfo:Button({
-    Title = "Copiar Link do Discord",
-    Icon = "copy",
-    IconAlign = "Left",
-    Callback = function()
-        setclipboard("https://discord.gg/9uQjBAAaP")
-        WindUI:Notify({ 
-            Title = "Copiado!", 
-            Content = "O link já está na sua área de transferência.", 
-            Duration = 3, 
-            Icon = "check" 
-        })
+        WindUI:Notify({ Title = "Copiado!", Content = "Link copiado.", Duration = 3, Icon = "check" })
     end
 })

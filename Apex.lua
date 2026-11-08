@@ -49,30 +49,45 @@ task.spawn(function()
 end)
 
 local TabMain = Window:Tab({ Title = "Main", Icon = "house" })
-TabMain:Section({ Title = "Status do Jogo" })
+TabMain:Section({ Title = "Bem-vindo" })
 
--- TEXTO 1: AVISO
-TabMain:Paragraph({ 
-    Title = "Aviso Importante", 
-    Content = "O uso de scripts pode resultar em banimento. Use com moderação." 
+-- 1. STATUS DO JOGO COM FOTO DE ANIME
+TabMain:Paragraph({
+    Title = "Status do Jogo",
+    Desc = "O script está rodando perfeitamente. Use as funções com moderação.",
+    Image = "gamepad-2",
+    ImageSize = 24,
+    Thumbnail = "rbxassetid://6239940100", -- Foto de anime (Gojo)
+    ThumbnailSize = 60,
+    Color = Color3.fromRGB(100, 200, 255)
 })
 
--- TEXTO 2: CRÉDITOS
-TabMain:Paragraph({ 
-    Title = "Créditos", 
-    Content = "Script desenvolvido por Apex | Universal." 
+-- 2. AVISO IMPORTANTE COM FOTO DE ANIME
+TabMain:Paragraph({
+    Title = "Aviso Importante",
+    Desc = "O uso de scripts pode resultar em banimento. Use por sua conta e risco.",
+    Image = "alert-triangle",
+    ImageSize = 24,
+    Thumbnail = "rbxassetid://5444301611", -- Foto de anime (Nezuko)
+    ThumbnailSize = 60,
+    Color = Color3.fromRGB(255, 50, 50)
 })
 
--- TEXTO 3: NOME DO JOGO (ATUALIZADO AUTOMATICAMENTE)
-local NomeDoJogo = "Carregando..."
+-- 3. CRÉDITOS COM FOTO DE ANIME E NOME DO JOGO
+local NomeDoJogo = "Desconhecido"
 pcall(function()
     local info = game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId)
     NomeDoJogo = info.Name
 end)
 
-TabMain:Paragraph({ 
-    Title = "Jogo Atual", 
-    Content = "Você está jogando: " .. NomeDoJogo 
+TabMain:Paragraph({
+    Title = "Créditos",
+    Desc = "Script feito por Apex.\nJogo atual: " .. NomeDoJogo,
+    Image = "user",
+    ImageSize = 24,
+    Thumbnail = "rbxassetid://5252447904", -- Foto de anime (Aesthetic)
+    ThumbnailSize = 60,
+    Color = Color3.fromRGB(255, 77, 109)
 })
 local TabCombat = Window:Tab({ Title = "Combat", Icon = "crosshair" })
 local TabPlayer = Window:Tab({ Title = "Player", Icon = "user" })

@@ -48,6 +48,7 @@ task.spawn(function()
     end
 end)
 
+local TabMain = Window:Tab({ Title = "Main", Icon = "house" })
 local TabCombat = Window:Tab({ Title = "Combat", Icon = "crosshair" })
 local TabPlayer = Window:Tab({ Title = "Player", Icon = "user" })
 local TabVisuals = Window:Tab({ Title = "Visuals", Icon = "eye" })
@@ -97,7 +98,6 @@ RunService.RenderStepped:Connect(function()
         if closest then pcall(function() Camera.CFrame = Camera.CFrame:Lerp(CFrame.new(Camera.CFrame.Position, closest.Position), 1) end) end
     end
     
-    -- HITBOX CORRIGIDA (INVISÍVEL E FUNCIONAL)
     if HitboxOn then
         for _, p in pairs(Players:GetPlayers()) do
             if p ~= LP and p.Character then
@@ -105,16 +105,13 @@ RunService.RenderStepped:Connect(function()
                     local hb = Instance.new("Part", p.Character)
                     hb.Name = "ApexHitbox"
                     hb.Size = Vector3.new(HitboxSize, HitboxSize, HitboxSize)
-                    hb.Transparency = 1 -- Invisível (não atrapalha a visão)
+                    hb.Transparency = 1
                     hb.CanCollide = false
-                    hb.CanQuery = true -- IMPORTANTE: Faz o roblox registrar o tiro na hitbox!
+                    hb.CanQuery = true
                     hb.Massless = true
-                    
                     local weld = Instance.new("WeldConstraint", hb)
                     weld.Part0 = p.Character:FindFirstChild("HumanoidRootPart")
                     weld.Part1 = hb
-                    hb.CFrame = p.Character:FindFirstChild("HumanoidRootPart").CFrame
-                    
                     HitboxParts[p] = hb
                 else
                     local hb = HitboxParts[p]
@@ -135,31 +132,9 @@ local JumpOn, JumpVal = false, 50
 local InfJumpOn = false
 
 TabPlayer:Section({ Title = "Movement" })
--- SPEED CORRIGIDO (Volta ao normal ao desligar)
-TabPlayer:Toggle({ 
-    Title = "Speed", 
-    Icon = "zap", 
-    Value = false, 
-    Callback = function(s) 
-        SpeedOn = s 
-        if not s and LP.Character and LP.Character:FindFirstChildOfClass("Humanoid") then
-            pcall(function() LP.Character.Humanoid.WalkSpeed = 16 end) -- Reseta a velocidade
-        end
-    end 
-})
+TabPlayer:Toggle({ Title = "Speed", Icon = "zap", Value = false, Callback = function(s) SpeedOn = s if not s and LP.Character and LP.Character:FindFirstChildOfClass("Humanoid") then pcall(function() LP.Character.Humanoid.WalkSpeed = 16 end) end end })
 TabPlayer:Slider({ Title = "Speed Value", Value = { Min = 16, Max = 200, Default = 16 }, Callback = function(v) SpeedVal = v end })
-
-TabPlayer:Toggle({ 
-    Title = "Jump", 
-    Icon = "arrow-up", 
-    Value = false, 
-    Callback = function(s) 
-        JumpOn = s 
-        if not s and LP.Character and LP.Character:FindFirstChildOfClass("Humanoid") then
-            pcall(function() LP.Character.Humanoid.JumpPower = 50 end) -- Reseta o pulo
-        end
-    end 
-})
+TabPlayer:Toggle({ Title = "Jump", Icon = "arrow-up", Value = false, Callback = function(s) JumpOn = s if not s and LP.Character and LP.Character:FindFirstChildOfClass("Humanoid") then pcall(function() LP.Character.Humanoid.JumpPower = 50 end) end end })
 TabPlayer:Slider({ Title = "Jump Power", Value = { Min = 50, Max = 300, Default = 50 }, Callback = function(v) JumpVal = v end })
 TabPlayer:Toggle({ Title = "Infinite Jump", Icon = "infinity", Value = false, Callback = function(s) InfJumpOn = s end })
 
@@ -174,7 +149,7 @@ UIS.JumpRequest:Connect(function()
     if InfJumpOn and LP.Character and LP.Character:FindFirstChildOfClass("Humanoid") then pcall(function() LP.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping) end) end
 end)
 
--- ABA VISUALS (ESP COM HEALTH BAR)
+-- ABA VISUALS (ESP CORRIGIDO - CAIXA PEGA O CORPO TODO)
 local ESPOn, ESPBox, ESPLine, ESPHealth = false, false, false, false
 local ESPObjs = {}
 
@@ -186,68 +161,62 @@ TabVisuals:Toggle({ Title = "Health Bar", Icon = "heart", Value = false, Callbac
 
 RunService.RenderStepped:Connect(function()
     if not ESPOn then
-        for _, obj in pairs(ESPObjs) do 
-            obj.Box.Visible = false 
-            obj.Line.Visible = false 
-            obj.Health.Visible = false 
-            obj.HealthOutline.Visible = false
-        end
+        for _, obj in pairs(ESPObjs) do obj.Box.Visible = false obj.Line.Visible = false obj.Health.Visible = false obj.HealthOutline.Visible = false end
         return
     end
+    
+    for player, obj in pairs(ESPObjs) do
+        if not player or not player.Parent or not player.Character or not player.Character:FindFirstChild("Humanoid") or player.Character.Humanoid.Health <= 0 then
+            obj.Box:Remove() obj.Line:Remove() obj.Health:Remove() obj.HealthOutline:Remove() ESPObjs[player] = nil
+        end
+    end
+
     for _, p in pairs(Players:GetPlayers()) do
         if p ~= LP and p.Character then
             local char = p.Character
-            local head, root = char:FindFirstChild("Head"), char:FindFirstChild("HumanoidRootPart")
+            local head = char:FindFirstChild("Head")
+            local root = char:FindFirstChild("HumanoidRootPart")
+            local rightFoot = char:FindFirstChild("RightFoot") or char:FindFirstChild("Right Leg")
             local hum = char:FindFirstChildOfClass("Humanoid")
             
-            if head and root and hum and hum.Health > 0 then
+            if head and root and rightFoot and hum and hum.Health > 0 then
                 if not ESPObjs[p] then
-                    ESPObjs[p] = {
-                        Box = Drawing.new("Square"), 
-                        Line = Drawing.new("Line"),
-                        Health = Drawing.new("Line"),
-                        HealthOutline = Drawing.new("Line")
-                    }
-                    ESPObjs[p].Box.Thickness, ESPObjs[p].Box.Filled = 1, false
-                    ESPObjs[p].Line.Thickness = 1
-                    ESPObjs[p].Health.Thickness = 2
-                    ESPObjs[p].HealthOutline.Thickness = 3
-                    ESPObjs[p].HealthOutline.Color = Color3.new(0,0,0)
+                    local box = Drawing.new("Square") box.Thickness = 1.5 box.Filled = false
+                    local line = Drawing.new("Line") line.Thickness = 1
+                    local health = Drawing.new("Line") health.Thickness = 2
+                    local healthOutline = Drawing.new("Line") healthOutline.Thickness = 3 healthOutline.Color = Color3.new(0,0,0)
+                    ESPObjs[p] = {Box = box, Line = line, Health = health, HealthOutline = healthOutline}
                 end
+                
                 local obj = ESPObjs[p]
-                local hPos, onScreen = Camera:WorldToViewportPoint(head.Position)
-                local rPos = Camera:WorldToViewportPoint(root.Position)
+                local hPos, onScreen = Camera:WorldToViewportPoint(head.Position + Vector3.new(0, 0.5, 0))
+                local fPos = Camera:WorldToViewportPoint(rightFoot.Position - Vector3.new(0, 0.5, 0))
                 
                 if onScreen then
                     local espColor = Color3.fromRGB(255, 255, 255)
                     if LP.Team and p.Team and LP.Team == p.Team then espColor = Color3.fromRGB(50, 255, 50) end
                     
-                    local height = math.abs(hPos.Y - rPos.Y) * 2
-                    local width = height / 2
+                    local height = math.abs(hPos.Y - fPos.Y)
+                    local width = height / 2.5 
                     local posX = hPos.X - width/2
-                    local posY = hPos.Y - height/2
+                    local posY = hPos.Y
 
-                    -- Box
                     obj.Box.Size = Vector2.new(width, height)
                     obj.Box.Position = Vector2.new(posX, posY)
                     obj.Box.Color = espColor
                     obj.Box.Visible = ESPBox
                     
-                    -- Tracer
                     obj.Line.From = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)
                     obj.Line.To = Vector2.new(hPos.X, hPos.Y)
                     obj.Line.Color = espColor
                     obj.Line.Visible = ESPLine
 
-                    -- Health Bar
                     if ESPHealth then
                         local hpPct = hum.Health / hum.MaxHealth
                         local barHeight = height * hpPct
-                        
                         obj.HealthOutline.From = Vector2.new(posX - 6, posY + height)
                         obj.HealthOutline.To = Vector2.new(posX - 6, posY)
                         obj.HealthOutline.Visible = true
-                        
                         obj.Health.From = Vector2.new(posX - 6, posY + height)
                         obj.Health.To = Vector2.new(posX - 6, posY + height - barHeight)
                         obj.Health.Color = Color3.fromRGB(255 * (1 - hpPct), 255 * hpPct, 0)
@@ -262,16 +231,11 @@ RunService.RenderStepped:Connect(function()
             end
         end
     end
-    for player, obj in pairs(ESPObjs) do
-        if not player or not player.Parent or not player.Character or player.Character:FindFirstChildOfClass("Humanoid").Health <= 0 then
-            obj.Box:Remove() obj.Line:Remove() obj.Health:Remove() obj.HealthOutline:Remove() ESPObjs[player]=nil
-        end
-    end
 end)
 
 -- ABA CONFIG (VAZIA)
 TabConfig:Section({ Title = "" })
 
--- ABA INFO
+-- ABA INFO (FINALIZADA)
 TabInfo:Section({ Title = "Community" })
-TabInfo:Button({ Title= "Copy Link", Icon = "link", IconAlign = "Left", Callback = function() setclipboard("https://discord.gg/9uQjBAAaP") end })
+TabInfo:Button({ Title = "Copy Link", Icon = "link", IconAlign = "Left", Callback = function() setclipboard("https://discord.gg/9uQjBAAaP") end })

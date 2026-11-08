@@ -1,4 +1,4 @@
-local Icons = loadstring(game:HttpGetAsync("https://raw.githubusercontent.com/Footagesus/Icons/main/Main-v2.lua"))()
+obj.Line.Colorlocal Icons = loadstring(game:HttpGetAsync("https://raw.githubusercontent.com/Footagesus/Icons/main/Main-v2.lua"))()
 Icons.SetIconsType("geist")
 
 local WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
@@ -48,170 +48,186 @@ task.spawn(function()
     end
 end)
 
-local TabMain = Window:Tab({ Title = "Main", Icon = "house" })
-TabMain:Section({ Title = "Bem-vindo" })
-
--- 1. STATUS DO JOGO COM FOTO DE ANIME
-TabMain:Paragraph({
-    Title = "Status do Jogo",
-    Desc = "O script está rodando perfeitamente. Use as funções com moderação.",
-    Image = "gamepad-2",
-    ImageSize = 24,
-    Thumbnail = "rbxassetid://6239940100", -- Foto de anime (Gojo)
-    ThumbnailSize = 60,
-    Color = Color3.fromRGB(100, 200, 255)
-})
-
--- 2. AVISO IMPORTANTE COM FOTO DE ANIME
-TabMain:Paragraph({
-    Title = "Aviso Importante",
-    Desc = "O uso de scripts pode resultar em banimento. Use por sua conta e risco.",
-    Image = "alert-triangle",
-    ImageSize = 24,
-    Thumbnail = "rbxassetid://5444301611", -- Foto de anime (Nezuko)
-    ThumbnailSize = 60,
-    Color = Color3.fromRGB(255, 50, 50)
-})
-
--- 3. CRÉDITOS COM FOTO DE ANIME E NOME DO JOGO
-local NomeDoJogo = "Desconhecido"
-pcall(function()
-    local info = game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId)
-    NomeDoJogo = info.Name
-end)
-
-TabMain:Paragraph({
-    Title = "Créditos",
-    Desc = "Script feito por Apex.\nJogo atual: " .. NomeDoJogo,
-    Image = "user",
-    ImageSize = 24,
-    Thumbnail = "rbxassetid://5252447904", -- Foto de anime (Aesthetic)
-    ThumbnailSize = 60,
-    Color = Color3.fromRGB(255, 77, 109)
-})
-local TabCombat = Window:Tab({ Title = "Combat", Icon = "crosshair" })
-local TabPlayer = Window:Tab({ Title = "Player", Icon = "user" })
+-- ==========================================================
+-- CRIAÇÃO DAS TABS (PRIMEIRO!)
+-- ==========================================================
+local TabMain    = Window:Tab({ Title = "Info",    Icon = "info" })
+local TabCombat  = Window:Tab({ Title = "Combat",  Icon = "crosshair" })
+local TabPlayer  = Window:Tab({ Title = "Player",  Icon = "user" })
 local TabVisuals = Window:Tab({ Title = "Visuals", Icon = "eye" })
-local TabTheme = Window:Tab({ Title = "Themes", Icon = "palette" })
-local TabConfig = Window:Tab({ Title = "Settings", Icon = "settings" })
-local TabInfo = Window:Tab({ Title = "Info", Icon = "info" })
-TabInfo:Section({ Title = "Aviso" })
+local TabTheme   = Window:Tab({ Title = "Themes",  Icon = "palette" })
+local TabConfig  = Window:Tab({ Title = "Settings",Icon = "settings" })
 
--- A IMAGEM FICA AQUI
-TabInfo:Image({
-    Image = "rbxassetid://6239940100", -- ID da imagem de anime
-    Height = 150, 
-    Width = 380
+-- ==========================================================
+-- ABA INFO
+-- ==========================================================
+TabMain:Section({ Title = "Informações" })
+TabMain:Image({ Image = "rbxassetid://137832913582842", Height = 150, Width = 400 })
+TabMain:Paragraph({
+    Title = "Bem-vindo!",
+    Content = "Ative as funções nas abas Combat, Player e Visuals. Cuidado com o anti-cheat!"
 })
+TabMain:Section({ Title = "Community" })
+TabMain:Button({ Title = "Copy Discord Link", Icon = "link", IconAlign = "Left", Callback = function() setclipboard("https://discord.gg/9uQjBAAaP") end })
 
--- ABAIXO DELA, APARECEM AS COISAS
-TabInfo:Paragraph({
-    Title = "Não perca as atualizações!",
-    Content = "Entre no nosso servidor do Discord para ficar por dentro das novidades e não perder nenhuma versão nova do script."
-})
-
-TabInfo:Paragraph({
-    Title = "Link do Servidor:",
-    Content = "https://discord.gg/9uQjBAAaP"
-})
-
-TabInfo:Button({
-    Title = "Copiar Link do Discord",
-    Icon = "copy",
-    IconAlign = "Left",
-    Callback = function()
-        setclipboard("https://discord.gg/9uQjBAAaP")
-        WindUI:Notify({ 
-            Title = "Copiado!", 
-            Content = "O link já está na sua área de transferência.", 
-            Duration = 3, 
-            Icon = "check" 
-        })
+-- ==========================================================
+-- ABA THEMES
+-- ==========================================================
+TabTheme:Section({ Title = "Select Theme" })
+TabTheme:Dropdown({
+    Title = "UI Theme", Values = {"Rose", "Black"}, Value = "Rose",
+    Callback = function(selected)
+        pcall(function()
+            Window:SetTheme(selected)
+            local OldSize = Window.Size
+            Window:SetSize(UDim2.fromOffset(451, 361))
+            task.wait(0.05)
+            Window:SetSize(OldSize)
+        end)
     end
 })
--- ABA THEMES
-TabTheme:Section({ Title = "Select Theme" })
-TabTheme:Dropdown({ Title = "UI Theme", Values = {"Rose", "Black"}, Value = "Rose", Callback = function(selected) pcall(function() Window:SetTheme(selected) local OldSize = Window.Size Window:SetSize(UDim2.fromOffset(451, 361)) task.wait(0.05) Window:SetSize(OldSize) end) end })
 
+-- ==========================================================
 -- ABA COMBAT
--- ABA COMBAT (BOTÕES + FUNÇÕES JUNTAS)
+-- ==========================================================
+local AimbotOn, AimbotFOV, AimbotPart = false, 150, "Head"
+local TeamCheckOn = false
+local HitboxOn, HitboxSize = false, 10
+local HitboxParts = {}
+
 TabCombat:Section({ Title = "Aimbot" })
-TabCombat:Toggle({ Title = "Aimbot", Value = false, Callback = function(s) AimbotOn = s end })
-TabCombat:Toggle({ Title = "Team Check", Value = false, Callback = function(s) TeamCheckOn = s end })
+TabCombat:Toggle({ Title = "Aimbot", Icon = "crosshair", Value = false, Callback = function(s) AimbotOn = s end })
+TabCombat:Toggle({ Title = "Team Check", Icon = "users", Value = false, Callback = function(s) TeamCheckOn = s end })
 TabCombat:Dropdown({ Title = "Target Part", Values = {"Head", "HumanoidRootPart"}, Value = "Head", Callback = function(v) AimbotPart = v end })
 TabCombat:Slider({ Title = "FOV", Value = { Min = 10, Max = 500, Default = 150 }, Callback = function(v) AimbotFOV = v end })
 
 TabCombat:Section({ Title = "Hitbox" })
-TabCombat:Toggle({ Title = "Hitbox", Value = false, Callback = function(s) HitboxOn = s end })
+TabCombat:Toggle({
+    Title = "Hitbox", Icon = "box", Value = false,
+    Callback = function(s)
+        HitboxOn = s
+        if not s then
+            for p, hb in pairs(HitboxParts) do
+                if hb and hb.Parent then hb:Destroy() end
+                HitboxParts[p] = nil
+            end
+        end
+    end
+})
 TabCombat:Slider({ Title = "Hitbox Size", Value = { Min = 2, Max = 30, Default = 10 }, Callback = function(v) HitboxSize = v end })
 
-RunService.RenderStepped:Connect(function()
-    if AimbotOn then
-        local closest, minDist = nil, AimbotFOV
-        local center = Camera.ViewportSize / 2
-        local myTeam = LP.Team
-        local myShirt = LP.Character and LP.Character:FindFirstChild("Shirt")
-        local myColor = myShirt and myShirt.ShirtTemplate or nil
-        
-        for _, p in pairs(Players:GetPlayers()) do
-            local isTeammate = false
-            if TeamCheckOn and myTeam and p.Team and myTeam == p.Team then isTeammate = true end
-            if TeamCheckOn and not isTeammate and myColor then
-                local pShirt = p.Character and p.Character:FindFirstChild("Shirt")
-                if pShirt and pShirt.ShirtTemplate == myColor then isTeammate = true end
-            end
-            if TeamCheckOn and not isTeammate then
-                local myName = string.match(LP.Name, "^%[%w+%]")
-                local pName = string.match(p.Name, "^%[%w+%]")
-                if myName and pName and myName == pName then isTeammate = true end
-            end
+local function clearPlayerHitbox(player)
+    local hb = HitboxParts[player]
+    if hb and hb.Parent then hb:Destroy() end
+    HitboxParts[player] = nil
+end
+Players.PlayerRemoving:Connect(clearPlayerHitbox)
 
-            if p ~= LP and not isTeammate and p.Character and p.Character:FindFirstChild(AimbotPart) then
-                local hum = p.Character:FindFirstChildOfClass("Humanoid")
-                if hum and hum.Health > 0 then
-                    local part = p.Character[AimbotPart]
+RunService.RenderStepped:Connect(function()
+    if not AimbotOn then return end
+    local closest, minDist = nil, AimbotFOV
+    local center = Camera.ViewportSize / 2
+
+    for _, p in pairs(Players:GetPlayers()) do
+        if p ~= LP then
+            local isTeammate = false
+            if TeamCheckOn and LP.Team and p.Team and LP.Team == p.Team then
+                isTeammate = true
+            end
+            if not isTeammate and p.Character then
+                local part = p.Character:FindFirstChild(AimbotPart)
+                local hum  = p.Character:FindFirstChildOfClass("Humanoid")
+                if part and hum and hum.Health > 0 then
                     local pos, onScreen = Camera:WorldToViewportPoint(part.Position)
                     if onScreen then
                         local dist = (Vector2.new(pos.X, pos.Y) - center).Magnitude
-                        if dist < minDist then minDist = dist closest = part end
+                        if dist < minDist then
+                            minDist = dist
+                            closest = part
+                        end
                     end
                 end
             end
         end
-        if closest then pcall(function() Camera.CFrame = Camera.CFrame:Lerp(CFrame.new(Camera.CFrame.Position, closest.Position), 1) end) end
     end
 
-    if HitboxOn then
-        for _, p in pairs(Players:GetPlayers()) do
-            if p ~= LP and p.Character and not HitboxParts[p] then
-                local root = p.Character:FindFirstChild("HumanoidRootPart")
-                if root then
-                    local hb = Instance.new("Part")
-                    hb.Name = "ApexHitbox" hb.Size = Vector3.new(HitboxSize, HitboxSize, HitboxSize)
-                    hb.Transparency = 1 hb.CanCollide = false hb.CanQuery = true hb.Massless = true hb.Parent = p.Character
-                    local weld = Instance.new("WeldConstraint")
-                    weld.Part0 = root weld.Part1 = hb weld.Parent = hb
-                    hb.CFrame = root.CFrame
-                    HitboxParts[p] = hb
-                end
-            elseif p.Character and HitboxParts[p] then
-                local hb = HitboxParts[p]
-                if hb and hb.Parent then hb.Size = Vector3.new(HitboxSize, HitboxSize, HitboxSize) else HitboxParts[p] = nil end
-            end
-        end
-    else
-        for p, hb in pairs(HitboxParts) do if hb then hb:Destroy() HitboxParts[p] = nil end end
+    if closest then
+        pcall(function()
+            local camPos = Camera.CFrame.Position
+            Camera.CFrame = CFrame.lookAt(camPos, closest.Position)
+        end)
     end
 end)
+
+RunService.RenderStepped:Connect(function()
+    if not HitboxOn then return end
+
+    for _, p in pairs(Players:GetPlayers()) do
+        if p ~= LP and p.Character then
+            local hrp = p.Character:FindFirstChild("HumanoidRootPart")
+            local hum = p.Character:FindFirstChildOfClass("Humanoid")
+            if not hrp or not hum or hum.Health <= 0 then
+                clearPlayerHitbox(p)
+            else
+                local hb = HitboxParts[p]
+                if not hb or not hb.Parent then
+                    local newHb = Instance.new("Part")
+                    newHb.Name = "ApexHitbox"
+                    newHb.Size = Vector3.new(HitboxSize, HitboxSize, HitboxSize)
+                    newHb.Transparency = 1
+                    newHb.CanCollide = false
+                    newHb.CanQuery = true
+                    newHb.Massless = true
+                    newHb.Anchored = false
+                    newHb.Parent = p.Character
+
+                    newHb.CFrame = hrp.CFrame
+                    local weld = Instance.new("WeldConstraint")
+                    weld.Part0 = hrp
+                    weld.Part1 = newHb
+                    weld.Parent = newHb
+
+                    HitboxParts[p] = newHb
+                else
+                    hb.Size = Vector3.new(HitboxSize, HitboxSize, HitboxSize)
+                end
+            end
+        end
+    end
+end)
+
+-- ==========================================================
 -- ABA PLAYER
+-- ==========================================================
 local SpeedOn, SpeedVal = false, 16
 local JumpOn, JumpVal = false, 50
 local InfJumpOn = false
 
 TabPlayer:Section({ Title = "Movement" })
-TabPlayer:Toggle({ Title = "Speed", Icon = "zap", Value = false, Callback = function(s) SpeedOn = s if not s and LP.Character and LP.Character:FindFirstChildOfClass("Humanoid") then pcall(function() LP.Character.Humanoid.WalkSpeed = 16 end) end end })
+TabPlayer:Toggle({ 
+    Title = "Speed", 
+    Icon = "zap", 
+    Value = false, 
+    Callback = function(s) 
+        SpeedOn = s 
+        if not s and LP.Character and LP.Character:FindFirstChildOfClass("Humanoid") then
+            pcall(function() LP.Character.Humanoid.WalkSpeed = 16 end)
+        end
+    end 
+})
 TabPlayer:Slider({ Title = "Speed Value", Value = { Min = 16, Max = 200, Default = 16 }, Callback = function(v) SpeedVal = v end })
-TabPlayer:Toggle({ Title = "Jump", Icon = "arrow-up", Value = false, Callback = function(s) JumpOn = s if not s and LP.Character and LP.Character:FindFirstChildOfClass("Humanoid") then pcall(function() LP.Character.Humanoid.JumpPower = 50 end) end end })
+
+TabPlayer:Toggle({ 
+    Title = "Jump", 
+    Icon = "arrow-up", 
+    Value = false, 
+    Callback = function(s) 
+        JumpOn = s 
+        if not s and LP.Character and LP.Character:FindFirstChildOfClass("Humanoid") then
+            pcall(function() LP.Character.Humanoid.JumpPower = 50 end)
+        end
+    end 
+})
 TabPlayer:Slider({ Title = "Jump Power", Value = { Min = 50, Max = 300, Default = 50 }, Callback = function(v) JumpVal = v end })
 TabPlayer:Toggle({ Title = "Infinite Jump", Icon = "infinity", Value = false, Callback = function(s) InfJumpOn = s end })
 
@@ -226,7 +242,9 @@ UIS.JumpRequest:Connect(function()
     if InfJumpOn and LP.Character and LP.Character:FindFirstChildOfClass("Humanoid") then pcall(function() LP.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping) end) end
 end)
 
--- ABA VISUALS (ESP CORRIGIDO)
+-- ==========================================================
+-- ABA VISUALS (ESP COM HEALTH BAR)
+-- ==========================================================
 local ESPOn, ESPBox, ESPLine, ESPHealth = false, false, false, false
 local ESPObjs = {}
 
@@ -240,101 +258,57 @@ RunService.RenderStepped:Connect(function()
     if not ESPOn then
         for _, obj in pairs(ESPObjs) do 
             obj.Box.Visible = false 
-            obj.BoxFill.Visible = false 
             obj.Line.Visible = false 
             obj.Health.Visible = false 
             obj.HealthOutline.Visible = false
         end
         return
     end
-    
-    for player, obj in pairs(ESPObjs) do
-        if not player or not player.Parent or not player.Character or not player.Character:FindFirstChild("Humanoid") or player.Character.Humanoid.Health <= 0 then
-            obj.Box:Remove() 
-            obj.BoxFill:Remove() 
-            obj.Line:Remove() 
-            obj.Health:Remove() 
-            obj.HealthOutline:Remove() 
-            ESPObjs[player] = nil
-        end
-    end
-
     for _, p in pairs(Players:GetPlayers()) do
         if p ~= LP and p.Character then
             local char = p.Character
-            local head = char:FindFirstChild("Head")
-            local root = char:FindFirstChild("HumanoidRootPart")
-            local rightFoot = char:FindFirstChild("RightFoot") or char:FindFirstChild("Right Leg")
+            local head, root = char:FindFirstChild("Head"), char:FindFirstChild("HumanoidRootPart")
             local hum = char:FindFirstChildOfClass("Humanoid")
             
-            if head and root and rightFoot and hum and hum.Health > 0 then
+            if head and root and hum and hum.Health > 0 then
                 if not ESPObjs[p] then
-                    local box = Drawing.new("Square") 
-                    box.Thickness = 1.5 
-                    box.Filled = false
-                    
-                    local boxFill = Drawing.new("Square") 
-                    boxFill.Thickness = 1 
-                    boxFill.Filled = true 
-                    boxFill.Color = Color3.new(0,0,0) 
-                    boxFill.Transparency = 0.5
-                    
-                    local line = Drawing.new("Line") 
-                    line.Thickness = 1
-                    
-                    local health = Drawing.new("Line") 
-                    health.Thickness = 2
-                    
-                    local healthOutline = Drawing.new("Line") 
-                    healthOutline.Thickness = 3 
-                    healthOutline.Color = Color3.new(0,0,0)
-                    
                     ESPObjs[p] = {
-                        Box = box, 
-                        BoxFill = boxFill, 
-                        Line = line, 
-                        Health = health, 
-                        HealthOutline = healthOutline
+                        Box = Drawing.new("Square"), 
+                        Line = Drawing.new("Line"),
+                        Health = Drawing.new("Line"),
+                        HealthOutline = Drawing.new("Line")
                     }
+                    ESPObjs[p].Box.Thickness, ESPObjs[p].Box.Filled = 1, false
+                    ESPObjs[p].Line.Thickness = 1
+                    ESPObjs[p].Health.Thickness = 2
+                    ESPObjs[p].HealthOutline.Thickness = 3
+                    ESPObjs[p].HealthOutline.Color = Color3.new(0,0,0)
                 end
-                
                 local obj = ESPObjs[p]
-                local hPos, onScreen = Camera:WorldToViewportPoint(head.Position + Vector3.new(0, 1, 0))
-                local fPos = Camera:WorldToViewportPoint(rightFoot.Position - Vector3.new(0, 1, 0))
+                local hPos, onScreen = Camera:WorldToViewportPoint(head.Position)
+                local rPos = Camera:WorldToViewportPoint(root.Position)
                 
                 if onScreen then
                     local espColor = Color3.fromRGB(255, 255, 255)
-                    if LP.Team and p.Team and LP.Team == p.Team then 
-                        espColor = Color3.fromRGB(50, 255, 50) 
-                    end
+                    if LP.Team and p.Team and LP.Team == p.Team then espColor = Color3.fromRGB(50, 255, 50) end
                     
-                    local height = math.abs(hPos.Y - fPos.Y)
-                    local width = height / 2.5 
+                    local height = math.abs(hPos.Y - rPos.Y) * 2
+                    local width = height / 2
                     local posX = hPos.X - width/2
-                    local posY = hPos.Y
+                    local posY = hPos.Y - height/2
 
-                    -- Box e Fundo
                     obj.Box.Size = Vector2.new(width, height)
                     obj.Box.Position = Vector2.new(posX, posY)
                     obj.Box.Color = espColor
                     obj.Box.Visible = ESPBox
                     
-                    obj.BoxFill.Size = Vector2.new(width, height)
-                    obj.BoxFill.Position = Vector2.new(posX, posY)
-                    obj.BoxFill.Visible = ESPBox
-                    
-                    -- Tracer
                     obj.Line.From = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)
-                    obj.Line.To = Vector2.new(hPos.X, hPos.Y)
+                                        obj.Line.To = Vector2.new(hPos.X, hPos.Y)
                     obj.Line.Color = espColor
                     obj.Line.Visible = ESPLine
 
-                    -- Barra de Vida
                     if ESPHealth then
                         local hpPct = hum.Health / hum.MaxHealth
-                        if hpPct < 0 then hpPct = 0 end
-                        if hpPct > 1 then hpPct = 1 end
-                        
                         local barHeight = height * hpPct
                         
                         obj.HealthOutline.From = Vector2.new(posX - 6, posY + height)
@@ -350,12 +324,20 @@ RunService.RenderStepped:Connect(function()
                         obj.HealthOutline.Visible = false
                     end
                 else
-                    obj.Box.Visible, obj.BoxFill.Visible, obj.Line.Visible, obj.Health.Visible, obj.HealthOutline.Visible = false, false, false, false, false
+                    obj.Box.Visible, obj.Line.Visible, obj.Health.Visible, obj.HealthOutline.Visible = false, false, false, false
                 end
             end
         end
     end
+    for player, obj in pairs(ESPObjs) do
+        if not player or not player.Parent or not player.Character or not player.Character:FindFirstChildOfClass("Humanoid") or player.Character:FindFirstChildOfClass("Humanoid").Health <= 0 then
+            obj.Box:Remove() obj.Line:Remove() obj.Health:Remove() obj.HealthOutline:Remove() ESPObjs[player]=nil
+        end
+    end
 end)
 
--- ABA CONFIG (VAZIA)
-TabConfig:Section({ Title = "" })
+-- ==========================================================
+-- ABA CONFIG (vazia)
+-- ==========================================================
+TabConfig:Section({ Title = "Configurações" })
+TabConfig:Paragraph({ Title = "Em breve", Content = "Mais opções de configuração serão adicionadas." })

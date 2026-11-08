@@ -95,11 +95,19 @@ local TabVisuals = Window:Tab({ Title = "Visuals", Icon = "eye" })
 local TabTheme = Window:Tab({ Title = "Themes", Icon = "palette" })
 local TabConfig = Window:Tab({ Title = "Settings", Icon = "settings" })
 local TabInfo = Window:Tab({ Title = "Info", Icon = "info" })
-TabInfo:Section({ Title = "Discord Server" })
+TabInfo:Section({ Title = "Aviso" })
 
+-- A IMAGEM FICA AQUI
+TabInfo:Image({
+    Image = "rbxassetid://5252447904", -- ID da imagem de anime
+    Height = 150, 
+    Width = 380
+})
+
+-- ABAIXO DELA, APARECEM AS COISAS
 TabInfo:Paragraph({
     Title = "Não perca as atualizações!",
-    Content = "Entre no nosso servidor para ficar por dentro das novidades e não perder nenhuma versão nova do script."
+    Content = "Entre no nosso servidor do Discord para ficar por dentro das novidades e não perder nenhuma versão nova do script."
 })
 
 TabInfo:Paragraph({

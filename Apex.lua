@@ -308,7 +308,3 @@ end)
 
 -- ABA CONFIG (VAZIA)
 TabConfig:Section({ Title = "" })
-
--- ABA INFO (FINALIZADA)
-TabInfo:Section({ Title = "Community" })
-TabInfo:Button({ Title = "Copy Link", Icon = "link", IconAlign = "Left", Callback = function() setclipboard("https://discord.gg/9uQjBAAaP") end })

@@ -1,4 +1,4 @@
-obj.Line.Colorlocal Icons = loadstring(game:HttpGetAsync("https://raw.githubusercontent.com/Footagesus/Icons/main/Main-v2.lua"))()
+local Icons = loadstring(game:HttpGetAsync("https://raw.githubusercontent.com/Footagesus/Icons/main/Main-v2.lua"))()
 Icons.SetIconsType("geist")
 
 local WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
@@ -9,7 +9,6 @@ local Camera = Workspace.CurrentCamera
 local UIS = game:GetService("UserInputService")
 local LP = Players.LocalPlayer
 
--- TEMAS
 WindUI:AddTheme({
     Name = "Rose", Primary = Color3.fromHex("#ff4d6d"), White = Color3.new(1,1,1), Black = Color3.new(0,0,0), Dialog = Color3.fromHex("#1a0b12"), Background = Color3.fromHex("#14080e"), BackgroundTransparency = 0, Hover = Color3.fromHex("#FFFFFF"), PanelBackground = Color3.new(1,1,1), PanelBackgroundTransparency = .95, WindowBackground = Color3.fromHex("#14080e"), WindowShadow = Color3.new(0,0,0), WindowTopbarTitle = Color3.fromHex("#FFFFFF"), WindowTopbarAuthor = Color3.fromHex("#FFFFFF"), WindowTopbarIcon = Color3.fromHex("#ff4d6d"), WindowTopbarButtonIcon = Color3.fromHex("#ff4d6d"), WindowSearchBarBackground = Color3.fromHex("#14080e"), TabBackground = Color3.fromHex("#FFFFFF"), TabBackgroundHover = Color3.fromHex("#FFFFFF"), TabBackgroundHoverTransparency = .97, TabBackgroundActive = Color3.fromHex("#FFFFFF"), TabBackgroundActiveTransparency = 0.93, TabText = Color3.fromHex("#FFFFFF"), TabTextTransparency = 0.3, TabTextTransparencyActive = 0, TabTitle = Color3.fromHex("#FFFFFF"), TabIcon = Color3.fromHex("#ff4d6d"), TabIconTransparency = 0.4, TabIconTransparencyActive = 0.1, TabBorderTransparency = 1, TabBorderTransparencyActive = 0.75, TabBorder = Color3.fromHex("#ff4d6d"), ElementBackground = Color3.fromHex("#FFFFFF"), ElementBackgroundTransparency = .93, ElementBackgroundHover = WindUI.Creator:AddColor("ElementBackground", "#ffffff", 1/10), ElementTitle = Color3.fromHex("#FFFFFF"), ElementDesc = Color3.fromHex("#FFFFFF"), ElementIcon = Color3.fromHex("#ff4d6d"), PopupBackground = Color3.fromHex("#14080e"), PopupBackgroundTransparency = "BackgroundTransparency", PopupTitle = Color3.fromHex("#FFFFFF"), PopupContent = Color3.fromHex("#FFFFFF"), PopupIcon = Color3.fromHex("#ff4d6d"), DialogBackground = Color3.fromHex("#14080e"), DialogBackgroundTransparency = "BackgroundTransparency", DialogTitle = Color3.fromHex("#FFFFFF"), DialogContent = Color3.fromHex("#FFFFFF"), DialogIcon = Color3.fromHex("#ff4d6d"), Toggle = Color3.fromHex("#ff4d6d"), ToggleBar = Color3.new(1,1,1), Checkbox = Color3.fromHex("#ff4d6d"), CheckboxIcon = Color3.new(1,1,1), CheckboxBorder = Color3.new(1,1,1), CheckboxBorderTransparency = .75, SliderIcon = Color3.fromHex("#ff4d6d"), Slider = Color3.fromHex("#ff4d6d"), SliderThumb = Color3.new(1,1,1), SliderIconFrom = Color3.fromHex("#ff4d6d"), SliderIconTo = Color3.fromHex("#ff4d6d"), Tooltip = Color3.fromHex("4C4C4C"), TooltipText = Color3.new(1,1,1), TooltipSecondary = Color3.fromHex("#ff4d6d"), TooltipSecondaryText = Color3.new(1,1,1), TabSectionIcon = Color3.fromHex("#ff4d6d"), SectionIcon = Color3.fromHex("#ff4d6d"), SectionExpandIcon = Color3.new(1,1,1), SectionExpandIconTransparency = .4, SectionBox = Color3.new(1,1,1), SectionBoxTransparency = .95, SectionBoxBorder = Color3.new(1,1,1), SectionBoxBorderTransparency = .75, SectionBoxBackground = Color3.new(1,1,1), SectionBoxBackgroundTransparency = .95, SearchBarBorder = Color3.new(1,1,1), SearchBarBorderTransparency = .75, Notification = Color3.fromHex("#14080e"), NotificationTitle = Color3.fromHex("#FFFFFF"), NotificationTitleTransparency = 0, NotificationContent = Color3.fromHex("#FFFFFF"), NotificationContentTransparency = .4, NotificationDuration = Color3.new(1,1,1), NotificationDurationTransparency = .95, NotificationBorder = Color3.new(1,1,1), NotificationBorderTransparency = .75, DropdownTabBorder = Color3.new(1,1,1), LabelBackground = Color3.new(1,1,1), LabelBackgroundTransparency = .95,
 })
@@ -48,9 +47,6 @@ task.spawn(function()
     end
 end)
 
--- ==========================================================
--- CRIAÇÃO DAS TABS (PRIMEIRO!)
--- ==========================================================
 local TabMain    = Window:Tab({ Title = "Info",    Icon = "info" })
 local TabCombat  = Window:Tab({ Title = "Combat",  Icon = "crosshair" })
 local TabPlayer  = Window:Tab({ Title = "Player",  Icon = "user" })
@@ -58,9 +54,6 @@ local TabVisuals = Window:Tab({ Title = "Visuals", Icon = "eye" })
 local TabTheme   = Window:Tab({ Title = "Themes",  Icon = "palette" })
 local TabConfig  = Window:Tab({ Title = "Settings",Icon = "settings" })
 
--- ==========================================================
--- ABA INFO
--- ==========================================================
 TabMain:Section({ Title = "Informações" })
 TabMain:Image({ Image = "rbxassetid://137832913582842", Height = 150, Width = 400 })
 TabMain:Paragraph({
@@ -70,9 +63,6 @@ TabMain:Paragraph({
 TabMain:Section({ Title = "Community" })
 TabMain:Button({ Title = "Copy Discord Link", Icon = "link", IconAlign = "Left", Callback = function() setclipboard("https://discord.gg/9uQjBAAaP") end })
 
--- ==========================================================
--- ABA THEMES
--- ==========================================================
 TabTheme:Section({ Title = "Select Theme" })
 TabTheme:Dropdown({
     Title = "UI Theme", Values = {"Rose", "Black"}, Value = "Rose",
@@ -87,9 +77,6 @@ TabTheme:Dropdown({
     end
 })
 
--- ==========================================================
--- ABA COMBAT
--- ==========================================================
 local AimbotOn, AimbotFOV, AimbotPart = false, 150, "Head"
 local TeamCheckOn = false
 local HitboxOn, HitboxSize = false, 10
@@ -196,18 +183,13 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 
--- ==========================================================
--- ABA PLAYER
--- ==========================================================
 local SpeedOn, SpeedVal = false, 16
 local JumpOn, JumpVal = false, 50
 local InfJumpOn = false
 
 TabPlayer:Section({ Title = "Movement" })
 TabPlayer:Toggle({ 
-    Title = "Speed", 
-    Icon = "zap", 
-    Value = false, 
+    Title = "Speed", Icon = "zap", Value = false, 
     Callback = function(s) 
         SpeedOn = s 
         if not s and LP.Character and LP.Character:FindFirstChildOfClass("Humanoid") then
@@ -218,9 +200,7 @@ TabPlayer:Toggle({
 TabPlayer:Slider({ Title = "Speed Value", Value = { Min = 16, Max = 200, Default = 16 }, Callback = function(v) SpeedVal = v end })
 
 TabPlayer:Toggle({ 
-    Title = "Jump", 
-    Icon = "arrow-up", 
-    Value = false, 
+    Title = "Jump", Icon = "arrow-up", Value = false, 
     Callback = function(s) 
         JumpOn = s 
         if not s and LP.Character and LP.Character:FindFirstChildOfClass("Humanoid") then
@@ -242,9 +222,6 @@ UIS.JumpRequest:Connect(function()
     if InfJumpOn and LP.Character and LP.Character:FindFirstChildOfClass("Humanoid") then pcall(function() LP.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping) end) end
 end)
 
--- ==========================================================
--- ABA VISUALS (ESP COM HEALTH BAR)
--- ==========================================================
 local ESPOn, ESPBox, ESPLine, ESPHealth = false, false, false, false
 local ESPObjs = {}
 
@@ -303,7 +280,7 @@ RunService.RenderStepped:Connect(function()
                     obj.Box.Visible = ESPBox
                     
                     obj.Line.From = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)
-                                        obj.Line.To = Vector2.new(hPos.X, hPos.Y)
+                    obj.Line.To = Vector2.new(hPos.X, hPos.Y)
                     obj.Line.Color = espColor
                     obj.Line.Visible = ESPLine
 
@@ -320,6 +297,7 @@ RunService.RenderStepped:Connect(function()
                         obj.Health.Color = Color3.fromRGB(255 * (1 - hpPct), 255 * hpPct, 0)
                         obj.Health.Visible = true
                     else
+                                            else
                         obj.Health.Visible = false
                         obj.HealthOutline.Visible = false
                     end
@@ -336,8 +314,5 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 
--- ==========================================================
--- ABA CONFIG (vazia)
--- ==========================================================
 TabConfig:Section({ Title = "Configurações" })
 TabConfig:Paragraph({ Title = "Em breve", Content = "Mais opções de configuração serão adicionadas." })

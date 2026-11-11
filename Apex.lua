@@ -31,7 +31,7 @@ local Window = WindUI:CreateWindow({
         Title = "Verification",
         KeyValidator = function(key) 
             local success, result = pcall(function()
-                return string.lower(key) == "apex67" 
+                return string.lower(key) == "APX-7F2K-9L3M-LEO-2026"
             end)
             if success then return result else return false end
         end,

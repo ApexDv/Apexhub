@@ -1791,9 +1791,8 @@ local function is_in_fov(target_position)
         return false
     end
     local mouse_pos = UserInputService:GetMouseLocation()
-    local screen_center = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)
-local distance = math.sqrt((screen_pos.X - screen_center.X) ^ 2 + (screen_pos.Y - screen_center.Y) ^ 2)
-end
+    local mouse_pos = UserInputService:GetMouseLocation()
+local distance = math.sqrt((screen_pos.X - mouse_pos.X) ^ 2 + (screen_pos.Y - mouse_pos.Y) ^ 2)
 local function has_clear_los(from_pos, to_pos, target_character)
     local params = RaycastParams.new()
     params.FilterDescendantsInstances = { Player.Character, target_character }

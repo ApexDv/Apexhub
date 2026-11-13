@@ -1791,7 +1791,9 @@ local function is_in_fov(target_position)
         return false
     end
     local screen_center = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)
-local distance = math.sqrt((screen_pos.X - screen_center.X) ^ 2 + (screen_pos.Y - screen_center.Y) ^ 2)
+    local distance = math.sqrt((screen_pos.X - screen_center.X) ^ 2 + (screen_pos.Y - screen_center.Y) ^ 2)
+    return distance <= fov_radius
+end
 local function has_clear_los(from_pos, to_pos, target_character)
     local params = RaycastParams.new()
     params.FilterDescendantsInstances = { Player.Character, target_character }

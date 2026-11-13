@@ -94,12 +94,10 @@ local Debris = game:GetService("Debris")
 local Camera = Workspace.CurrentCamera
 local Player = Players.LocalPlayer
 task.spawn(function()
-    while task.wait(8) do
-        for _, v in ipairs(workspace:GetDescendants()) do
+    while task.wait(3) do
+        for _, v in ipairs(workspace:GetChildren()) do
             if v:IsA("Tool") then
-                if v.Parent ~= Player.Character and v.Parent ~= Player:FindFirstChild("Backpack") then
-                    v:Destroy()
-                end
+                v:Destroy()
             end
         end
     end

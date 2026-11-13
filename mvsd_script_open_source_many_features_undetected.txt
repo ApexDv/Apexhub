@@ -6,9 +6,9 @@ getgenv().TFjhJhggCUo = true
 
 local wind = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
 local window = wind:CreateWindow({
-    Title = "Murder vs Sheriff Duels",
+    Title = "APEX | MVSD",
     Icon = "rbxassetid://139687752061139",
-    Author = "by Vexal Scripts",
+    Author = "by Apex Hub",
     Folder = "VexalScriptsMvsdScript",
     Size = UDim2.fromOffset(650, 430),
     MinSize = Vector2.new(450, 250),
@@ -29,7 +29,7 @@ local window = wind:CreateWindow({
 })
 window:EditOpenButton({
     Title = "Vexal",
-    Icon = "rbxassetid://139687752061139",
+    Icon = "rbxassetid://",
     CornerRadius = UDim.new(0, 16),
     StrokeThickness = 2,
     Color = ColorSequence.new(

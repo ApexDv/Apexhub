@@ -308,14 +308,14 @@ local function NotSupportedFeature()
             Content =
             "Sorry! Your executor isn't supported to run this feature, we have made sure of that by running simple checks once you loaded this script!",
             Duration = 3,
-            Icon = "rbxassetid://139687752061139",
+            Icon = "rbxassetid://114305907211721",
         })
 
         wind:Notify({
             Title = "Notice!",
             Content = "If your on PC/Laptop, try using Velocity (its free!), on Android/Ios please try using Delta!",
             Duration = 3,
-            Icon = "rbxassetid://139687752061139",
+            Icon = "rbxassetid://114305907211721",
         })
     end
 end
@@ -326,7 +326,7 @@ local function FeatureActivated(boolean)
             Content =
             "Enjoying Vexal Scripts? Join our discord server located in the Welcome tab for even better stuff!",
             Duration = 3,
-            Icon = "rbxassetid://139687752061139",
+            Icon = "rbxassetid://114305907211721",
         })
     else
         wind:Notify({

@@ -94,7 +94,7 @@ local Debris = game:GetService("Debris")
 local Camera = Workspace.CurrentCamera
 local Player = Players.LocalPlayer
 task.spawn(function()
-    while task.wait(8) do
+    while task.wait(4) do
         for _, v in ipairs(workspace:GetDescendants()) do
             if v:IsA("Tool") then
                 v:Destroy()

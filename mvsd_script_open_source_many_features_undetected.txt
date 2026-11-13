@@ -7,7 +7,7 @@ getgenv().TFjhJhggCUo = true
 local wind = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
 local window = wind:CreateWindow({
     Title = "APEX | MVSD",
-    Icon = "rbxassetid://139687752061139",
+    Icon = "rbxassetid://114305907211721",
     Author = "by Apex Hub",
     Folder = "VexalScriptsMvsdScript",
     Size = UDim2.fromOffset(650, 430),
@@ -29,7 +29,7 @@ local window = wind:CreateWindow({
 })
 window:EditOpenButton({
     Title = "Vexal",
-    Icon = "rbxassetid://",
+    Icon = "rbxassetid://114305907211721",
     CornerRadius = UDim.new(0, 16),
     StrokeThickness = 2,
     Color = ColorSequence.new(
@@ -56,7 +56,7 @@ Welcome:Paragraph({
     Desc =
     "We hope you find this script useful, if you find any issues please report them below to my discord by making a ticket, thank you for using us!",
     Color = Color3.fromHex("#1756B8"),
-    Thumbnail = "rbxassetid://139687752061139",
+    Thumbnail = "rbxassetid://114305907211721",
     ThumbnailSize = 150,
     Buttons = {
         {
@@ -334,7 +334,7 @@ local function FeatureActivated(boolean)
             Content =
             "Enjoying Vexal Scripts? Join our discord server located in the Welcome tab for even better stuff!",
             Duration = 3,
-            Icon = "rbxassetid://139687752061139",
+            Icon = "rbxassetid://114305907211721",
         })
     end
 end
@@ -1088,7 +1088,7 @@ Killing:Button({ -- [GUN] Kill all players once
                     Content =
                     "Enjoying Vexal Scripts? Join our discord server located in the Welcome tab for even better stuff!",
                     Duration = 3,
-                    Icon = "rbxassetid://139687752061139",
+                    Icon = "rbxassetid://114305907211721",
                 })
                 for _, plr in matchEnemies do
                     if plr.Team ~= player.Team and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
@@ -1158,7 +1158,7 @@ Killing:Button({ -- [KNIFE] Kill all players once
                     Content =
                     "Enjoying Vexal Scripts? Join our discord server located in the Welcome tab for even better stuff!",
                     Duration = 3,
-                    Icon = "rbxassetid://139687752061139",
+                    Icon = "rbxassetid://114305907211721",
                 })
                 for _, target in ipairs(Players:GetPlayers()) do
                     if target ~= player and target.Character then
@@ -1734,7 +1734,7 @@ if lobby and lobby:FindFirstChild("DuelRingsGroup") then
                                 Content =
                                 "Enjoying Vexal Scripts? Join our discord server located in the Welcome tab for even better stuff!",
                                 Duration = 3,
-                                Icon = "rbxassetid://139687752061139",
+                                Icon = "rbxassetid://114305907211721",
                             })
 
                             walkTo(model)
@@ -2178,7 +2178,7 @@ Settings:Button({
     end
 })
 wind:Notify({
-    Title = "Welcome to Vexal Scripts MVSD",
+    Title = "Welcome to Apex Hub MVSD",
     Duration = 15,
-    Icon = "rbxassetid://139687752061139",
+    Icon = "rbxassetid://114305907211721",
 })

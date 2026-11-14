@@ -21,9 +21,9 @@ Library.Scheme.DarkColor = Color3.fromRGB(4, 5, 8)
 -- ============ WINDOW SETUP ============
 local Window = Library:CreateWindow({
     Title = "Apex Hub",
-    Footer = "Precision Hub",
+    Footer = "Apex hub",
     FooterLeft = "0.6.8",
-    FooterRight = "Made by Apex",
+    FooterRight = "by Apex",
     Icon = 74169651953690,
     NotifySide = "Right",
     ShowCustomCursor = true,

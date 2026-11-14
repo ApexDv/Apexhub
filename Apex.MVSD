@@ -94,9 +94,9 @@ local Debris = game:GetService("Debris")
 local Camera = Workspace.CurrentCamera
 local Player = Players.LocalPlayer
 task.spawn(function()
-    while task.wait(3) do
+    while task.wait(5) do
         for _, v in ipairs(workspace:GetDescendants()) do
-            if v:IsA("Tool") then
+            if v:IsA("Tool") or (v:IsA("Model") and (string.find(string.lower(v.Name), "gun") or string.find(string.lower(v.Name), "tool"))) then
                 local isHeld = false
                 local parent = v.Parent
                 

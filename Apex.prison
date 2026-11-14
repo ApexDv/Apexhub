@@ -1,4 +1,4 @@
--- Main Script Kayen Hub | Prison Life
+-- Main Script Apex Hub | Prison Life
 
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer

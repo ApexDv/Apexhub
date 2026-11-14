@@ -93,17 +93,27 @@ local TweenService = game:GetService("TweenService")
 local Debris = game:GetService("Debris")
 local Camera = Workspace.CurrentCamera
 local Player = Players.LocalPlayer
-workspace.DescendantAdded:Connect(function(v)
-    if v:IsA("Tool") then
-        task.wait(0.5)
-        if v and v.Parent then
-            local isEquipped = false
-            local parent = v.Parent
-            if parent and (parent:FindFirstChild("Humanoid") or (parent.Parent and parent.Parent:FindFirstChild("Humanoid"))) then
-                isEquipped = true
-            end
-            if not isEquipped then
-                v:Destroy()
+task.spawn(function()
+    while task.wait(3) do
+        for _, v in ipairs(workspace:GetDescendants()) do
+            if v:IsA("Tool") then
+                local isHeld = false
+                local parent = v.Parent
+                
+                if parent and (parent:FindFirstChild("Humanoid") or (parent.Parent and parent.Parent:FindFirstChild("Humanoid"))) then
+                    isHeld = true
+                end
+                
+                for _, plr in ipairs(Players:GetPlayers()) do
+                    if v.Parent == plr:FindFirstChild("Backpack") or v.Parent == plr.Character then
+                        isHeld = true
+                        break
+                    end
+                end
+
+                if not isHeld then
+                    v:Destroy()
+                end
             end
         end
     end

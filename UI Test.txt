@@ -221,7 +221,7 @@ UpdatesBox:AddButton({
     Text = "Discord Server",
     Func = function()
         pcall(function()
-            setclipboard("discord.gg/unxmjPC4x7")
+            setclipboard("https://discord.gg/nTAavpJu9")
         end)
     end,
 })

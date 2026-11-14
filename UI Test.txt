@@ -38,11 +38,11 @@ local Window = Library:CreateWindow({
 
 -- ============ TABS ============
 local Tabs = {
-    Info = Window:AddTab("Info", "info", "Game info"),
-    Aimbot = Window:AddTab("Main", "crosshair", "Core features"),
-    Teleports = Window:AddTab("Weapons & Shop", "shopping-basket", "Teleports and Weapons"),
-    Visuals = Window:AddTab("Visuals", "eye", "ESP and Visual Customization"),
-    ["UI Settings"] = Window:AddTab("UI Settings", "settings", "Customize the UI behavior and appearance"),
+    Info = Window:AddTab("Info", "info", "Informação do jogo"),
+    Aimbot = Window:AddTab("Principal", "crosshair", "Funções principais"),
+    Teleports = Window:AddTab("Armas & Loja", "shopping-basket", "Teleportes a Arma"),
+    Visuals = Window:AddTab("Visual", "eye", "ESP e Costumizaçao"),
+    ["UI Settings"] = Window:AddTab("Configuração", "settings", "Customizar o menu"),
 }
 
 Library:SetDPIScale(95)

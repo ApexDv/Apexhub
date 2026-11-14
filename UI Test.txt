@@ -227,14 +227,14 @@ UpdatesBox:AddButton({
 })
 
 -- ============ FEEDBACK SYSTEM GROUP ============
-local FeedbackBox = Tabs.Info:AddRightGroupbox("Feedback System", "mail")
-FeedbackBox:SetDescription("Send feedback to developer (Join the Discord Server for More Info)")
+local FeedbackBox = Tabs.Info:AddRightGroupbox("Sistema de Feedback", "mail") 
+FeedbackBox:SetDescription("Envie feedback para o desenvolvedor (Entre no Discord para mais informaçãoes)")
 
-FeedbackBox:AddLabel("Your feedback")
+FeedbackBox:AddLabel("Seu feedback")
 
 FeedbackBox:AddInput("FeedbackText", {
     Text = "",
-    Placeholder = "Type your feedback here",
+    Placeholder = "Digite seu feedback aqui",
     ClearTextOnFocus = false,
     Finished = false,
 })
@@ -265,9 +265,9 @@ FeedbackBox:AddButton({
 })
 
 -- ============ SERVER STATS GROUP ============
-local ServerStatsBox = Tabs.Info:AddRightGroupbox("Server Stats", "info")
+local ServerStatsBox = Tabs.Info:AddRightGroupbox("Status do servidor", "info")
 
-local regionCode = "Unknown"
+local regionCode = "Desconhecido"
 pcall(function()
     regionCode = game:GetService("LocalizationService"):GetCountryRegionForPlayerAsync(player)
 end)
@@ -331,7 +331,7 @@ if Library.IsMobile then
 end
 
 -- ============ GET WEAPONS ============
-local GetWeaponsBox = Tabs.Teleports:AddLeftGroupbox("Get Weapons", "sword")
+local GetWeaponsBox = Tabs.Teleports:AddLeftGroupbox("Pegar Armas", "sword")
 
 GetWeaponsBox:AddDropdown("GetWeaponsList", {
     Values = {"MP5", "AK-47", "M4A1", "FAL", "Remington 870", "M700"},
@@ -369,11 +369,11 @@ GetWeaponsBox:AddCheckbox("AutoGetWeapons", {
 })
 
 -- ============ PLAYERS TAB ============
-local PlayerSettingsBox = Tabs.Teleports:AddLeftGroupbox("Misc", "sliders")
+local PlayerSettingsBox = Tabs.Teleports:AddLeftGroupbox("Diversos", "sliders")
 
 PlayerSettingsBox:AddCheckbox("Noclip", {
     Text = "Noclip",
-    Tooltip = "Allows you to walk through walls and objects",
+    Tooltip = "Permite que atravesse pareds e objetos",
     Default = false,
     Callback = function(v)
         getgenv().SetNoclipEnabled(v)
@@ -381,17 +381,17 @@ PlayerSettingsBox:AddCheckbox("Noclip", {
 })
 
 PlayerSettingsBox:AddCheckbox("InfiniteJump", {
-    Text = "Infinite Jump",
-    Tooltip = "Allows you to jump infinitely in the air",
+    Text = "Infinito pulo",
+    Tooltip = "Permite pular infinitamente",
     Default = false,
     Callback = function(v)
         getgenv().SetInfiniteJumpEnabled(v)
     end,
 })
 
-PlayerSettingsBox:AddCheckbox("InfiniteStamina", {
-    Text = "Infinite Stamina",
-    Tooltip = "Disables the jump cooldown",
+PlayerSettingsBox:AddCheckbox("Infinita Estamina", {
+    Text = "Infinita Estamina",
+    Tooltip = "Desabilita o cooldown do pulo",
     Default = false,
     Callback = function(v)
         getgenv().SilentAimSettings.InfiniteStamina = v
@@ -406,8 +406,8 @@ PlayerSettingsBox:AddCheckbox("Invisible", {
     end,
 })
 
-PlayerSettingsBox:AddCheckbox("AntiInvisible", {
-    Text = "Anti-Invisible",
+PlayerSettingsBox:AddCheckbox("Anti invisível", {
+    Text = "Anti-invisivel",
     Default = false,
     Callback = function(v)
         getgenv().SetAntiInvisibleEnabled(v)
@@ -430,9 +430,9 @@ PlayerSettingsBox:AddCheckbox("Headless", {
     end,
 })
 
-PlayerSettingsBox:AddCheckbox("AntiSit", {
+PlayerSettingsBox:AddCheckbox("Anti Sit", {
     Text = "Anti Sit",
-    Tooltip = "Prevents you from sitting on any seat, except the driver seat of a vehicle",
+    Tooltip = "Permite que você nunca assente",
     Default = false,
     Callback = function(v)
         getgenv().SetAntiSitEnabled(v)

@@ -3181,7 +3181,6 @@ end
 local function loadUI()
     local uiUrls = {
         "https://raw.githubusercontent.com/ludicious-claw/precisionlol/refs/heads/main/UI%20Test",
-        "https://cdn.jsdelivr.net/gh/ludicious-claw/precisionlol@main/UI%20Test",
     }
 
     local maxAttempts = 3

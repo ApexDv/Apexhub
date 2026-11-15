@@ -557,7 +557,48 @@ local InfoGroup = VisualTab:AddGroupbox({
 InfoGroup:AddLabel({ Text = "Apex Hub • Mobile", DoesWrap = true })
 InfoGroup:AddLabel({ Text = "Use o botão 'Apex' na tela pra abrir/fechar.", DoesWrap = true })
 InfoGroup:AddLabel({ Text = "O menu pode ser arrastado.", DoesWrap = true })
+local ESPGroup = VisualTab:AddGroupbox({
+    Name = "ESP",
+    Side = 2,
+    IconName = "eye",
+})
 
+ESPGroup:AddToggle("ESPEnabled", {
+    Text = "Ativar Highlight ESP",
+    Default = false,
+    Callback = function(v) Settings.ESPEnabled = v end,
+})
+
+ESPGroup:AddToggle("ESPNamesEnabled", {
+    Text = "Mostrar Nomes",
+    Default = true,
+    Callback = function(v) Settings.ESPNamesEnabled = v end,
+})
+
+ESPGroup:AddColorPicker("ESPColor", {
+    Text = "Cor do ESP",
+    Default = Settings.ESPColor,
+    Transparency = 0,
+    Title = "Cor do ESP",
+    Callback = function(color) Settings.ESPColor = color end,
+})
+
+ESPGroup:AddColorPicker("ESPTargetColor", {
+    Text = "Cor do Alvo",
+    Default = Settings.ESPTargetColor,
+    Transparency = 0,
+    Title = "Cor do Alvo ESP",
+    Callback = function(color) Settings.ESPTargetColor = color end,
+})
+
+ESPGroup:AddSlider("ESPNameTextSize", {
+    Text = "Tamanho do Nome",
+    Default = 13,
+    Min = 8,
+    Max = 24,
+    Rounding = 0,
+    Callback = function(v) Settings.ESPNameTextSize = v end,
+})
 local SettingsGroup = SettingsTab:AddGroupbox({
     Name = "UI",
     Side = 1,

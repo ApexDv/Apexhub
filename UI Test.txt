@@ -12,10 +12,10 @@ local player = Players.LocalPlayer
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 
-Library.Scheme.AccentColor = Color3.fromRGB(0, 174, 255)
+Library.Scheme.AccentColor = Color3.fromRGB(135, 206, 250)  -- Azul céu (mais claro, menos saturado)
 Library.Scheme.BackgroundColor = Color3.fromRGB(10, 12, 16)
 Library.Scheme.MainColor = Color3.fromRGB(16, 19, 24)
-Library.Scheme.OutlineColor = Color3.fromRGB(0, 174, 255)
+Library.Scheme.OutlineColor = Color3.fromRGB(45, 75, 110)   -- Azul acinzentado pro contorno não estourar
 Library.Scheme.DarkColor = Color3.fromRGB(5, 6, 8)
 
 local Window = Library:CreateWindow({

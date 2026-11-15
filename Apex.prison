@@ -3390,41 +3390,38 @@ end
 task.spawn(function()
     task.wait(3)
 
-    if Library and Library.Options then
-        for _, option in pairs(Library.Options) do
-            if option.Text == "Load config" then
-                option.Text = "Carregar config"
-                if option.Holder and option.Holder:FindFirstChildOfClass("TextLabel") then
-                    option.Holder:FindFirstChildOfClass("TextLabel").Text = "Carregar config"
-                end
-            elseif option.Text == "Save config" then
-                option.Text = "Salvar config"
-                if option.Holder and option.Holder:FindFirstChildOfClass("TextLabel") then
-                    option.Holder:FindFirstChildOfClass("TextLabel").Text = "Salvar config"
-                end
-            elseif option.Text == "Overwrite config" then
-                option.Text = "Sobrescrever config"
-                if option.Holder and option.Holder:FindFirstChildOfClass("TextLabel") then
-                    option.Holder:FindFirstChildOfClass("TextLabel").Text = "Sobrescrever config"
-                end
-            end
-        end
-    end
+    while task.wait(0.5) do
+        if not Library or not Library.ScreenGui then continue end
 
-    if Library and Library.Dialog then
-        local oldDialog = Library.Dialog
-        Library.Dialog = function(self, config)
-            if config and config.Title == "Load config" then
-                config.Title = "Carregar config"
-                config.Description = config.Description:gsub("Are you sure you want to load", "Tem certeza que quer carregar")
-                config.Description = config.Description:gsub("Your current settings will be overwritten", "Suas configurações atuais serão sobrescritas")
-                
-                for _, btn in pairs(config.Buttons or {}) do
-                    if btn.Text == "Cancel" then btn.Text = "Cancelar" end
-                    if btn.Text == "Load" then btn.Text = "Carregar" end
+        -- Varre o menu e os popups procurando os textos
+        for _, gui in ipairs(Library.ScreenGui:GetDescendants()) do
+            if gui:IsA("TextLabel") or gui:IsA("TextButton") then
+                local text = gui.Text
+
+                if text == "Load config" then
+                    gui.Text = "Carregar config"
+                elseif text == "Save config" then
+                    gui.Text = "Salvar config"
+                elseif text == "Overwrite config" then
+                    gui.Text = "Sobrescrever config"
+                elseif text == "Delete config" then
+                    gui.Text = "Deletar config"
+                elseif text == "Cancel" then
+                    gui.Text = "Cancelar"
+                elseif text == "Load" then
+                    gui.Text = "Carregar"
+                elseif text == "Save" then
+                    gui.Text = "Salvar"
+                elseif text == "Overwrite" then
+                    gui.Text = "Sobrescrever"
+                elseif text == "Delete" then
+                    gui.Text = "Deletar"
+                elseif text == "Configuration" then
+                    gui.Text = "Configuração"
+                elseif text:match("Are you sure you want to load") then
+                    gui.Text = text:gsub("Are you sure you want to load", "Tem certeza que quer carregar"):gsub("Your current settings will be overwritten", "Suas configurações atuais serão sobrescritas"):gsub("Cancel", "Cancelar"):gsub("Load", "Carregar")
                 end
             end
-            return oldDialog(self, config)
         end
     end
 end)

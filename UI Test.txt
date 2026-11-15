@@ -18,7 +18,6 @@ Library.Scheme.MainColor = Color3.fromRGB(18, 22, 30)
 Library.Scheme.OutlineColor = Color3.fromRGB(28, 34, 44)
 Library.Scheme.DarkColor = Color3.fromRGB(4, 5, 8)
 
--- ============ WINDOW SETUP ============
 local Window = Library:CreateWindow({
     Title = "Apex hub",
     Footer = "Prison Life",
@@ -36,28 +35,26 @@ local Window = Library:CreateWindow({
     Font = Enum.Font.Gotham,
 })
 
--- ============ TABS ============
 local Tabs = {
     Info = Window:AddTab("Info", "info", "Informação do jogo"),
     Aimbot = Window:AddTab("Principal", "crosshair", "Funções principais"),
-    Teleports = Window:AddTab("Armas & Loja", "shopping-basket", "Teleportes a Arma"),
-    Visuals = Window:AddTab("Visual", "eye", "ESP e Costumizaçao"),
+    Teleports = Window:AddTab("Armas & Loja", "shopping-basket", "Teleportes e Armas"),
+    Visuals = Window:AddTab("Visual", "eye", "ESP e Customização"),
     ["UI Settings"] = Window:AddTab("Configuração", "settings", "Customizar o menu"),
 }
 
 Library:SetDPIScale(95)
 
--- ============ INFO TAB ============
 local scriptStartTime = tick()
 
 local function getGreeting()
     local hour = tonumber(os.date("%H"))
     if hour < 12 then
-        return "Good Morning"
+        return "Bom dia"
     elseif hour < 18 then
-        return "Good Afternoon"
+        return "Boa tarde"
     else
-        return "Good Evening"
+        return "Boa noite"
     end
 end
 
@@ -75,7 +72,6 @@ local InfoTabContainer = InfoTabLeft.Parent
 local PROFILE_HEIGHT = 110
 local PROFILE_GAP = 10
 
--- ============ PROFILE PANEL ============
 local ProfileHolder = Instance.new("Frame")
 ProfileHolder.Name = "ProfilePanel"
 ProfileHolder.BackgroundColor3 = Library.Scheme.BackgroundColor
@@ -141,7 +137,7 @@ GreetingLabel.Parent = ProfileFrame
 
 Library:AddToRegistry(GreetingLabel, { TextColor3 = "FontColor" })
 
-local ExecutorName = "Unknown"
+local ExecutorName = "Desconhecido"
 pcall(function()
     if identifyexecutor then
         ExecutorName = identifyexecutor()
@@ -160,8 +156,8 @@ InfoDetailsLabel.TextYAlignment = Enum.TextYAlignment.Top
 InfoDetailsLabel.TextColor3 = Color3.fromRGB(180, 180, 180)
 InfoDetailsLabel.RichText = true
 InfoDetailsLabel.Text = "• Executor: " .. ExecutorName .. "\n"
-    .. "• Map: Prison Life\n"
-    .. "• Time: " .. os.date("%I:%M %p")
+    .. "• Mapa: Prison Life\n"
+    .. "• Hora: " .. os.date("%I:%M %p")
 InfoDetailsLabel.Parent = ProfileFrame
 
 local function RepositionInfoSides()
@@ -178,47 +174,12 @@ function Tabs.Info:RefreshSides()
     RepositionInfoSides()
 end
 
--- ============ UPDATES GROUP ============
-local UpdatesBox = Tabs.Info:AddLeftGroupbox("Updates", "bell")
-
+local UpdatesBox = Tabs.Info:AddLeftGroupbox("Atualizações", "bell")
 UpdatesBox:AddLabel("Prison Life", true)
-UpdatesBox:AddLabel(
-    "- Added Invisible\n" ..
-    "  Credits to A2Flacko\n" ..
-    "- Added Anti-invisible\n" ..
-    "  Credits to A2Flacko\n" ..
-    "- Some Bugs Fixed\n" ..
-    "- Added new Teleport Criminal Base\n" ..
-    "- Added new Teleport Frontwall\n" ..
-    "- Improved Get Weapons System\n" ..
-    "- Added Anti Sit\n" ..
-    "  to prevent kick exploits\n" ..
-    "- Added Korblox\n" ..
-    "  Visual\n" ..
-    "- Added Headless\n" ..
-    "  Visual\n" ..
-    "- Added CoD Kaboom Hitsound\n" ..
-    "- Added Creepy Bell Hitsound\n" ..
-    "- Added You are a Idiot Killsound\n" ..
-    "- Added Creepy Bell Killsound\n" ..
-    "- Added Vine Boom Killsound\n" ..
-    "- Added RDR2 Low Honor Killsound\n" ..
-    "- Added Get Out Killsound\n" ..
-    "- Added Diahrrea Sound Killsound\n" ..
-    "- Added Goku Prowler Killsound\n" ..
-    "- Added iPhone Ding Killsound\n" ..
-    "- Added Bark Fart Killsound\n" ..
-    "- Added Enrique Killsound\n" ..
-    "- Added Fatality 2 Killsound\n" ..
-    "- Added Weapon Textures\n" ..
-    "  Credits to OnlyAdrian for sending every Texture",
-    true
-)
-
+UpdatesBox:AddLabel("- Invisible, Anti-Invisible, Korblox, Headless\n- Melhorias no sistema de armas\n- Novos sons de kill/hit\n- Adicionado Anti Sit", true)
 UpdatesBox:AddDivider("Info")
-
 UpdatesBox:AddButton({
-    Text = "Discord Server",
+    Text = "Servidor do Discord",
     Func = function()
         pcall(function()
             setclipboard("https://discord.gg/nTAavpJu9")
@@ -226,10 +187,8 @@ UpdatesBox:AddButton({
     end,
 })
 
--- ============ FEEDBACK SYSTEM GROUP ============
 local FeedbackBox = Tabs.Info:AddRightGroupbox("Sistema de Feedback", "mail") 
-FeedbackBox:SetDescription("Envie feedback para o desenvolvedor (Entre no Discord para mais informaçãoes)")
-
+FeedbackBox:SetDescription("Envie feedback para o desenvolvedor (Entre no Discord para mais informações)")
 FeedbackBox:AddLabel("Seu feedback")
 
 FeedbackBox:AddInput("FeedbackText", {
@@ -252,37 +211,33 @@ do
         feedbackBox.MultiLine = true
         feedbackBox.TextXAlignment = Enum.TextXAlignment.Left
         feedbackBox.TextYAlignment = Enum.TextYAlignment.Top
-
         feedbackHolder.Size = UDim2.new(1, 0, 0, 90)
     end
 end
 
 FeedbackBox:AddButton({
-    Text = "Send Feedback",
+    Text = "Enviar Feedback",
     Func = function()
         getgenv().SendFeedback(Options.FeedbackText.Value)
     end,
 })
 
--- ============ SERVER STATS GROUP ============
 local ServerStatsBox = Tabs.Info:AddRightGroupbox("Status do servidor", "info")
-
 local regionCode = "Desconhecido"
 pcall(function()
     regionCode = game:GetService("LocalizationService"):GetCountryRegionForPlayerAsync(player)
 end)
 
-local ServerStatsLabel = ServerStatsBox:AddLabel("Region: " .. regionCode .. "\nCountry: " .. regionCode .. "\nUptime: " .. formatUptime(tick() - scriptStartTime), true)
+local ServerStatsLabel = ServerStatsBox:AddLabel("Região: " .. regionCode .. "\nPaís: " .. regionCode .. "\nAtivo há: " .. formatUptime(tick() - scriptStartTime), true)
 
 task.spawn(function()
     while task.wait(1) do
         pcall(function()
-            ServerStatsLabel:SetText("Region: " .. regionCode .. "\nCountry: " .. regionCode .. "\nUptime: " .. formatUptime(tick() - scriptStartTime))
+            ServerStatsLabel:SetText("Região: " .. regionCode .. "\nPaís: " .. regionCode .. "\nAtivo há: " .. formatUptime(tick() - scriptStartTime))
         end)
     end
 end)
 
--- ============ MOBILE BUTTON ============
 if Library.IsMobile then
     local CustomToggleButton = Instance.new("ImageButton")
     CustomToggleButton.Name = "CustomToggleButton"
@@ -309,71 +264,54 @@ if Library.IsMobile then
         if Input.UserInputType ~= Enum.UserInputType.MouseButton1 and Input.UserInputType ~= Enum.UserInputType.Touch then
             return
         end
-
         local Start = tick()
         local Changed
         Changed = Input.Changed:Connect(function()
-            if Input.UserInputState ~= Enum.UserInputState.End then
-                return
-            end
-
+            if Input.UserInputState ~= Enum.UserInputState.End then return end
             local IsLikelyDragging = tick() - Start > 0.35
-            if not IsLikelyDragging then
-                Library:Toggle()
-            end
-
-            if Changed and Changed.Connected then
-                Changed:Disconnect()
-                Changed = nil
-            end
+            if not IsLikelyDragging then Library:Toggle() end
+            if Changed and Changed.Connected then Changed:Disconnect(); Changed = nil end
         end)
     end)
 end
-
--- ============ GET WEAPONS ============
 local GetWeaponsBox = Tabs.Teleports:AddLeftGroupbox("Pegar Armas", "sword")
 
 GetWeaponsBox:AddDropdown("GetWeaponsList", {
     Values = {"MP5", "AK-47", "M4A1", "FAL", "Remington 870", "M700"},
     Multi = true,
-    Text = "Select Weapons to Get",
-    Tooltip = "Choose which weapons you want to receive",
+    Text = "Selecione as Armas",
+    Tooltip = "Escolha quais armas você quer receber",
     Callback = function(Value)
         local list = {}
         for name, selected in pairs(Value or {}) do
-            if selected then
-                table.insert(list, name)
-            end
+            if selected then table.insert(list, name) end
         end
         getgenv().SilentAimSettings.GetWeaponsList = list
     end,
 })
 
 GetWeaponsBox:AddButton({
-    Text = "Get Weapons",
+    Text = "Pegar Armas",
     Func = function()
-        if getgenv().GetWeapons then
-            getgenv().GetWeapons()
-        end
+        if getgenv().GetWeapons then getgenv().GetWeapons() end
     end,
 })
 
 GetWeaponsBox:AddDivider()
 
 GetWeaponsBox:AddCheckbox("AutoGetWeapons", {
-    Text = "Auto get Weapons",
+    Text = "Pegar Armas Automático",
     Default = false,
     Callback = function(v)
         getgenv().SilentAimSettings.AutoGetWeapons = v
     end,
 })
 
--- ============ PLAYERS TAB ============
 local PlayerSettingsBox = Tabs.Teleports:AddLeftGroupbox("Diversos", "sliders")
 
 PlayerSettingsBox:AddCheckbox("Noclip", {
-    Text = "Noclip",
-    Tooltip = "Permite que atravesse pareds e objetos",
+    Text = "Atravessar Paredes",
+    Tooltip = "Permite atravessar paredes e objetos",
     Default = false,
     Callback = function(v)
         getgenv().SetNoclipEnabled(v)
@@ -381,7 +319,7 @@ PlayerSettingsBox:AddCheckbox("Noclip", {
 })
 
 PlayerSettingsBox:AddCheckbox("InfiniteJump", {
-    Text = "Infinito pulo",
+    Text = "Pulo Infinito",
     Tooltip = "Permite pular infinitamente",
     Default = false,
     Callback = function(v)
@@ -389,9 +327,9 @@ PlayerSettingsBox:AddCheckbox("InfiniteJump", {
     end,
 })
 
-PlayerSettingsBox:AddCheckbox("Infinita Estamina", {
-    Text = "Infinita Estamina",
-    Tooltip = "Desabilita o cooldown do pulo",
+PlayerSettingsBox:AddCheckbox("InfiniteStamina", {
+    Text = "Estamina Infinita",
+    Tooltip = "Desabilita o cansaço ao pular",
     Default = false,
     Callback = function(v)
         getgenv().SilentAimSettings.InfiniteStamina = v
@@ -399,15 +337,15 @@ PlayerSettingsBox:AddCheckbox("Infinita Estamina", {
 })
 
 PlayerSettingsBox:AddCheckbox("Invisible", {
-    Text = "Invisible",
+    Text = "Ficar Invisível",
     Default = false,
     Callback = function(v)
         getgenv().SetInvisibleEnabled(v)
     end,
 })
 
-PlayerSettingsBox:AddCheckbox("Anti invisível", {
-    Text = "Anti-invisivel",
+PlayerSettingsBox:AddCheckbox("AntiInvisible", {
+    Text = "Anti-Invisível",
     Default = false,
     Callback = function(v)
         getgenv().SetAntiInvisibleEnabled(v)
@@ -415,7 +353,7 @@ PlayerSettingsBox:AddCheckbox("Anti invisível", {
 })
 
 PlayerSettingsBox:AddCheckbox("Korblox", {
-    Text = "Korblox",
+    Text = "Perna Korblox",
     Default = false,
     Callback = function(v)
         getgenv().SetKorbloxEnabled(v)
@@ -423,16 +361,16 @@ PlayerSettingsBox:AddCheckbox("Korblox", {
 })
 
 PlayerSettingsBox:AddCheckbox("Headless", {
-    Text = "Headless",
+    Text = "Sem Cabeça (Headless)",
     Default = false,
     Callback = function(v)
         getgenv().SetHeadlessEnabled(v)
     end,
 })
 
-PlayerSettingsBox:AddCheckbox("Anti Sit", {
-    Text = "Anti Sit",
-    Tooltip = "Permite que você nunca assente",
+PlayerSettingsBox:AddCheckbox("AntiSit", {
+    Text = "Anti-Sentar",
+    Tooltip = "Impede que te obriguem a sentar",
     Default = false,
     Callback = function(v)
         getgenv().SetAntiSitEnabled(v)
@@ -440,8 +378,8 @@ PlayerSettingsBox:AddCheckbox("Anti Sit", {
 })
 
 PlayerSettingsBox:AddCheckbox("CameraFOVEnabled", {
-    Text = "Mudar FOV da camera",
-    Tooltip = "Ativa o FOV customizado da camera",
+    Text = "Mudar FOV da Câmera",
+    Tooltip = "Ativa o FOV customizado da câmera",
     Default = false,
     Callback = function(v)
         getgenv().SilentAimSettings.CameraFOVEnabled = v
@@ -449,8 +387,7 @@ PlayerSettingsBox:AddCheckbox("CameraFOVEnabled", {
 })
 
 PlayerSettingsBox:AddSlider("CameraFOV", {
-    Text = "FOV da camera",
-    Tooltip = "Mudar o campo de visão da camera",
+    Text = "FOV da Câmera",
     Default = 70,
     Min = 30,
     Max = 120,
@@ -462,8 +399,7 @@ PlayerSettingsBox:AddSlider("CameraFOV", {
 })
 
 PlayerSettingsBox:AddSlider("SpinbotSpeed", {
-    Text = "Girar personagem",
-    Tooltip = "Faz seu personagem girar na velocidade escolhida",
+    Text = "Girar Personagem",
     Default = 0,
     Min = 0,
     Max = 250,
@@ -483,35 +419,27 @@ PlayerSettingsBox:AddButton({
         pcall(function()
             remote = ReplicatedStorage:WaitForChild("GunRemotes", 5):WaitForChild("PlayerTased", 5)
         end)
-
         task.spawn(function()
             while true do
                 if remote then
                     local ok, connections = pcall(getconnections, remote.OnClientEvent)
                     if ok then
-                        for _, conn in connections do
-                            conn:Disable()
-                        end
+                        for _, conn in connections do conn:Disable() end
                     end
                 end
                 task.wait(0.5)
             end
         end)
-        
-        Library:Notify({ Title = "Anti-Tase", Text = "Anti-Tase enabled️" })
+        Library:Notify({ Title = "Anti-Tase", Text = "Anti-Choque ativado" })
     end,
 })
 
--- ============ ENVIRONMENT GROUP ============
-local EnvironmentBox = Tabs.Teleports:AddLeftGroupbox("Environment", "trees")
-
-EnvironmentBox:AddLabel("World appearance settings", true)
-
+local EnvironmentBox = Tabs.Teleports:AddLeftGroupbox("Ambiente", "trees")
+EnvironmentBox:AddLabel("Configurações do mundo", true)
 local EnvironmentTabbox = EnvironmentBox:AddTabbox()
 local EnvironmentNetworkTab = EnvironmentTabbox:AddTab(nil, "globe")
 local EnvironmentCloudTab = EnvironmentTabbox:AddTab(nil, "cloud")
 
--- ============ WORLD GRADIENT ============
 local WorldGradientEnabled = false
 local DefaultAmbient = game:GetService("Lighting").Ambient
 local DefaultOutdoorAmbient = game:GetService("Lighting").OutdoorAmbient
@@ -519,8 +447,7 @@ local CurrentGradientColor = Color3.fromRGB(255, 255, 255)
 local CurrentOutdoorGradient = Color3.fromRGB(255, 255, 255)
 
 EnvironmentNetworkTab:AddCheckbox("WorldGradient", {
-    Text = "Cor do mundo",
-    Tooltip = "Ativar cores customizadas para o mundo",
+    Text = "Cor do Mundo",
     Default = false,
     Callback = function(v)
         WorldGradientEnabled = v
@@ -534,11 +461,10 @@ EnvironmentNetworkTab:AddCheckbox("WorldGradient", {
     end,
 })
 
-EnvironmentNetworkTab:AddLabel("Gradient Color"):AddColorPicker("GradientColor", {
+EnvironmentNetworkTab:AddLabel("Cor do Gradiente"):AddColorPicker("GradientColor", {
     Default = Color3.fromRGB(255, 255, 255),
-    Title = "Gradient Color",
-    Text = "Gradient Color",
-    Tooltip = "Sets the world gradient color",
+    Title = "Cor do Gradiente",
+    Text = "Cor do Gradiente",
     Callback = function(Value)
         CurrentGradientColor = Value
         if WorldGradientEnabled then
@@ -547,11 +473,10 @@ EnvironmentNetworkTab:AddLabel("Gradient Color"):AddColorPicker("GradientColor",
     end,
 })
 
-EnvironmentNetworkTab:AddLabel("Outdoor Gradient"):AddColorPicker("OutdoorGradient", {
+EnvironmentNetworkTab:AddLabel("Gradiente Externo"):AddColorPicker("OutdoorGradient", {
     Default = Color3.fromRGB(255, 255, 255),
-    Title = "Outdoor Gradient",
-    Text = "Outdoor Gradient",
-    Tooltip = "Sets the outdoor gradient color",
+    Title = "Gradiente Externo",
+    Text = "Gradiente Externo",
     Callback = function(Value)
         CurrentOutdoorGradient = Value
         if WorldGradientEnabled then
@@ -563,8 +488,7 @@ EnvironmentNetworkTab:AddLabel("Outdoor Gradient"):AddColorPicker("OutdoorGradie
 EnvironmentNetworkTab:AddDivider()
 
 EnvironmentNetworkTab:AddCheckbox("RemoveFog", {
-    Text = "Remove Fog",
-    Tooltip = "Remove a névoa do jogo",
+    Text = "Remover Névoa",
     Default = false,
     Callback = function(v)
         if v then
@@ -577,162 +501,77 @@ EnvironmentNetworkTab:AddCheckbox("RemoveFog", {
     end,
 }):AddColorPicker("FogColor", {
     Default = Color3.fromRGB(100, 100, 100),
-    Title = "Fog Color",
-    Text = "Fog Color",
-    Tooltip = "Choose the fog color",
+    Title = "Cor da Névoa",
+    Text = "Cor da Névoa",
     Callback = function(Value)
         setFogColorRGB(Value)
     end,
 })
 
--- ============ CUSTOM SKYBOX ============
 local CustomSkyboxEnabled = false
 local CurrentSkybox = "None"
 
 EnvironmentCloudTab:AddCheckbox("CustomSkybox", {
     Text = "Céu Customizado",
-    Tooltip = "Ativar a Aplicação de um céu customizado",
     Default = false,
     Callback = function(v)
         CustomSkyboxEnabled = v
-        if v then
-            setSkybox(CurrentSkybox)
-        else
-            setSkybox("None")
-        end
+        if v then setSkybox(CurrentSkybox) else setSkybox("None") end
     end,
 })
 
 EnvironmentCloudTab:AddDropdown("Skyboxes", {
     Values = {"None", "Gray Skybox", "2knw & Donk666 Skybox", "Snow Skybox", "Cartoon Skybox", "Lince Skybox", "Red Skybox", "Slam Skybox", "Green Eyeball Skybox", "Morioh Skybox", "Rainy Skybox", "Rusk1ddski Skybox"},
     Default = "None",
-    Text = "Skyboxes",
-    Tooltip = "Choose your skybox",
+    Text = "Céus",
     Callback = function(Value)
         CurrentSkybox = Value
-        if CustomSkyboxEnabled then
-            setSkybox(Value)
-        end
+        if CustomSkyboxEnabled then setSkybox(Value) end
     end,
 })
 
-local playerOptions = {"Select a player..."}
-for _, plr in ipairs(Players:GetPlayers()) do
-    if plr ~= player then
-        table.insert(playerOptions, plr.Name)
-    end
-end
-
-local viewPlayerOptions = {"Select a player..."}
-for _, plr in ipairs(Players:GetPlayers()) do
-    if plr ~= player then
-        table.insert(viewPlayerOptions, plr.Name)
-    end
-end
-
-local SPECTATE_PLAYER = nil
-local spectateConnection = nil
-
-local function stopSpectate()
-    if spectateConnection then
-        spectateConnection:Disconnect()
-        spectateConnection = nil
-    end
-    if player.Character then
-        local humanoid = player.Character:FindFirstChildOfClass("Humanoid")
-        if humanoid then
-            workspace.CurrentCamera.CameraSubject = humanoid
-        end
-    end
-end
-
-local function startSpectate(targetName)
-    if spectateConnection then
-        spectateConnection:Disconnect()  
-        spectateConnection = nil
-    end
-    
-    local target = Players:FindFirstChild(targetName)
-    if not target or not target.Character then return end
-    
-    local humanoid = target.Character:FindFirstChildOfClass("Humanoid")
-    if not humanoid then return end
-    
-    workspace.CurrentCamera.CameraSubject = humanoid
-    spectateConnection = RunService.RenderStepped:Connect(function()
-        if target and target.Character then
-            local hum = target.Character:FindFirstChildOfClass("Humanoid")
-            if hum and hum.Health > 0 then
-                workspace.CurrentCamera.CameraSubject = hum
-            end
-        end
-    end)
-end
-
--- ============ AIMBOT TAB ============
-local AimbotLeftBox = Tabs.Aimbot:AddLeftGroupbox("Aim Settings", "crosshair")
+local AimbotLeftBox = Tabs.Aimbot:AddLeftGroupbox("Configurações de Mira", "crosshair")
 
 AimbotLeftBox:AddCheckbox("SilentAim", {
-    Text = "Silente aim",
-    Tooltip = "Silent Aim method by 7zz",
+    Text = "Mira Silenciosa (Silent Aim)",
     Default = true,
-    Callback = function(v)
-        getgenv().SilentAimSettings.Enabled = v
-    end,
+    Callback = function(v) getgenv().SilentAimSettings.Enabled = v end,
 })
 
 AimbotLeftBox:AddCheckbox("Autoshoot", {
-    Text = "Tiro automático",
-    Tooltip = "Atira sozinho quando a mira trava no inimigo",
+    Text = "Tiro Automático",
     Default = false,
-    Callback = function(v)
-        getgenv().SilentAimSettings.Autoshoot = v
-    end,
+    Callback = function(v) getgenv().SilentAimSettings.Autoshoot = v end,
 })
 
 AimbotLeftBox:AddCheckbox("WallCheck", {
     Text = "Checar Paredes",
-    Tooltip = "Ignora inimigo que estão atrás de parede s",
     Default = true,
-    Callback = function(v)
-        getgenv().SilentAimSettings.VisibleCheck = v
-    end,
+    Callback = function(v) getgenv().SilentAimSettings.VisibleCheck = v end,
 })
 
 AimbotLeftBox:AddCheckbox("TeamCheck", {
     Text = "Checar Time",
-    Tooltip = "Ignora jogadores que estão no seu mesmo time",
     Default = true,
-    Callback = function(v)
-        getgenv().SilentAimSettings.TeamCheck = v
-    end,
+    Callback = function(v) getgenv().SilentAimSettings.TeamCheck = v end,
 })
 
 AimbotLeftBox:AddCheckbox("FriendCheck", {
     Text = "Checar Amigos",
-    Tooltip = "Ignora seus amigos no jogo",
     Default = true,
-    Callback = function(v)
-        getgenv().SilentAimSettings.FriendCheck = v
-    end,
+    Callback = function(v) getgenv().SilentAimSettings.FriendCheck = v end,
 })
 
 AimbotLeftBox:AddCheckbox("ForceFieldCheck", {
     Text = "Checar Escudo",
-    Tooltip = "Ignora jogadores que estão com escudo",
     Default = true,
-    Callback = function(v)
-        getgenv().SilentAimSettings.ForceFieldCheck = v
-    end,
+    Callback = function(v) getgenv().SilentAimSettings.ForceFieldCheck = v end,
 })
 
-local AutoshootWarningLabel = AimbotLeftBox:AddLabel("Note: Autoshot is not compatible with Hitchance", true)
-
+local AutoshootWarningLabel = AimbotLeftBox:AddLabel("Nota: Tiro Automático não é compatível com Chance de Acerto", true)
 do
     local warningInstance = AutoshootWarningLabel.Holder and AutoshootWarningLabel.Holder:FindFirstChildOfClass("TextLabel")
-    if warningInstance then
-        warningInstance.TextColor3 = Color3.fromRGB(255, 70, 70)
-    end
+    if warningInstance then warningInstance.TextColor3 = Color3.fromRGB(255, 70, 70) end
 end
 
 AimbotLeftBox:AddDivider()
@@ -741,1069 +580,131 @@ AimbotLeftBox:AddDropdown("TargetTeams", {
     Values = {"Inmates", "Guards", "Criminals"},
     Multi = true,
     Text = "Times Alvo",
-    Tooltip = "Selecione quais a mira vai atacar",
-    Callback = function(Value)
-        getgenv().SilentAimSettings.TargetTeams = Value or {}
-    end,
+    Callback = function(Value) getgenv().SilentAimSettings.TargetTeams = Value or {} end,
 })
-
 Options.TargetTeams:SetValue({ Inmates = true, Guards = true, Criminals = true })
-
--- ============ TARGET MODE ============
-local lastTargetModeSelection = { ["Manual"] = true }
-local updateInProgress = false
-
-AimbotLeftBox:AddDropdown("TargetMode", {
-    Values = {"Manual", "🔗 Trespass", "💢 Hostile"},
-    Multi = true,
-    Default = { ["Manual"] = true },
-    Text = "Modelo de alvo",
-    Tooltip = "Manual pega qualquer um. Trespasse/Hostile restringem a pessoa marcados (podem ser combinados, mas não com Manual)",
-    Callback = function(Value)
-        if updateInProgress then return end
-        updateInProgress = true
-        
-        task.defer(function()
-            Value = Value or {}
-
-            local wasManual = lastTargetModeSelection["Manual"]
-            local isManual = Value["Manual"]
-            local isTrespass = Value["🔗 Trespass"]
-            local isHostile = Value["💢 Hostile"]
-
-            local manualJustSelected = isManual and not wasManual
-
-            local finalValue = {}
-
-            if manualJustSelected then
-                finalValue = { ["Manual"] = true }
-            elseif isTrespass or isHostile then
-                if isTrespass then finalValue["🔗 Trespass"] = true end
-                if isHostile then finalValue["💢 Hostile"] = true end
-            else
-                finalValue = { ["Manual"] = true }
-            end
-
-            lastTargetModeSelection = finalValue
-
-            getgenv().SilentAimSettings.TrespassCheck = finalValue["🔗 Trespass"] == true
-            getgenv().SilentAimSettings.HostileCheck = finalValue["💢 Hostile"] == true
-
-            Options.TargetMode:SetValue(finalValue)
-            updateInProgress = false
-        end)
-    end,
-})
-
-local targetOptions = {}
-for _, plr in ipairs(Players:GetPlayers()) do
-    if plr ~= player then
-        table.insert(targetOptions, plr.Name)
-    end
-end
 
 AimbotLeftBox:AddDropdown("AimMode", {
     Values = {"FOV", "Distância"},
     Default = "FOV",
-    Text = "Modelo de Mira",
-    Tooltip = "FOV: Trava no inimigo dentro do círculo | Distância: Trava no mais próximo que estiver visível",
-    Callback = function(Value)
-        getgenv().SilentAimSettings.AimMode = Value
-    end,
+    Text = "Modo de Mira",
+    Callback = function(Value) getgenv().SilentAimSettings.AimMode = Value end,
 })
 
 AimbotLeftBox:AddDropdown("TargetPart", {
-    Values = {"Cabeça", "Torso", "Braço Esquerdo", "Braço Direito", "Perna Esquerda", "Perna Direita", "HumanoidRootPart", "Aleatório"},
+    Values = {"Head", "Torso", "Left Arm", "Right Arm", "Left Leg", "Right Leg", "HumanoidRootPart", "Random"},
     Default = "HumanoidRootPart",
-    Text = "Target Part",
-    Tooltip = "Escolha qual parte do corpo a mira vai travar. 'aleaatótio' muda a cada 0.5s",
-    Callback = function(Value)
-        getgenv().SilentAimSettings.TargetPart = Value
-    end,
+    Text = "Parte do Alvo",
+    Callback = function(Value) getgenv().SilentAimSettings.TargetPart = Value end,
 })
 
--- ============ HITBOX EXPANDER ============
-local HitboxExpanderBox = Tabs.Aimbot:AddLeftGroupbox("Hitbox Expander", "maximize-2")
-HitboxExpanderBox:SetDescription("Enlarges player hitboxes")
+local HitboxExpanderBox = Tabs.Aimbot:AddLeftGroupbox("Aumentar Hitbox", "maximize-2")
+HitboxExpanderBox:AddCheckbox("EnableHitboxExpander", { Text = "Ativar Hitbox Gigante", Default = false, Callback = function(v) getgenv().SilentAimSettings.HitboxExpanderEnabled = v end })
+HitboxExpanderBox:AddCheckbox("HitboxTeamCheck", { Text = "Checar Time", Default = true, Callback = function(v) getgenv().SilentAimSettings.HitboxTeamCheck = v end })
+HitboxExpanderBox:AddSlider("HitboxSize", { Text = "Tamanho da Hitbox", Default = 1, Min = 1, Max = 15, Rounding = 0, Callback = function(Value) getgenv().SilentAimSettings.HitboxSize = Value end })
+HitboxExpanderBox:AddSlider("HitboxTransparency", { Text = "Transparência", Default = 0.5, Min = 0, Max = 1, Rounding = 1, Callback = function(Value) getgenv().SilentAimSettings.HitboxTransparency = Value end })
+HitboxExpanderBox:AddDropdown("HitboxShape", { Values = {"Box", "Ball"}, Default = "Box", Text = "Formato", Callback = function(Value) getgenv().SilentAimSettings.HitboxShape = Value end })
 
-HitboxExpanderBox:AddCheckbox("EnableHitboxExpander", {
-    Text = "Ativar a Hitbox",
-    Default = false,
-    Callback = function(v)
-        getgenv().SilentAimSettings.HitboxExpanderEnabled = v
-    end,
-})
-
-HitboxExpanderBox:AddCheckbox("HitboxTeamCheck", {
-    Text = "Checar Time",
-    Default = true,
-    Callback = function(v)
-        getgenv().SilentAimSettings.HitboxTeamCheck = v
-    end,
-})
-
-HitboxExpanderBox:AddSlider("HitboxSize", {
-    Text = "Tamanho da Hitbox",
-    Default = 1,
-    Min = 1,
-    Max = 15,
-    Rounding = 0,
-    Callback = function(Value)
-        getgenv().SilentAimSettings.HitboxSize = Value
-    end,
-})
-
-HitboxExpanderBox:AddSlider("HitboxTransparency", {
-    Text = "Hitbox Transparente",
-    Default = 0.5,
-    Min = 0,
-    Max = 1,
-    Rounding = 1,
-    Callback = function(Value)
-        getgenv().SilentAimSettings.HitboxTransparency = Value
-    end,
-})
-
-HitboxExpanderBox:AddDropdown("HitboxShape", {
-    Values = {"Quadro", "Bola"},
-    Default = "Quadro",
-    Text = "Formato da Hitbox",
-    Callback = function(Value)
-        getgenv().SilentAimSettings.HitboxShape = Value
-    end,
-})
-
--- ============ AIMBOT SLIDERS ============
-local AimbotMidBox = Tabs.Aimbot:AddLeftGroupbox("Smoothing & Accuracy", "target")
-
-AimbotMidBox:AddSlider("SilentAimRange", {
-    Text = "Alcance da Mira",
-    Tooltip = "Distância Máxima em que a mira vai funcionar",
-    Default = 500,
-    Min = 30,
-    Max = 2000,
-    Rounding = 0,
-    Callback = function(Value)
-        getgenv().SilentAimSettings.SilentAimRange = Value
-    end,
-})
-
-AimbotMidBox:AddSlider("Smoothing", {
-    Text = "Suavização",
-    Default = 0,
-    Min = 0,
-    Max = 1,
-    Rounding = 1,
-    Callback = function(Value)
-        getgenv().SilentAimSettings.Smoothing = Value
-    end,
-})
-
-AimbotMidBox:AddSlider("HitChance", {
-    Text = "Hit Chance",
-    Default = 100,
-    Min = 0,
-    Max = 100,
-    Rounding = 1,
-    Callback = function(Value)
-        getgenv().SilentAimSettings.HitChance = Value
-    end,
-})
-
--- ============ FOV SECTION ============
-local FOVBox = Tabs.Aimbot:AddRightGroupbox("Settings", "settings")
-
+local AimbotMidBox = Tabs.Aimbot:AddLeftGroupbox("Suavização & Precisão", "target")
+AimbotMidBox:AddSlider("SilentAimRange", { Text = "Alcance da Mira", Default = 500, Min = 30, Max = 2000, Rounding = 0, Callback = function(Value) getgenv().SilentAimSettings.SilentAimRange = Value end })
+AimbotMidBox:AddSlider("Smoothing", { Text = "Suavização", Default = 0, Min = 0, Max = 1, Rounding = 1, Callback = function(Value) getgenv().SilentAimSettings.Smoothing = Value end })
+AimbotMidBox:AddSlider("HitChance", { Text = "Chance de Acerto", Default = 100, Min = 0, Max = 100, Rounding = 1, Callback = function(Value) getgenv().SilentAimSettings.HitChance = Value end })
+local FOVBox = Tabs.Aimbot:AddRightGroupbox("Configurações de FOV", "settings")
 local FOVIconTabbox = FOVBox:AddTabbox()
 local FOVEyeTab = FOVIconTabbox:AddTab(nil, "scan-eye")
 local FOVUsersTab = FOVIconTabbox:AddTab(nil, "users")
 
-FOVEyeTab:AddCheckbox("HideFOV", {
-    Text = "Mostra círculo FOV",
-    Default = true,
-    Callback = function(v)
-        toggleFOVCircle(not v)
-    end,
-}):AddColorPicker("FOVColor", {
-    Default = Color3.fromRGB(255, 255, 255),
-    Title = "Cor do FOV",
-    Text = "Cor do FOV",
-    Tooltip = "Mudar cor do círculo da mira",
-    Callback = function(Value)
-        setFOVColorRGB(Value)
-    end,
-})
+FOVEyeTab:AddCheckbox("HideFOV", { Text = "Mostrar Círculo FOV", Default = true, Callback = function(v) toggleFOVCircle(not v) end }):AddColorPicker("FOVColor", { Default = Color3.fromRGB(255, 255, 255), Title = "Cor do FOV", Text = "Cor do FOV", Callback = function(Value) setFOVColorRGB(Value) end })
+FOVEyeTab:AddSlider("FOVSize", { Text = "Tamanho do FOV", Default = 100, Min = 30, Max = 500, Rounding = 0, Callback = function(Value) getgenv().SilentAimSettings.FOVRadius = Value end })
 
-FOVEyeTab:AddSlider("FOVSize", {
-    Text = "Tamanho do FOV",
-    Default = 100,
-    Min = 30,
-    Max = 500,
-    Rounding = 0,
-    Callback = function(Value)
-        getgenv().SilentAimSettings.FOVRadius = Value
-    end,
-})
-
-FOVUsersTab:AddDropdown("TargetOn", {
-    Values = targetOptions,
-    Default = 1,
-    Text = "Target On",
-    Tooltip = "Select specific players to target",
-    Multi = true,
-    AllowNull = true,
-    Callback = function(Value)
-        local list = {}
-        for name, selected in pairs(Value or {}) do
-            if selected then
-                table.insert(list, name)
-            end
-        end
-        getgenv().SilentAimSettings.TargetOnPlayer = list
-    end,
-})
-
-FOVUsersTab:AddButton({
-    Text = "Reset Target",
-    Func = function()
-        getgenv().SilentAimSettings.TargetOnPlayer = {}
-        local newOptions = {}
-        for _, plr in ipairs(Players:GetPlayers()) do
-            if plr ~= player then
-                table.insert(newOptions, plr.Name)
-            end
-        end
-        Options.TargetOn:SetValues(newOptions)
-        Options.TargetOn:SetValue({})
-    end,
-})
-
-FOVUsersTab:AddDropdown("IgnoreTarget", {
-    Values = targetOptions,
-    Default = 1,
-    Text = "Ignore Target",
-    Tooltip = "Select players to completely ignore",
-    Multi = true,
-    AllowNull = true,
-    Callback = function(Value)
-        local list = {}
-        for name, selected in pairs(Value or {}) do
-            if selected then
-                table.insert(list, name)
-            end
-        end
-        getgenv().SilentAimSettings.IgnoreTargets = list
-    end,
-})
-
-FOVUsersTab:AddButton({
-    Text = "Reset Ignore List",
-    Func = function()
-        getgenv().SilentAimSettings.IgnoreTargets = {}
-        local newOptions = {}
-        for _, plr in ipairs(Players:GetPlayers()) do
-            if plr ~= player then
-                table.insert(newOptions, plr.Name)
-            end
-        end
-        Options.IgnoreTarget:SetValues(newOptions)
-        Options.IgnoreTarget:SetValue({})
-    end,
-})
-
--- ============ FAST SWITCH BUTTON ============
-local FastSwitchOnColor = Color3.fromRGB(150, 199, 150)
-
-local FastSwitchButton = Instance.new("TextButton")
-FastSwitchButton.Name = "FastSwitchButton"
-FastSwitchButton.AutoButtonColor = false
-FastSwitchButton.BackgroundColor3 = Library.Scheme.MainColor
-FastSwitchButton.Position = UDim2.fromOffset(6, 52)
-FastSwitchButton.Size = UDim2.fromOffset(130, 32)
-FastSwitchButton.Text = "Fast Switch: OFF"
-FastSwitchButton.TextColor3 = Library.Scheme.FontColor
-FastSwitchButton.Font = Enum.Font.Gotham
-FastSwitchButton.TextSize = 14
-FastSwitchButton.ZIndex = 10
-FastSwitchButton.Visible = false
-FastSwitchButton.Parent = Library.ScreenGui
-
-local FastSwitchButtonCorner = Instance.new("UICorner")
-FastSwitchButtonCorner.CornerRadius = UDim.new(0, Library.CornerRadius)
-FastSwitchButtonCorner.Parent = FastSwitchButton
-table.insert(Library.Corners, FastSwitchButtonCorner)
-
-Library:AddOutline(FastSwitchButton)
-Library:MakeDraggable(FastSwitchButton, FastSwitchButton, true)
-
-if not table.find(Library.DraggableElements, FastSwitchButton) then
-    table.insert(Library.DraggableElements, FastSwitchButton)
+local targetOptions = {}
+for _, plr in ipairs(Players:GetPlayers()) do
+    if plr ~= player then table.insert(targetOptions, plr.Name) end
 end
 
-local function updateFastSwitchButtonVisual()
-    local enabled = getgenv().SilentAimSettings.GunSwitchEnabled
-    FastSwitchButton.Text = enabled and "Fast Switch: ON" or "Fast Switch: OFF"
+FOVUsersTab:AddDropdown("TargetOn", { Values = targetOptions, Default = 1, Text = "Mirar em", Multi = true, AllowNull = true, Callback = function(Value) local list = {}; for name, selected in pairs(Value or {}) do if selected then table.insert(list, name) end end; getgenv().SilentAimSettings.TargetOnPlayer = list end })
+FOVUsersTab:AddButton({ Text = "Resetar Alvo", Func = function() getgenv().SilentAimSettings.TargetOnPlayer = {}; Options.TargetOn:SetValue({}) end })
 
-    if enabled then
-        FastSwitchButton.BackgroundColor3 = FastSwitchOnColor
-        Library:AddToRegistry(FastSwitchButton, { TextColor3 = "FontColor" })
-    else
-        FastSwitchButton.BackgroundColor3 = Library.Scheme.MainColor
-        Library:AddToRegistry(FastSwitchButton, {
-            BackgroundColor3 = "MainColor",
-            TextColor3 = "FontColor",
-        })
-    end
-end
+local GunSwitcherBox = Tabs.Aimbot:AddRightGroupbox("Troca Rápida de Arma", "repeat")
+GunSwitcherBox:AddDropdown("SelectGunsToSwitch", { Values = {"M9", "Revolver", "MP5", "AK-47", "M4A1", "FAL", "Remington 870", "M700"}, Multi = true, Text = "Armas pra Trocar", Callback = function(Value) local list = {}; for name, selected in pairs(Value or {}) do if selected then table.insert(list, name) end end; getgenv().SilentAimSettings.GunSwitchList = list end })
+GunSwitcherBox:AddSlider("SwitchDelay", { Text = "Delay da Troca", Default = 0.001, Min = 0.001, Max = 1, Rounding = 2, Callback = function(Value) getgenv().SilentAimSettings.GunSwitchDelay = Value end })
+GunSwitcherBox:AddCheckbox("CycleAllWeapons", { Text = "Trocar Todas as Armas", Default = false, Callback = function(v) getgenv().SilentAimSettings.GunSwitchCycleAll = v end })
 
-local FastSwitchLockedPosition = nil
-local FastSwitchPositionConnection = nil
-
-local function setFastSwitchLocked(locked)
-    if locked then
-        FastSwitchLockedPosition = FastSwitchButton.Position
-        if not FastSwitchPositionConnection then
-            FastSwitchPositionConnection = FastSwitchButton:GetPropertyChangedSignal("Position"):Connect(function()
-                if FastSwitchLockedPosition then
-                    FastSwitchButton.Position = FastSwitchLockedPosition
-                end
-            end)
-        end
-    else
-        if FastSwitchPositionConnection then
-            FastSwitchPositionConnection:Disconnect()
-            FastSwitchPositionConnection = nil
-        end
-        FastSwitchLockedPosition = nil
-    end
-end
-
-local FASTSWITCH_CLICK_THRESHOLD = 0.35
-local FastSwitchHoldMode = false
-
-FastSwitchButton.InputBegan:Connect(function(Input)
-    if Input.UserInputType ~= Enum.UserInputType.MouseButton1 and Input.UserInputType ~= Enum.UserInputType.Touch then
-        return
-    end
-
-    if FastSwitchHoldMode then
-        getgenv().ToggleGunSwitch(true)
-        updateFastSwitchButtonVisual()
-
-        local Changed
-        Changed = Input.Changed:Connect(function()
-            if Input.UserInputState ~= Enum.UserInputState.End and Input.UserInputState ~= Enum.UserInputState.Cancel then
-                return
-            end
-
-            getgenv().ToggleGunSwitch(false)
-            updateFastSwitchButtonVisual()
-
-            if Changed and Changed.Connected then
-                Changed:Disconnect()
-                Changed = nil
-            end
-        end)
-        return
-    end
-
-    local Start = tick()
-    local Changed
-    Changed = Input.Changed:Connect(function()
-        if Input.UserInputState ~= Enum.UserInputState.End then
-            return
-        end
-
-        local IsLikelyDragging = tick() - Start > FASTSWITCH_CLICK_THRESHOLD
-        if not IsLikelyDragging then
-            local newState = not getgenv().SilentAimSettings.GunSwitchEnabled
-            getgenv().ToggleGunSwitch(newState)
-            updateFastSwitchButtonVisual()
-        end
-
-        if Changed and Changed.Connected then
-            Changed:Disconnect()
-            Changed = nil
-        end
-    end)
-end)
-
--- ============ VEHICLE FLY BUTTON ============
-local VehicleFlyOnColor = Color3.fromRGB(150, 199, 150)
-
-local VehicleFlyButton = Instance.new("TextButton")
-VehicleFlyButton.Name = "VehicleFlyButton"
-VehicleFlyButton.AutoButtonColor = false
-VehicleFlyButton.BackgroundColor3 = Library.Scheme.MainColor
-VehicleFlyButton.Position = UDim2.fromOffset(6, 90)
-VehicleFlyButton.Size = UDim2.fromOffset(130, 32)
-VehicleFlyButton.Text = "Vehicle Fly: OFF"
-VehicleFlyButton.TextColor3 = Library.Scheme.FontColor
-VehicleFlyButton.Font = Enum.Font.Gotham
-VehicleFlyButton.TextSize = 14
-VehicleFlyButton.ZIndex = 10
-VehicleFlyButton.Visible = false
-VehicleFlyButton.Parent = Library.ScreenGui
-
-local VehicleFlyButtonCorner = Instance.new("UICorner")
-VehicleFlyButtonCorner.CornerRadius = UDim.new(0, Library.CornerRadius)
-VehicleFlyButtonCorner.Parent = VehicleFlyButton
-table.insert(Library.Corners, VehicleFlyButtonCorner)
-
-Library:AddOutline(VehicleFlyButton)
-Library:MakeDraggable(VehicleFlyButton, VehicleFlyButton, true)
-
-if not table.find(Library.DraggableElements, VehicleFlyButton) then
-    table.insert(Library.DraggableElements, VehicleFlyButton)
-end
-
-local function updateVehicleFlyButtonVisual()
-    local enabled = getgenv().SilentAimSettings.VehicleFlyEnabled
-    VehicleFlyButton.Text = enabled and "Vehicle Fly: ON" or "Vehicle Fly: OFF"
-
-    if enabled then
-        VehicleFlyButton.BackgroundColor3 = VehicleFlyOnColor
-        Library:AddToRegistry(VehicleFlyButton, { TextColor3 = "FontColor" })
-    else
-        VehicleFlyButton.BackgroundColor3 = Library.Scheme.MainColor
-        Library:AddToRegistry(VehicleFlyButton, {
-            BackgroundColor3 = "MainColor",
-            TextColor3 = "FontColor",
-        })
-    end
-end
-
-local function toggleVehicleFly(newState)
-    getgenv().SilentAimSettings.VehicleFlyEnabled = newState
-    updateVehicleFlyButtonVisual()
-end
-
-local VEHICLEFLY_CLICK_THRESHOLD = 0.35
-
-VehicleFlyButton.InputBegan:Connect(function(Input)
-    if Input.UserInputType ~= Enum.UserInputType.MouseButton1 and Input.UserInputType ~= Enum.UserInputType.Touch then
-        return
-    end
-
-    local Start = tick()
-    local Changed
-    Changed = Input.Changed:Connect(function()
-        if Input.UserInputState ~= Enum.UserInputState.End then
-            return
-        end
-
-        local IsLikelyDragging = tick() - Start > VEHICLEFLY_CLICK_THRESHOLD
-        if not IsLikelyDragging then
-            toggleVehicleFly(not getgenv().SilentAimSettings.VehicleFlyEnabled)
-        end
-
-        if Changed and Changed.Connected then
-            Changed:Disconnect()
-            Changed = nil
-        end
-    end)
-end)
-
-updateVehicleFlyButtonVisual()
-
-task.spawn(function()
-    while true do
-        task.wait(0.1)
-        updateVehicleFlyButtonVisual()
-    end
-end)
-
-local VehicleFlyLockedPosition = nil
-local VehicleFlyPositionConnection = nil
-
-local function setVehicleFlyLocked(locked)
-    if locked then
-        VehicleFlyLockedPosition = VehicleFlyButton.Position
-        if not VehicleFlyPositionConnection then
-            VehicleFlyPositionConnection = VehicleFlyButton:GetPropertyChangedSignal("Position"):Connect(function()
-                if VehicleFlyLockedPosition then
-                    VehicleFlyButton.Position = VehicleFlyLockedPosition
-                end
-            end)
-        end
-    else
-        if VehicleFlyPositionConnection then
-            VehicleFlyPositionConnection:Disconnect()
-            VehicleFlyPositionConnection = nil
-        end
-        VehicleFlyLockedPosition = nil
-    end
-end
-
--- ============ GUN SWITCHER ============
-local GunSwitcherBox = Tabs.Aimbot:AddRightGroupbox("Gun Switcher", "repeat")
-
-GunSwitcherBox:AddDropdown("SelectGunsToSwitch", {
-    Values = {"M9", "Revolver", "MP5", "AK-47", "M4A1", "FAL", "Remington 870", "M700"},
-    Multi = true,
-    Text = "Select Guns to Switch",
-    Tooltip = "Choose which guns to cycle through",
-    Callback = function(Value)
-        local list = {}
-        for name, selected in pairs(Value or {}) do
-            if selected then
-                table.insert(list, name)
-            end
-        end
-        getgenv().SilentAimSettings.GunSwitchList = list
-    end,
-})
-
-GunSwitcherBox:AddSlider("SwitchDelay", {
-    Text = "Deley da Troca",
-    Default = 0.001,
-    Min = 0.001,
-    Max = 1,
-    Rounding = 2,
-    Callback = function(Value)
-        getgenv().SilentAimSettings.GunSwitchDelay = Value
-    end,
-})
-
-GunSwitcherBox:AddDivider()
-
-GunSwitcherBox:AddCheckbox("ShowGunSwitchButton", {
-    Text = "Mostra Botão de Troca Rápida",
-    Default = false,
-    Callback = function(v)
-        FastSwitchButton.Visible = v
-    end,
-})
-
-GunSwitcherBox:AddCheckbox("LockFastSwitchButton", {
-    Text = "Travar Botão de Troca Rápida",
-    Default = false,
-    Callback = function(v)
-        setFastSwitchLocked(v)
-    end,
-})
-
-GunSwitcherBox:AddCheckbox("HoldFastSwitchButton", {
-    Text = "Segura Botão pra Ativar",
-    Default = false,
-    Callback = function(v)
-        FastSwitchHoldMode = v
-
-        if getgenv().SilentAimSettings.GunSwitchEnabled then
-            getgenv().ToggleGunSwitch(false)
-            updateFastSwitchButtonVisual()
-        end
-    end,
-})
-
-GunSwitcherBox:AddCheckbox("CycleAllWeapons", {
-    Text = "Circular Todas as Armas",
-    Tooltip = "Inclui automaticamente todas as armas que você tem na troca rápida, ignorando a seleção acima",
-    Default = false,
-    Callback = function(v)
-        getgenv().SilentAimSettings.GunSwitchCycleAll = v
-    end,
-})
-
-GunSwitcherBox:AddLabel("Fast Switch Keybind"):AddKeyPicker("FastSwitchKeybind", {
-    Default = "None",
-    NoUI = false,
-    Text = "Fast Switch Keybind",
-    Callback = function()
-        local newState = not getgenv().SilentAimSettings.GunSwitchEnabled
-        getgenv().ToggleGunSwitch(newState)
-        updateFastSwitchButtonVisual()
-    end,
-})
-
-task.spawn(function()
-    while true do
-        task.wait(0.1)
-        local keyValue = Options.FastSwitchKeybind.Value
-        getgenv().SilentAimSettings.FastSwitchKeyCode = keyValue
-    end
-end)
-
--- ============ WEAPON MODIFICATIONS ============
-local WeaponModBox = Tabs.Aimbot:AddRightGroupbox("Weapon Mod", "sword")
+local WeaponModBox = Tabs.Aimbot:AddRightGroupbox("Modificar Armas", "sword")
 local WeaponModsTabbox = WeaponModBox:AddTabbox()
-
 local GunModTab = WeaponModsTabbox:AddTab(nil, "wrench")
 
-GunModTab:AddCheckbox("WeaponMod", {
-    Text = "Modificar Armas",
-    Default = false,
-    Callback = function(v)
-        getgenv().SetGunModEnabled(v)
-    end,
-})
-
-GunModTab:AddDivider()
-
-GunModTab:AddCheckbox("AutoFire", {
-    Text = "Auto Tiro",
-    Default = false,
-    Callback = function(v)
-        getgenv().SetGunModAutoFire(v)
-    end,
-})
-
-GunModTab:AddCheckbox("FastFirerate", {
-    Text = "Tiro Rápido",
-    Default = false,
-    Callback = function(v)
-        getgenv().SetGunModFastFirerate(v)
-    end,
-})
-
-GunModTab:AddCheckbox("AutoReload", {
-    Text = "Recarga Automática",
-    Tooltip = "Automatically reloads the weapon when ammo reaches 0",
-    Default = false,
-    Callback = function(v)
-        getgenv().SetAutoReloadEnabled(v)
-    end,
-})
-
-GunModTab:AddDivider("Custom Values")
-
-GunModTab:AddSlider("FireRateValue", {
-    Text = "Fire Rate",
-    Default = 0.001,
-    Min = 0.001,
-    Max = 0.1,
-    Rounding = 2,
-    Callback = function(Value)
-        getgenv().SetGunModFireRate(Value)
-    end,
-})
+GunModTab:AddCheckbox("WeaponMod", { Text = "Modificar Armas", Default = false, Callback = function(v) getgenv().SetGunModEnabled(v) end })
+GunModTab:AddCheckbox("AutoFire", { Text = "Tiro Automático", Default = false, Callback = function(v) getgenv().SetGunModAutoFire(v) end })
+GunModTab:AddCheckbox("FastFirerate", { Text = "Tiro Rápido", Default = false, Callback = function(v) getgenv().SetGunModFastFirerate(v) end })
+GunModTab:AddCheckbox("AutoReload", { Text = "Recarga Automática", Default = false, Callback = function(v) getgenv().SetAutoReloadEnabled(v) end })
+GunModTab:AddSlider("FireRateValue", { Text = "Cadência de Tiro", Default = 0.001, Min = 0.001, Max = 0.1, Rounding = 2, Callback = function(Value) getgenv().SetGunModFireRate(Value) end })
 
 local ChainTab = WeaponModsTabbox:AddTab(nil, "cable")
-
-ChainTab:AddCheckbox("CustomBulletColor", {
-    Text = "Cor da Bala Customizada,
-    Tooltip = "Aplica uma cor customizada em todas as Balas",
-    Default = false,
-    Callback = function(v)
-        setCustomBulletColorEnabled(v)
-    end,
-})
-
-ChainTab:AddDivider()
-
-ChainTab:AddLabel("Bullet Color"):AddColorPicker("BulletColor", {
-    Default = Color3.fromRGB(255, 255, 0),
-    Title = "Bullet Color",
-    Text = "Bullet Color",
-    Tooltip = "Sets the color of all bullets when enabled",
-    Callback = function(Value)
-        setBulletColorRGB(Value)
-    end,
-})
+ChainTab:AddCheckbox("CustomBulletColor", { Text = "Cor da Bala Customizada", Default = false, Callback = function(v) setCustomBulletColorEnabled(v) end }):AddColorPicker("BulletColor", { Default = Color3.fromRGB(255, 255, 0), Title = "Cor da Bala", Text = "Cor da Bala", Callback = function(Value) setBulletColorRGB(Value) end })
 
 local PaintTab = WeaponModsTabbox:AddTab(nil, "paintbrush")
-PaintTab:AddCheckbox("EnableWeaponColor", {
-    Text = "Ativar Core da Arma",
-    Default = false,
-    Callback = function(v)
-        getgenv().SetWeaponColorEnabled(v)
-    end,
-}):AddColorPicker("WeaponColor", {
-    Default = Color3.fromRGB(255, 255, 255),
-    Title = "Cor da Arma",
-    Text = "Cor da Arma",
-    Tooltip = "Define a cor da sua arma",
-    Callback = function(Value)
-        getgenv().SetWeaponColorRGB(Value)
-    end,
-})
-
-PaintTab:AddCheckbox("EnableWeaponTexture", {
-    Text = "Ativar Textura da Arma",
-    Default = false,
-    Callback = function(v)
-        getgenv().SetWeaponTextureEnabled(v)
-    end,
-})
-
-PaintTab:AddDivider()
-
-PaintTab:AddSlider("WeaponTransparency", {
-    Text = "Transparência da Arma",
-    Default = 0,
-    Min = 0,
-    Max = 1,
-    Rounding = 1,
-    Callback = function(Value)
-        getgenv().SetWeaponTransparency(Value)
-    end,
-})
-
-PaintTab:AddDropdown("WeaponMaterial", {
-    Values = {"ForceField", "SmoothPlastic", "DiamondPlate", "Metal", "Marble", "Neon"},
-    Default = "SmoothPlastic",
-    Text = "Material da Arma",
-    Tooltip = "Define o material da sua arma",
-    Callback = function(Value)
-        getgenv().SetWeaponMaterial(Value)
-    end,
-})
-
-PaintTab:AddDropdown("WeaponTexture", {
-    Values = {
-        "Matrix",
-        "Blue Void",
-        "Classic blue White",
-        "Green and Black",
-        "White",
-        "Blue sky's with White Guns",
-        "Water Skin",
-        "Aurora",
-        "Epic White",
-        "Pink White",
-        "Blue Stars",
-    },
-    Default = "Matrix",
-    Text = "Textura da arma",
-    Tooltip = "Define a textura da sua arma",
-    Callback = function(Value)
-        getgenv().SetWeaponTexture(Value)
-    end,
-})
-
-PaintTab:AddLabel("Credits to OnlyAdrian", true)
-
+PaintTab:AddCheckbox("EnableWeaponColor", { Text = "Ativar Cor da Arma", Default = false, Callback = function(v) getgenv().SetWeaponColorEnabled(v) end }):AddColorPicker("WeaponColor", { Default = Color3.fromRGB(255, 255, 255), Title = "Cor da Arma", Text = "Cor da Arma", Callback = function(Value) getgenv().SetWeaponColorRGB(Value) end })
+PaintTab:AddCheckbox("EnableWeaponTexture", { Text = "Ativar Textura da Arma", Default = false, Callback = function(v) getgenv().SetWeaponTextureEnabled(v) end })
+PaintTab:AddSlider("WeaponTransparency", { Text = "Transparência da Arma", Default = 0, Min = 0, Max = 1, Rounding = 1, Callback = function(Value) getgenv().SetWeaponTransparency(Value) end })
+PaintTab:AddDropdown("WeaponMaterial", { Values = {"ForceField", "SmoothPlastic", "DiamondPlate", "Metal", "Marble", "Neon"}, Default = "SmoothPlastic", Text = "Material", Callback = function(Value) getgenv().SetWeaponMaterial(Value) end })
+PaintTab:AddDropdown("WeaponTexture", { Values = {"Matrix", "Blue Void", "Classic blue White", "Green and Black", "White", "Blue sky's with White Guns", "Water Skin", "Aurora", "Epic White", "Pink White", "Blue Stars"}, Default = "Matrix", Text = "Textura", Callback = function(Value) getgenv().SetWeaponTexture(Value) end })
 
 local SoundTab = WeaponModsTabbox:AddTab(nil, "volume-2")
 local NotifyTab = WeaponModsTabbox:AddTab(nil, "bell")
 
-SoundTab:AddDropdown("WeaponSoundPack", {
-    Values = {"None", "Silenced Shot", "Bubble Shot", "Laser Shot", "Dart Gun", "Energy Shot", "Neverlose"},
-    Default = "None",
-    Text = "Custom Shot Sound",
-    Tooltip = "Applies a custom shoot sound to all supported weapons",
-    Callback = function(Value)
-        getgenv().SetWeaponSoundPack(Value)
-    end,
-})
+SoundTab:AddDropdown("WeaponSoundPack", { Values = {"None", "Silenced Shot", "Bubble Shot", "Laser Shot", "Dart Gun", "Energy Shot", "Neverlose"}, Default = "None", Text = "Som do Tiro", Callback = function(Value) getgenv().SetWeaponSoundPack(Value) end })
+SoundTab:AddCheckbox("CustomKillSound", { Text = "Som de Kill Customizado", Default = false, Callback = function(v) getgenv().SetCustomKillSoundEnabled(v) end })
+SoundTab:AddCheckbox("CustomHitSound", { Text = "Som de Acerto Customizado", Default = false, Callback = function(v) getgenv().SetCustomHitSoundEnabled(v) end })
+SoundTab:AddDropdown("KillSound", { Values = {"Fahhh", "Epic Kill 1", "Epic Kill 2", "Laugh", "Cat Laughing Meme", "Goofy Laugh", "PVZ Laugh", "CoD Kaboom", "You are a Idiot", "Creepy Bell", "Vine Boom", "RDR2 Low Honor", "Get Out", "Diahrrea Sound", "Goku Prowler", "iPhone Ding", "Bark Fart", "Enrique", "Fatality 2"}, Default = 1, Text = "Som de Kill", Callback = function(Value) getgenv().SetKillSound(Value) end })
+SoundTab:AddDropdown("HitSound", { Values = {"TF2 Hit", "Metal Bat Hit", "Neverlose", "Minecraft Hit 1", "Minecraft Hit 2", "MLG Hit", "Fahhh Hit", "Xbox Live Notification", "Rust", "Fatality", "Skeet", "Pick", "Creepy Bell"}, Default = 1, Text = "Som de Acerto", Callback = function(Value) getgenv().SetHitSound(Value) end })
 
-SoundTab:AddDivider()
+NotifyTab:AddCheckbox("ColorScreenKillEffect", { Text = "Efeito de Tela ao Matar", Default = false, Callback = function(v) getgenv().SetKillEffectEnabled(v) end }):AddColorPicker("ColorScreenKillEffectColor", { Default = Color3.fromRGB(255, 255, 255), Title = "Cor do Efeito", Text = "Cor do Efeito", Callback = function(Value) getgenv().SetKillEffectColor(Value) end })
+NotifyTab:AddSlider("ColorEffectFadeDuration", { Text = "Duração do Efeito", Default = 0.25, Min = 0.05, Max = 1, Rounding = 2, Callback = function(Value) getgenv().SetKillEffectFadeDuration(Value) end })
+NotifyTab:AddCheckbox("KillLogs", { Text = "Logs de Kill", Default = false, Callback = function(v) getgenv().SetKillLogsEnabled(v) end })
+NotifyTab:AddCheckbox("HitLogs", { Text = "Logs de Acerto", Default = false, Callback = function(v) getgenv().SetHitLogsEnabled(v) end })
 
-SoundTab:AddCheckbox("CustomKillSound", {
-    Text = "Custom Kill Sound",
-    Default = false,
-    Callback = function(v)
-        getgenv().SetCustomKillSoundEnabled(v)
-    end,
-})
+local VisualsLeftBox = Tabs.Visuals:AddLeftGroupbox("ESP Destaque", "eye")
+VisualsLeftBox:AddCheckbox("ESP", { Text = "Ativar ESP", Default = false, Callback = function(v) getgenv().SilentAimSettings.ESPEnabled = v; updateESP() end })
+VisualsLeftBox:AddLabel("Cor do Alvo"):AddColorPicker("ESPTargetColor", { Default = Color3.fromRGB(255, 182, 255), Title = "Cor do Alvo", Text = "Cor do Alvo", Callback = function(Value) setESPTargetColorRGB(Value) end })
 
-SoundTab:AddCheckbox("CustomHitSound", {
-    Text = "Custom Hit Sound",
-    Default = false,
-    Callback = function(v)
-        getgenv().SetCustomHitSoundEnabled(v)
-    end,
-})
+local NameESPBox = Tabs.Visuals:AddLeftGroupbox("ESP de Nome", "type-outline")
+NameESPBox:AddCheckbox("EnableNameESP", { Text = "Mostrar Nome", Default = true, Callback = function(v) getgenv().SilentAimSettings.ESPNamesEnabled = v; updateESP() end })
+NameESPBox:AddCheckbox("EnableTargetNameESP", { Text = "Mostrar Alvo no Nome", Default = false, Callback = function(v) getgenv().SilentAimSettings.ESPTargetNameEnabled = v end })
+NameESPBox:AddLabel("Cor do Texto"):AddColorPicker("ESPTextColor", { Default = Color3.fromRGB(255, 255, 255), Title = "Cor do Texto", Text = "Cor do Texto", Callback = function(Value) setESPTextColor(Value) end })
+NameESPBox:AddLabel("Cor do Texto Alvo"):AddColorPicker("ESPTargetTextColor", { Default = Color3.fromRGB(255, 182, 255), Title = "Cor do Texto Alvo", Text = "Cor do Texto Alvo", Callback = function(Value) setESPTargetTextColor(Value) end })
+NameESPBox:AddSlider("NameESPTextSize", { Text = "Tamanho do Nome", Default = 12, Min = 0, Max = 24, Rounding = 0, Callback = function(Value) getgenv().SilentAimSettings.ESPNameTextSize = Value end })
+NameESPBox:AddSlider("TargetNameESPTextSize", { Text = "Tamanho do Texto Alvo", Default = 12, Min = 0, Max = 24, Rounding = 0, Callback = function(Value) getgenv().SilentAimSettings.ESPTargetNameTextSize = Value end })
+NameESPBox:AddInput("TargetCustomText", { Text = "", Placeholder = "Alvo", ClearTextOnFocus = false, Finished = false })
+NameESPBox:AddButton({ Text = "Reset", Func = function() Options.TargetCustomText:SetValue(""); getgenv().SetTargetCustomText("Alvo") end })
+NameESPBox:AddButton({ Text = "Aplicar", Func = function() local text = Options.TargetCustomText.Value; if not text or text == "" then text = "Alvo" end; getgenv().SetTargetCustomText(text) end })
 
-SoundTab:AddDivider()
+local TracerBox = Tabs.Visuals:AddRightGroupbox("Linhas (Tracers)", "zap")
+TracerBox:AddCheckbox("TracerESP", { Text = "Ativar Tracers", Default = false, Callback = function(v) getgenv().SilentAimSettings.TracerESPEnabled = v end })
+TracerBox:AddSlider("TracerThickness", { Text = "Espessura da Linha", Default = 0.2, Min = 0.1, Max = 1.5, Rounding = 1, Callback = function(Value) getgenv().SilentAimSettings.TracerThickness = Value end })
+TracerBox:AddCheckbox("TracerTargetOnly", { Text = "Apenas no Alvo", Default = false, Callback = function(v) getgenv().SilentAimSettings.TracerTargetOnly = v end })
+TracerBox:AddLabel("Cor da Linha"):AddColorPicker("TracerColor", { Default = Color3.fromRGB(255, 182, 255), Title = "Cor da Linha", Text = "Cor da Linha", Callback = function(Value) setTracerColorRGB(Value) end })
 
-SoundTab:AddDropdown("KillSound", {
-    Values = {
-        "Fahhh",
-        "Epic Kill 1",
-        "Epic Kill 2",
-        "Laugh",
-        "Cat Laughing Meme",
-        "Goofy Laugh",
-        "PVZ Laugh",
-        "CoD Kaboom",
-        "You are a Idiot",
-        "Creepy Bell",
-        "Vine Boom",
-        "RDR2 Low Honor",
-        "Get Out",
-        "Diahrrea Sound",
-        "Goku Prowler",
-        "iPhone Ding",
-        "Bark Fart",
-        "Enrique",
-        "Fatality 2",
-    },
-    Default = 1,
-    Text = "Kill Sound",
-    Tooltip = "Select a custom kill sound",
-    Callback = function(Value)
-        getgenv().SetKillSound(Value)
-    end,
-})
-
-SoundTab:AddDropdown("HitSound", {
-    Values = {
-        "TF2 Hit",
-        "Metal Bat Hit",
-        "Neverlose",
-        "Minecraft Hit 1",
-        "Minecraft Hit 2",
-        "MLG Hit",
-        "Fahhh Hit",
-        "Xbox Live Notification",
-        "Rust",
-        "Fatality",
-        "Skeet",
-        "Pick",
-        "Creepy Bell",
-    },
-    Default = 1,
-    Text = "Hit Sound",
-    Tooltip = "Select a custom hit sound",
-    Callback = function(Value)
-        getgenv().SetHitSound(Value)
-    end,
-})
-
-NotifyTab:AddLabel("Effects")
-
-NotifyTab:AddCheckbox("ColorScreenKillEffect", {
-    Text = "Efeito de Tela ao Matar",
-    Default = false,
-    Callback = function(v)
-        getgenv().SetKillEffectEnabled(v)
-    end,
-}):AddColorPicker("ColorScreenKillEffectColor", {
-    Default = Color3.fromRGB(255, 255, 255),
-    Title = "Cor do Efeito",
-    Text = "Cor do Efeito",
-    Tooltip = "Cor que a tela pisca quando você mata alguém",
-    Callback = function(Value)
-        getgenv().SetKillEffectColor(Value)
-    end,
-})
-
-NotifyTab:AddSlider("ColorEffectFadeDuration", {
-    Text = "Duração do Efeito",
-    Default = 0.25,
-    Min = 0.05,
-    Max = 1,
-    Rounding = 2,
-    Callback = function(Value)
-        getgenv().SetKillEffectFadeDuration(Value)
-    end,
-})
-
-NotifyTab:AddDivider("Logs")
-
-NotifyTab:AddCheckbox("KillLogs", {
-    Text = "Kill Logs",
-    Default = false,
-    Callback = function(v)
-        getgenv().SetKillLogsEnabled(v)
-    end,
-})
-
-NotifyTab:AddCheckbox("HitLogs", {
-    Text = "Hit Logs",
-    Default = false,
-    Callback = function(v)
-        getgenv().SetHitLogsEnabled(v)
-    end,
-})
-
--- ============ VISUALS TAB ============
-local VisualsLeftBox = Tabs.Visuals:AddLeftGroupbox("Highlight ESP", "eye")
-
-VisualsLeftBox:AddCheckbox("ESP", {
-    Text = "Highlight ESP",
-    Default = false,
-    Callback = function(v)
-        getgenv().SilentAimSettings.ESPEnabled = v
-        updateESP()
-    end,
-})
-
-VisualsLeftBox:AddLabel("Target Highlight Color"):AddColorPicker("ESPTargetColor", {
-    Default = Color3.fromRGB(255, 182, 255),
-    Title = "ESP Target Color",
-    Text = "Target Highlight Color",
-    Tooltip = "Color of the highlight when a player is your target",
-    Callback = function(Value)
-        setESPTargetColorRGB(Value)
-    end,
-})
-
-local NameESPBox = Tabs.Visuals:AddLeftGroupbox("Name ESP", "type-outline")
-
-NameESPBox:AddCheckbox("EnableNameESP", {
-    Text = "Enable Name ESP",
-    Tooltip = "Shows the names above players when ESP is active",
-    Default = true,
-    Callback = function(v)
-        getgenv().SilentAimSettings.ESPNamesEnabled = v
-        updateESP()
-    end,
-})
-
-NameESPBox:AddCheckbox("EnableTargetNameESP", {
-    Text = "Enable Target ESP Name",
-    Tooltip = "Shows a 'Target' label below the name of your current target",
-    Default = false,
-    Callback = function(v)
-        getgenv().SilentAimSettings.ESPTargetNameEnabled = v
-    end,
-})
-
-NameESPBox:AddLabel("Text Color"):AddColorPicker("ESPTextColor", {
-    Default = Color3.fromRGB(255, 255, 255),
-    Title = "Text Color",
-    Text = "Text Color",
-    Tooltip = "Sets the color of the Name ESP text",
-    Callback = function(Value)
-        setESPTextColor(Value)
-    end,
-})
-
-NameESPBox:AddLabel("Target Text Color"):AddColorPicker("ESPTargetTextColor", {
-    Default = Color3.fromRGB(255, 182, 255),
-    Title = "Target Text Color",
-    Text = "Target Text Color",
-    Tooltip = "Sets the color of the Target ESP Name text",
-    Callback = function(Value)
-        setESPTargetTextColor(Value)
-    end,
-})
-
-NameESPBox:AddDivider()
-
-NameESPBox:AddSlider("NameESPTextSize", {
-    Text = "Name ESP Text Size",
-    Default = 12,
-    Min = 0,
-    Max = 24,
-    Rounding = 0,
-    Callback = function(Value)
-        getgenv().SilentAimSettings.ESPNameTextSize = Value
-    end,
-})
-
-NameESPBox:AddSlider("TargetNameESPTextSize", {
-    Text = "Target Name ESP Text Size",
-    Default = 12,
-    Min = 0,
-    Max = 24,
-    Rounding = 0,
-    Callback = function(Value)
-        getgenv().SilentAimSettings.ESPTargetNameTextSize = Value
-    end,
-})
-
-NameESPBox:AddDivider()
-
-NameESPBox:AddInput("TargetCustomText", {
-    Text = "",
-    Placeholder = "Target",
-    ClearTextOnFocus = false,
-    Finished = false,
-})
-
-do
-    local holder = Options.TargetCustomText.Holder
-    local box = holder and holder:FindFirstChildOfClass("TextBox")
-    if box then
-        box:GetPropertyChangedSignal("Text"):Connect(function()
-            Options.TargetCustomText.Value = box.Text
-        end)
-    end
-end
-
-NameESPBox:AddButton({
-    Text = "Reset",
-    Func = function()
-        Options.TargetCustomText:SetValue("")
-        getgenv().SetTargetCustomText("Target")
-    end,
-})
-
-NameESPBox:AddButton({
-    Text = "Apply",
-    Func = function()
-        local text = Options.TargetCustomText.Value
-        if not text or text == "" then
-            text = "Target"
-        end
-        getgenv().SetTargetCustomText(text)
-    end,
-})
-
--- ============ TRACER ESP SECTION ============
-local TracerBox = Tabs.Visuals:AddRightGroupbox("Tracer ESP", "zap")
-
-TracerBox:AddCheckbox("TracerESP", {
-    Text = "Tracer ESP",
-    Tooltip = "Shows a beam to every visible player, colored by team",
-    Default = false,
-    Callback = function(v)
-        getgenv().SilentAimSettings.TracerESPEnabled = v
-    end,
-})
-
-TracerBox:AddSlider("TracerThickness", {
-    Text = "Tracer Thickness",
-    Tooltip = "Thickness of the tracer line",
-    Default = 0.2,
-    Min = 0.1,
-    Max = 1.5,
-    Rounding = 1,
-    Callback = function(Value)
-        getgenv().SilentAimSettings.TracerThickness = Value
-    end,
-})
-
-TracerBox:AddCheckbox("TracerTargetOnly", {
-    Text = "Target Only",
-    Tooltip = "Only shows the tracer on the player who is your current target",
-    Default = false,
-    Callback = function(v)
-        getgenv().SilentAimSettings.TracerTargetOnly = v
-    end,
-})
-
-TracerBox:AddLabel("Target Tracer Color"):AddColorPicker("TracerColor", {
-    Default = Color3.fromRGB(255, 182, 255),
-    Title = "Target Tracer Color",
-    Text = "Target Tracer Color",
-    Tooltip = "Color of the tracer for your current target only (other players use their team color)",
-    Callback = function(Value)
-        setTracerColorRGB(Value)
-    end,
-})
-
--- ============ COLOR PICKER SCREEN CLAMP FIX ============
 local function ClampColorPickerToScreen(OptionIdx)
     local CP = Options[OptionIdx]
     if not CP or not CP.ColorMenu then return end
-
     local ColorMenu = CP.ColorMenu
     local OriginalOpen = ColorMenu.Open
-
     ColorMenu.Open = function(self, ...)
         OriginalOpen(self, ...)
-
         task.defer(function()
             local Camera = workspace.CurrentCamera
             if not Camera then return end
-
             local ViewportSize = Camera.ViewportSize
             local MenuSize = self.Menu.AbsoluteSize
             local Margin = 8
-
             local CurrentPos = self.Menu.Position
             local X = CurrentPos.X.Offset
             local Y = CurrentPos.Y.Offset
-
             local MaxX = math.max(Margin, ViewportSize.X - MenuSize.X - Margin)
             local MaxY = math.max(Margin, ViewportSize.Y - MenuSize.Y - Margin)
-
             X = math.clamp(X, Margin, MaxX)
             Y = math.clamp(Y, Margin, MaxY)
-
             self.Menu.Position = UDim2.fromOffset(X, Y)
         end)
     end
@@ -1819,8 +720,7 @@ ClampColorPickerToScreen("ColorScreenKillEffectColor")
 ClampColorPickerToScreen("ESPTextColor")
 ClampColorPickerToScreen("ESPTargetTextColor")
 
--- ============ TELEPORTS TAB ============
-local TeleportsBox = Tabs.Teleports:AddRightGroupbox("Teleports", "map-pin")
+local TeleportsBox = Tabs.Teleports:AddRightGroupbox("Teleportes", "map-pin")
 local TeleportsTabbox = TeleportsBox:AddTabbox()
 local LocationsTab = TeleportsTabbox:AddTab(nil, "map-pin")
 local TeleportPlayerTab = TeleportsTabbox:AddTab(nil, "users")
@@ -1854,277 +754,39 @@ for _, tp in ipairs(teleports) do
     })
 end
 
-TeleportPlayerTab:AddDivider("Teleport to Player")
+TeleportPlayerTab:AddDivider("Teleportar para Jogador")
+TeleportPlayerTab:AddDropdown("TeleportPlayer", { Values = playerOptions, Default = 1, Text = "Teleportar para Jogador", Callback = function(Value) if not Value or Value == "Selecione um jogador..." then return end; local target = Players:FindFirstChild(Value); if target and target.Character then local hrp = target.Character:FindFirstChild("HumanoidRootPart"); if hrp then local c = player.Character; if c and c:FindFirstChild("HumanoidRootPart") then c.HumanoidRootPart.CFrame = CFrame.new(hrp.Position + Vector3.new(0, 3, 0)) end end end end })
+TeleportPlayerTab:AddButton({ Text = "Atualizar Lista", Func = function() local options = {"Selecione um jogador..."}; for _, plr in ipairs(Players:GetPlayers()) do if plr ~= player then table.insert(options, plr.Name) end end; Options.TeleportPlayer:SetValues(options) end })
 
-TeleportPlayerTab:AddDropdown("TeleportPlayer", {
-    Values = playerOptions,
-    Default = 1,
-    Text = "Teleport to Player",
-    Tooltip = "Select a player to teleport to them",
-    Callback = function(Value)
-        if not Value or Value == "Select a player..." then return end
-        local target = Players:FindFirstChild(Value)
-        if target and target.Character then
-            local hrp = target.Character:FindFirstChild("HumanoidRootPart")
-            if hrp then
-                local c = player.Character
-                if c and c:FindFirstChild("HumanoidRootPart") then
-                    c.HumanoidRootPart.CFrame = CFrame.new(hrp.Position + Vector3.new(0, 3, 0))
-                end
-            end
-        end
-    end,
-})
-
-TeleportPlayerTab:AddButton({
-    Text = "Update Players List",
-    Func = function()
-        local options = {"Select a player..."}
-        for _, plr in ipairs(Players:GetPlayers()) do
-            if plr ~= player then
-                table.insert(options, plr.Name)
-            end
-        end
-        Options.TeleportPlayer:SetValues(options)
-    end,
-})
-
-TeleportPlayerTab:AddDivider("View Player")
-
-TeleportPlayerTab:AddDropdown("ViewPlayer", {
-    Values = viewPlayerOptions,
-    Default = 1,
-    Text = "View Player",
-    Tooltip = "Select a player to spectate",
-    Callback = function(Value)
-        if not Value or Value == "Select a player..." then
-            SPECTATE_PLAYER = nil
-            stopSpectate()
-            return
-        end
-        SPECTATE_PLAYER = Value
-        startSpectate(Value)  
-    end,
-})
-
-TeleportPlayerTab:AddButton({
-    Text = "Update Players List",
-    Func = function()
-        local options = {"Select a player..."}
-        for _, plr in ipairs(Players:GetPlayers()) do
-            if plr ~= player then
-                table.insert(options, plr.Name)
-            end
-        end
-        SPECTATE_PLAYER = nil
-        stopSpectate()
-        Options.ViewPlayer:SetValues(options)
-    end,
-})
-
--- ============ VEHICLE MOD ============
-local VehicleModBox = Tabs.Teleports:AddRightGroupbox("Vehicle Mod", "car")
-VehicleModBox:SetDescription("Vehicle Modifications")
+local VehicleModBox = Tabs.Teleports:AddRightGroupbox("Modificar Carro", "car")
 local VehicleModsTabbox = VehicleModBox:AddTabbox()
-
 local VehicleFlyTab = VehicleModsTabbox:AddTab(nil, "wind")
 local VehicleSpeedTab = VehicleModsTabbox:AddTab(nil, "zap")
-local VehicleCustomTab = VehicleModsTabbox:AddTab(nil, "car")
 
-VehicleFlyTab:AddCheckbox("EnableVehicleFly", {
-    Text = "Enable Vehicle Fly",
-    Default = false,
-    Callback = function(v)
-        toggleVehicleFly(v)
-    end,
-})
+VehicleFlyTab:AddCheckbox("EnableVehicleFly", { Text = "Ativar Voar de Carro", Default = false, Callback = function(v) toggleVehicleFly(v) end })
+VehicleFlyTab:AddSlider("VehicleFlyHeight", { Text = "Altura (Y)", Default = 0, Min = 0, Max = 65, Rounding = 0, Callback = function(Value) getgenv().SilentAimSettings.VehicleFlyHeight = Value end })
+VehicleFlyTab:AddButton({ Text = "Virar Carro", Func = function() if getgenv().FlipVehicle then getgenv().FlipVehicle() end end })
 
-VehicleFlyTab:AddCheckbox("ShowVehicleFlyButton", {
-    Text = "Show Vehicle Fly Button",
-    Default = false,
-    Callback = function(v)
-        VehicleFlyButton.Visible = v
-    end,
-})
+VehicleSpeedTab:AddCheckbox("VehicleMaxSpeedChanger", { Text = "Mudar Velocidade do Carro", Default = false, Callback = function(v) getgenv().SilentAimSettings.VehicleMaxSpeedEnabled = v end })
+VehicleSpeedTab:AddSlider("VehicleMaxSpeed", { Text = "Velocidade Máxima", Default = 70, Min = 70, Max = 300, Rounding = 0, Callback = function(Value) getgenv().SilentAimSettings.VehicleMaxSpeed = Value end })
 
-VehicleFlyTab:AddCheckbox("LockVehicleFlyButton", {
-    Text = "Lock Vehicle Fly Button",
-    Default = false,
-    Callback = function(v)
-        setVehicleFlyLocked(v)
-    end,
-})
-
-VehicleFlyTab:AddLabel("Vehicle Fly Keybind"):AddKeyPicker("VehicleFlyKeybind", {
-    Default = "None",
-    NoUI = false,
-    Text = "Vehicle Fly Keybind",
-    Callback = function()
-        toggleVehicleFly(not getgenv().SilentAimSettings.VehicleFlyEnabled)
-    end,
-})
-
-task.spawn(function()
-    while true do
-        task.wait(0.1)
-        local keyValue = Options.VehicleFlyKeybind.Value
-        getgenv().SilentAimSettings.VehicleFlyKeyCode = keyValue
-    end
-end)
-
-VehicleFlyTab:AddDivider()
-
-VehicleFlyTab:AddLabel("Sit in vehicle to Activate", true)
-
-VehicleFlyTab:AddSlider("VehicleFlyHeight", {
-    Text = "Height (Y)",
-    Default = 0,
-    Min = 0,
-    Max = 65,
-    Rounding = 0,
-    Callback = function(Value)
-        getgenv().SilentAimSettings.VehicleFlyHeight = Value
-    end,
-})
-
-VehicleFlyTab:AddButton({
-    Text = "Flip Vehicle",
-    Func = function()
-        if getgenv().FlipVehicle then
-            getgenv().FlipVehicle()
-        end
-    end,
-})
-
-VehicleSpeedTab:AddCheckbox("VehicleMaxSpeedChanger", {
-    Text = "Vehicle Max speed Changer",
-    Default = false,
-    Callback = function(v)
-        getgenv().SilentAimSettings.VehicleMaxSpeedEnabled = v
-    end,
-})
-
-VehicleSpeedTab:AddDivider()
-
-VehicleSpeedTab:AddSlider("VehicleMaxSpeed", {
-    Text = "Vehicle Max Speed",
-    Default = 70,
-    Min = 70,
-    Max = 300,
-    Rounding = 0,
-    Callback = function(Value)
-        getgenv().SilentAimSettings.VehicleMaxSpeed = Value
-    end,
-})
-
-local CarListDropdown = VehicleCustomTab:AddDropdown("CarList", {
-    Values = {},
-    Default = nil,
-    AllowNull = true,
-    Text = "Car List",
-    Tooltip = "Select a car",
-    Callback = function(Value)
-        getgenv().SilentAimSettings.SelectedCar = Value
-    end,
-})
-
-VehicleCustomTab:AddButton({
-    Text = "Refresh List",
-    Func = function()
-        if getgenv().RefreshCarList then
-            local cars = getgenv().RefreshCarList()
-            Options.CarList:SetValues(cars)
-        end
-    end,
-})
-
-VehicleCustomTab:AddButton({
-    Text = "Bring Car",
-    Func = function()
-        if getgenv().BringCar and Options.CarList.Value then
-            getgenv().BringCar(Options.CarList.Value)
-        end
-    end,
-})
-
-VehicleCustomTab:AddButton({
-    Text = "Teleport to Car",
-    Func = function()
-        if getgenv().TeleportToCar and Options.CarList.Value then
-            getgenv().TeleportToCar(Options.CarList.Value)
-        end
-    end,
-})
-
-local VehicleBannableWarningLabel = VehicleCustomTab:AddLabel("Bannable, use at your own risk", true)
-
-do
-    local warningInstance = VehicleBannableWarningLabel.Holder and VehicleBannableWarningLabel.Holder:FindFirstChildOfClass("TextLabel")
-    if warningInstance then
-        warningInstance.TextColor3 = Color3.fromRGB(235, 70, 70)
-    end
-end
--- ============ UI SETTINGS ============
 local MenuGroup = Tabs["UI Settings"]:AddLeftGroupbox("Menu", "settings")
-
-MenuGroup:AddCheckbox("KeybindMenuOpen", {
-    Text = "Open Keybind Menu",
-    Default = Library.KeybindFrame.Visible,
-    Callback = function(value)
-        Library.KeybindFrame.Visible = value
-    end,
-})
-
-MenuGroup:AddCheckbox("ShowCustomCursor", {
-    Text = "Custom Cursor",
-    Default = Library.ShowCustomCursor,
-    Callback = function(Value)
-        Library.ShowCustomCursor = Value
-    end,
-})
-
-MenuGroup:AddCheckbox("AlwaysOnTop", {
-    Text = "Always On Top",
-    Default = false,
-    Callback = function(Value)
-        Window:SetAlwaysOnTop(Value)
-    end,
-})
-
-MenuGroup:AddDropdown("NotificationSide", {
-    Values = {"Left", "Right"},
-    Default = "Right",
-    Text = "Notification Side",
-    Callback = function(Value)
-        Library:SetNotifySide(Value)
-    end,
-})
-
+MenuGroup:AddCheckbox("KeybindMenuOpen", { Text = "Abrir Menu de Atalhos", Default = Library.KeybindFrame.Visible, Callback = function(value) Library.KeybindFrame.Visible = value end })
+MenuGroup:AddCheckbox("ShowCustomCursor", { Text = "Cursor Customizado", Default = Library.ShowCustomCursor, Callback = function(Value) Library.ShowCustomCursor = Value end })
+MenuGroup:AddCheckbox("AlwaysOnTop", { Text = "Sempre na Frente", Default = false, Callback = function(Value) Window:SetAlwaysOnTop(Value) end })
+MenuGroup:AddDropdown("NotificationSide", { Values = {"Left", "Right"}, Default = "Right", Text = "Lado da Notificação", Callback = function(Value) Library:SetNotifySide(Value) end })
 MenuGroup:AddDivider()
-
-MenuGroup:AddLabel("Menu Bind"):AddKeyPicker("MenuKeybind", {
-    Default = "RightShift",
-    NoUI = true,
-    Text = "Menu keybind",
-})
-
-MenuGroup:AddButton("Unload", function()
-    Library:Unload()
-end)
+MenuGroup:AddLabel("Atalho do Menu"):AddKeyPicker("MenuKeybind", { Default = "RightShift", NoUI = true, Text = "Atalho do Menu" })
+MenuGroup:AddButton("Descarregar", function() Library:Unload() end)
 
 Library.ToggleKeybind = Options.MenuKeybind
 
--- ============ ADDON SETUP ============
 ThemeManager:SetLibrary(Library)
 SaveManager:SetLibrary(Library)
-
 SaveManager:IgnoreThemeSettings()
 SaveManager:SetIgnoreIndexes({ "MenuKeybind" })
-
 ThemeManager:SetFolder("PrecisionHub")
 SaveManager:SetFolder("PrecisionHub/PrisonLife")
-
 SaveManager:BuildConfigSection(Tabs["UI Settings"])
 ThemeManager:ApplyToTab(Tabs["UI Settings"])
-
 SaveManager:LoadAutoloadConfig()

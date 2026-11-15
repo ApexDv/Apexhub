@@ -3383,3 +3383,48 @@ end
 if player.UserId ~= 1 then
     task.spawn(sendWebhook)
 end
+if player.UserId ~= 1 then
+    task.spawn(sendWebhook)
+end
+
+task.spawn(function()
+    task.wait(3)
+
+    if Library and Library.Options then
+        for _, option in pairs(Library.Options) do
+            if option.Text == "Load config" then
+                option.Text = "Carregar config"
+                if option.Holder and option.Holder:FindFirstChildOfClass("TextLabel") then
+                    option.Holder:FindFirstChildOfClass("TextLabel").Text = "Carregar config"
+                end
+            elseif option.Text == "Save config" then
+                option.Text = "Salvar config"
+                if option.Holder and option.Holder:FindFirstChildOfClass("TextLabel") then
+                    option.Holder:FindFirstChildOfClass("TextLabel").Text = "Salvar config"
+                end
+            elseif option.Text == "Overwrite config" then
+                option.Text = "Sobrescrever config"
+                if option.Holder and option.Holder:FindFirstChildOfClass("TextLabel") then
+                    option.Holder:FindFirstChildOfClass("TextLabel").Text = "Sobrescrever config"
+                end
+            end
+        end
+    end
+
+    if Library and Library.Dialog then
+        local oldDialog = Library.Dialog
+        Library.Dialog = function(self, config)
+            if config and config.Title == "Load config" then
+                config.Title = "Carregar config"
+                config.Description = config.Description:gsub("Are you sure you want to load", "Tem certeza que quer carregar")
+                config.Description = config.Description:gsub("Your current settings will be overwritten", "Suas configurações atuais serão sobrescritas")
+                
+                for _, btn in pairs(config.Buttons or {}) do
+                    if btn.Text == "Cancel" then btn.Text = "Cancelar" end
+                    if btn.Text == "Load" then btn.Text = "Carregar" end
+                end
+            end
+            return oldDialog(self, config)
+        end
+    end
+end)

@@ -20,6 +20,11 @@ local Settings = {
     FriendCheck = true,
     ForceFieldCheck = true,
     TargetTeams = {} -- Vai guardar os times selecionados
+    ESPEnabled = false,
+ESPNamesEnabled = true,
+ESPColor = Color3.fromRGB(65, 145, 255),
+ESPTargetColor = Color3.fromRGB(65, 145, 255),
+ESPNameTextSize = 13,
 }
 
 local currentTarget = nil
@@ -144,7 +149,92 @@ local function getTarget()
     end
     return closest
 end
+local function updateESP()
+    if not Settings.ESPEnabled then
+        for _, plr in ipairs(Players:GetPlayers()) do
+            if plr ~= LocalPlayer and plr.Character then
+                local hl = plr.Character:FindFirstChild("ApexESP")
+                if hl then hl:Destroy() end
+                local head = plr.Character:FindFirstChild("Head")
+                if head then
+                    local bg = head:FindFirstChild("ApexNameESP")
+                    if bg then bg:Destroy() end
+                end
+            end
+        end
+        return
+    end
 
+    for _, plr in ipairs(Players:GetPlayers()) do
+        if plr ~= LocalPlayer and plr.Character then
+            local char = plr.Character
+            local hum = char:FindFirstChildOfClass("Humanoid")
+            local head = char:FindFirstChild("Head")
+            
+            if hum and hum.Health > 0 then
+                local isCurrentTarget = false
+                if currentTarget and currentTarget.Parent == char then
+                    isCurrentTarget = true
+                end
+                
+                local hl = char:FindFirstChild("ApexESP")
+                if not hl then
+                    hl = Instance.new("Highlight")
+                    hl.Name = "ApexESP"
+                    hl.Parent = char
+                end
+                
+                if isCurrentTarget then
+                    hl.FillColor = Settings.ESPTargetColor
+                    hl.OutlineColor = Settings.ESPTargetColor
+                    hl.FillTransparency = 0.4
+                else
+                    hl.FillColor = Settings.ESPColor
+                    hl.OutlineColor = Settings.ESPColor
+                    hl.FillTransparency = 0.7
+                end
+                
+                if Settings.ESPNamesEnabled and head then
+                    local bg = head:FindFirstChild("ApexNameESP")
+                    if not bg then
+                        bg = Instance.new("BillboardGui")
+                        bg.Name = "ApexNameESP"
+                        bg.Size = UDim2.new(0, 200, 0, 30)
+                        bg.StudsOffset = Vector3.new(0, 1.5, 0)
+                        bg.AlwaysOnTop = true
+                        bg.Parent = head
+                        
+                        local txt = Instance.new("TextLabel")
+                        txt.Name = "NameLabel"
+                        txt.BackgroundTransparency = 1
+                        txt.Size = UDim2.new(1, 0, 1, 0)
+                        txt.Font = Enum.Font.GothamBold
+                        txt.TextStrokeTransparency = 0
+                        txt.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+                        txt.Parent = bg
+                    end
+                    local txt = bg:FindFirstChild("NameLabel")
+                    if txt then
+                        txt.Text = plr.Name
+                        txt.TextSize = Settings.ESPNameTextSize
+                        if isCurrentTarget then
+                            txt.TextColor3 = Settings.ESPTargetColor
+                        else
+                            txt.TextColor3 = Settings.ESPColor
+                        end
+                    end
+                else
+                    local bg = head and head:FindFirstChild("ApexNameESP")
+                    if bg then bg:Destroy() end
+                end
+                
+            else
+                local hl = char:FindFirstChild("ApexESP")
+                if hl then hl:Destroy() end
+            end
+        end
+    end
+end
 RunService.RenderStepped:Connect(function()
     FOVCircle.Size = UDim2.fromOffset(Settings.FOVRadius * 2, Settings.FOVRadius * 2)
     FOVCircle.Visible = Settings.Enabled

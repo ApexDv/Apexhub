@@ -440,8 +440,8 @@ PlayerSettingsBox:AddCheckbox("Anti Sit", {
 })
 
 PlayerSettingsBox:AddCheckbox("CameraFOVEnabled", {
-    Text = "Enable Camera FOV",
-    Tooltip = "Enables custom camera FOV, otherwise uses the game's default",
+    Text = "Mudar FOV da camera",
+    Tooltip = "Ativa o FOV customizado da camera",
     Default = false,
     Callback = function(v)
         getgenv().SilentAimSettings.CameraFOVEnabled = v
@@ -449,8 +449,8 @@ PlayerSettingsBox:AddCheckbox("CameraFOVEnabled", {
 })
 
 PlayerSettingsBox:AddSlider("CameraFOV", {
-    Text = "Camera FOV",
-    Tooltip = "Changes camera FOV",
+    Text = "FOV da camera",
+    Tooltip = "Mudar o campo de visão da camera",
     Default = 70,
     Min = 30,
     Max = 120,
@@ -462,8 +462,8 @@ PlayerSettingsBox:AddSlider("CameraFOV", {
 })
 
 PlayerSettingsBox:AddSlider("SpinbotSpeed", {
-    Text = "Spinbot",
-    Tooltip = "Spins your character at the chosen speed.",
+    Text = "Girar personagem",
+    Tooltip = "Faz seu personagem girar na velocidade escolhida",
     Default = 0,
     Min = 0,
     Max = 250,
@@ -476,7 +476,7 @@ PlayerSettingsBox:AddSlider("SpinbotSpeed", {
 PlayerSettingsBox:AddDivider()
 
 PlayerSettingsBox:AddButton({
-    Text = "Activate Anti-Tase",
+    Text = "Ativar Anti-Choque",
     Func = function()
         local ReplicatedStorage = game:GetService("ReplicatedStorage")
         local remote = nil
@@ -519,8 +519,8 @@ local CurrentGradientColor = Color3.fromRGB(255, 255, 255)
 local CurrentOutdoorGradient = Color3.fromRGB(255, 255, 255)
 
 EnvironmentNetworkTab:AddCheckbox("WorldGradient", {
-    Text = "World Gradient",
-    Tooltip = "Enables custom world gradient colors",
+    Text = "Cor do mundo",
+    Tooltip = "Ativar cores customizadas para o mundo",
     Default = false,
     Callback = function(v)
         WorldGradientEnabled = v
@@ -564,7 +564,7 @@ EnvironmentNetworkTab:AddDivider()
 
 EnvironmentNetworkTab:AddCheckbox("RemoveFog", {
     Text = "Remove Fog",
-    Tooltip = "Removes the fog from the game",
+    Tooltip = "Remove a névoa do jogo",
     Default = false,
     Callback = function(v)
         if v then
@@ -590,8 +590,8 @@ local CustomSkyboxEnabled = false
 local CurrentSkybox = "None"
 
 EnvironmentCloudTab:AddCheckbox("CustomSkybox", {
-    Text = "Custom Skybox",
-    Tooltip = "Enables applying a custom skybox",
+    Text = "Céu Customizado",
+    Tooltip = "Ativar a Aplicação de um céu customizado",
     Default = false,
     Callback = function(v)
         CustomSkyboxEnabled = v
@@ -673,7 +673,7 @@ end
 local AimbotLeftBox = Tabs.Aimbot:AddLeftGroupbox("Aim Settings", "crosshair")
 
 AimbotLeftBox:AddCheckbox("SilentAim", {
-    Text = "Silent Aim",
+    Text = "Silente aim",
     Tooltip = "Silent Aim method by 7zz",
     Default = true,
     Callback = function(v)
@@ -682,8 +682,8 @@ AimbotLeftBox:AddCheckbox("SilentAim", {
 })
 
 AimbotLeftBox:AddCheckbox("Autoshoot", {
-    Text = "Autoshoot",
-    Tooltip = "Automatically fires when Silent Aim has a locked target",
+    Text = "Tiro automático",
+    Tooltip = "Atira sozinho quando a mira trava no inimigo",
     Default = false,
     Callback = function(v)
         getgenv().SilentAimSettings.Autoshoot = v
@@ -691,8 +691,8 @@ AimbotLeftBox:AddCheckbox("Autoshoot", {
 })
 
 AimbotLeftBox:AddCheckbox("WallCheck", {
-    Text = "Wall Check",
-    Tooltip = "Ignore Players behind Walls",
+    Text = "Checar Paredes",
+    Tooltip = "Ignora inimigo que estão atrás de parede s",
     Default = true,
     Callback = function(v)
         getgenv().SilentAimSettings.VisibleCheck = v
@@ -700,8 +700,8 @@ AimbotLeftBox:AddCheckbox("WallCheck", {
 })
 
 AimbotLeftBox:AddCheckbox("TeamCheck", {
-    Text = "Team Check",
-    Tooltip = "Ignore Players on your Team",
+    Text = "Checar Time",
+    Tooltip = "Ignora jogadores que estão no seu mesmo time",
     Default = true,
     Callback = function(v)
         getgenv().SilentAimSettings.TeamCheck = v
@@ -709,8 +709,8 @@ AimbotLeftBox:AddCheckbox("TeamCheck", {
 })
 
 AimbotLeftBox:AddCheckbox("FriendCheck", {
-    Text = "Friend Check",
-    Tooltip = "Ignore your Friends",
+    Text = "Checar Amigos",
+    Tooltip = "Ignora seus amigos no jogo",
     Default = true,
     Callback = function(v)
         getgenv().SilentAimSettings.FriendCheck = v
@@ -718,8 +718,8 @@ AimbotLeftBox:AddCheckbox("FriendCheck", {
 })
 
 AimbotLeftBox:AddCheckbox("ForceFieldCheck", {
-    Text = "ForceField Check",
-    Tooltip = "Ignore players who currently have a ForceField",
+    Text = "Checar Escudo",
+    Tooltip = "Ignora jogadores que estão com escudo",
     Default = true,
     Callback = function(v)
         getgenv().SilentAimSettings.ForceFieldCheck = v
@@ -740,8 +740,8 @@ AimbotLeftBox:AddDivider()
 AimbotLeftBox:AddDropdown("TargetTeams", {
     Values = {"Inmates", "Guards", "Criminals"},
     Multi = true,
-    Text = "Target Teams",
-    Tooltip = "Selected teams are the ones Silent Aim will target (deselect a team to ignore it)",
+    Text = "Times Alvo",
+    Tooltip = "Selecione quais a mira vai atacar",
     Callback = function(Value)
         getgenv().SilentAimSettings.TargetTeams = Value or {}
     end,
@@ -757,8 +757,8 @@ AimbotLeftBox:AddDropdown("TargetMode", {
     Values = {"Manual", "🔗 Trespass", "💢 Hostile"},
     Multi = true,
     Default = { ["Manual"] = true },
-    Text = "Target Mode",
-    Tooltip = "Manual grabs any valid player. Trespass/Hostile restrict targeting to inmates flagged as such (can combine both, but not with Manual)",
+    Text = "Modelo de alvo",
+    Tooltip = "Manual pega qualquer um. Trespasse/Hostile restringem a pessoa marcados (podem ser combinados, mas não com Manual)",
     Callback = function(Value)
         if updateInProgress then return end
         updateInProgress = true
@@ -803,20 +803,20 @@ for _, plr in ipairs(Players:GetPlayers()) do
 end
 
 AimbotLeftBox:AddDropdown("AimMode", {
-    Values = {"FOV", "Distance"},
+    Values = {"FOV", "Distância"},
     Default = "FOV",
-    Text = "Targeting Mode",
-    Tooltip = "FOV: Locks on players within FOV radius | Distance: Locks on closest visible player",
+    Text = "Modelo de Mira",
+    Tooltip = "FOV: Trava no inimigo dentro do círculo | Distância: Trava no mais próximo que estiver visível",
     Callback = function(Value)
         getgenv().SilentAimSettings.AimMode = Value
     end,
 })
 
 AimbotLeftBox:AddDropdown("TargetPart", {
-    Values = {"Head", "Torso", "Left Arm", "Right Arm", "Left Leg", "Right Leg", "HumanoidRootPart", "Random"},
+    Values = {"Cabeça", "Torso", "Braço Esquerdo", "Braço Direito", "Perna Esquerda", "Perna Direita", "HumanoidRootPart", "Aleatório"},
     Default = "HumanoidRootPart",
     Text = "Target Part",
-    Tooltip = "Choose which body part the Silent Aim will lock onto. Random cycles part every 0.5s",
+    Tooltip = "Escolha qual parte do corpo a mira vai travar. 'aleaatótio' muda a cada 0.5s",
     Callback = function(Value)
         getgenv().SilentAimSettings.TargetPart = Value
     end,
@@ -827,7 +827,7 @@ local HitboxExpanderBox = Tabs.Aimbot:AddLeftGroupbox("Hitbox Expander", "maximi
 HitboxExpanderBox:SetDescription("Enlarges player hitboxes")
 
 HitboxExpanderBox:AddCheckbox("EnableHitboxExpander", {
-    Text = "Enable Hitbox Expander",
+    Text = "Ativar a Hitbox",
     Default = false,
     Callback = function(v)
         getgenv().SilentAimSettings.HitboxExpanderEnabled = v
@@ -835,7 +835,7 @@ HitboxExpanderBox:AddCheckbox("EnableHitboxExpander", {
 })
 
 HitboxExpanderBox:AddCheckbox("HitboxTeamCheck", {
-    Text = "Team Check",
+    Text = "Checar Time",
     Default = true,
     Callback = function(v)
         getgenv().SilentAimSettings.HitboxTeamCheck = v
@@ -843,7 +843,7 @@ HitboxExpanderBox:AddCheckbox("HitboxTeamCheck", {
 })
 
 HitboxExpanderBox:AddSlider("HitboxSize", {
-    Text = "Hitbox Size",
+    Text = "Tamanho da Hitbox",
     Default = 1,
     Min = 1,
     Max = 15,
@@ -854,7 +854,7 @@ HitboxExpanderBox:AddSlider("HitboxSize", {
 })
 
 HitboxExpanderBox:AddSlider("HitboxTransparency", {
-    Text = "Hitbox Transparency",
+    Text = "Hitbox Transparente",
     Default = 0.5,
     Min = 0,
     Max = 1,
@@ -865,9 +865,9 @@ HitboxExpanderBox:AddSlider("HitboxTransparency", {
 })
 
 HitboxExpanderBox:AddDropdown("HitboxShape", {
-    Values = {"Box", "Ball"},
-    Default = "Box",
-    Text = "Hitbox Shape",
+    Values = {"Quadro", "Bola"},
+    Default = "Quadro",
+    Text = "Formato da Hitbox",
     Callback = function(Value)
         getgenv().SilentAimSettings.HitboxShape = Value
     end,
@@ -877,8 +877,8 @@ HitboxExpanderBox:AddDropdown("HitboxShape", {
 local AimbotMidBox = Tabs.Aimbot:AddLeftGroupbox("Smoothing & Accuracy", "target")
 
 AimbotMidBox:AddSlider("SilentAimRange", {
-    Text = "Silent Aim Range",
-    Tooltip = "Color of the highlight when a player is your target",
+    Text = "Alcance da Mira",
+    Tooltip = "Distância Máxima em que a mira vai funcionar",
     Default = 500,
     Min = 30,
     Max = 2000,
@@ -889,7 +889,7 @@ AimbotMidBox:AddSlider("SilentAimRange", {
 })
 
 AimbotMidBox:AddSlider("Smoothing", {
-    Text = "Smoothing",
+    Text = "Suavização",
     Default = 0,
     Min = 0,
     Max = 1,
@@ -918,23 +918,23 @@ local FOVEyeTab = FOVIconTabbox:AddTab(nil, "scan-eye")
 local FOVUsersTab = FOVIconTabbox:AddTab(nil, "users")
 
 FOVEyeTab:AddCheckbox("HideFOV", {
-    Text = "Show FOV Circle",
+    Text = "Mostra círculo FOV",
     Default = true,
     Callback = function(v)
         toggleFOVCircle(not v)
     end,
 }):AddColorPicker("FOVColor", {
     Default = Color3.fromRGB(255, 255, 255),
-    Title = "FOV Color",
-    Text = "FOV Color",
-    Tooltip = "Choose the FOV circle color",
+    Title = "Cor do FOV",
+    Text = "Cor do FOV",
+    Tooltip = "Mudar cor do círculo da mira",
     Callback = function(Value)
         setFOVColorRGB(Value)
     end,
 })
 
 FOVEyeTab:AddSlider("FOVSize", {
-    Text = "FOV Circle Radius",
+    Text = "Tamanho do FOV",
     Default = 100,
     Min = 30,
     Max = 500,
@@ -1254,7 +1254,7 @@ GunSwitcherBox:AddDropdown("SelectGunsToSwitch", {
 })
 
 GunSwitcherBox:AddSlider("SwitchDelay", {
-    Text = "Switch Delay",
+    Text = "Deley da Troca",
     Default = 0.001,
     Min = 0.001,
     Max = 1,
@@ -1267,7 +1267,7 @@ GunSwitcherBox:AddSlider("SwitchDelay", {
 GunSwitcherBox:AddDivider()
 
 GunSwitcherBox:AddCheckbox("ShowGunSwitchButton", {
-    Text = "Show Fast Switch Button",
+    Text = "Mostra Botão de Troca Rápida",
     Default = false,
     Callback = function(v)
         FastSwitchButton.Visible = v
@@ -1275,7 +1275,7 @@ GunSwitcherBox:AddCheckbox("ShowGunSwitchButton", {
 })
 
 GunSwitcherBox:AddCheckbox("LockFastSwitchButton", {
-    Text = "Lock Fast Switch Button",
+    Text = "Travar Botão de Troca Rápida",
     Default = false,
     Callback = function(v)
         setFastSwitchLocked(v)
@@ -1283,7 +1283,7 @@ GunSwitcherBox:AddCheckbox("LockFastSwitchButton", {
 })
 
 GunSwitcherBox:AddCheckbox("HoldFastSwitchButton", {
-    Text = "Hold Fast Switch Button to Enable",
+    Text = "Segura Botão pra Ativar",
     Default = false,
     Callback = function(v)
         FastSwitchHoldMode = v
@@ -1296,8 +1296,8 @@ GunSwitcherBox:AddCheckbox("HoldFastSwitchButton", {
 })
 
 GunSwitcherBox:AddCheckbox("CycleAllWeapons", {
-    Text = "Cycle All Weapons",
-    Tooltip = "Automatically includes every weapon you own in Fast Switch, ignoring the dropdown selection above",
+    Text = "Circular Todas as Armas",
+    Tooltip = "Inclui automaticamente todas as armas que você tem na troca rápida, ignorando a seleção acima",
     Default = false,
     Callback = function(v)
         getgenv().SilentAimSettings.GunSwitchCycleAll = v
@@ -1330,7 +1330,7 @@ local WeaponModsTabbox = WeaponModBox:AddTabbox()
 local GunModTab = WeaponModsTabbox:AddTab(nil, "wrench")
 
 GunModTab:AddCheckbox("WeaponMod", {
-    Text = "Weapon Mod",
+    Text = "Modificar Armas",
     Default = false,
     Callback = function(v)
         getgenv().SetGunModEnabled(v)
@@ -1340,7 +1340,7 @@ GunModTab:AddCheckbox("WeaponMod", {
 GunModTab:AddDivider()
 
 GunModTab:AddCheckbox("AutoFire", {
-    Text = "Auto Fire",
+    Text = "Auto Tiro",
     Default = false,
     Callback = function(v)
         getgenv().SetGunModAutoFire(v)
@@ -1348,7 +1348,7 @@ GunModTab:AddCheckbox("AutoFire", {
 })
 
 GunModTab:AddCheckbox("FastFirerate", {
-    Text = "Fast Firerate",
+    Text = "Tiro Rápido",
     Default = false,
     Callback = function(v)
         getgenv().SetGunModFastFirerate(v)
@@ -1356,7 +1356,7 @@ GunModTab:AddCheckbox("FastFirerate", {
 })
 
 GunModTab:AddCheckbox("AutoReload", {
-    Text = "Auto Reload",
+    Text = "Recarga Automática",
     Tooltip = "Automatically reloads the weapon when ammo reaches 0",
     Default = false,
     Callback = function(v)
@@ -1380,8 +1380,8 @@ GunModTab:AddSlider("FireRateValue", {
 local ChainTab = WeaponModsTabbox:AddTab(nil, "cable")
 
 ChainTab:AddCheckbox("CustomBulletColor", {
-    Text = "Custom Bullet Color",
-    Tooltip = "Applies a custom color to all bullets, current and future weapons",
+    Text = "Cor da Bala Customizada,
+    Tooltip = "Aplica uma cor customizada em todas as Balas",
     Default = false,
     Callback = function(v)
         setCustomBulletColorEnabled(v)
@@ -1402,23 +1402,23 @@ ChainTab:AddLabel("Bullet Color"):AddColorPicker("BulletColor", {
 
 local PaintTab = WeaponModsTabbox:AddTab(nil, "paintbrush")
 PaintTab:AddCheckbox("EnableWeaponColor", {
-    Text = "Enable Weapon Color",
+    Text = "Ativar Core da Arma",
     Default = false,
     Callback = function(v)
         getgenv().SetWeaponColorEnabled(v)
     end,
 }):AddColorPicker("WeaponColor", {
     Default = Color3.fromRGB(255, 255, 255),
-    Title = "Weapon Color",
-    Text = "Weapon Color",
-    Tooltip = "Sets the color of your weapon",
+    Title = "Cor da Arma",
+    Text = "Cor da Arma",
+    Tooltip = "Define a cor da sua arma",
     Callback = function(Value)
         getgenv().SetWeaponColorRGB(Value)
     end,
 })
 
 PaintTab:AddCheckbox("EnableWeaponTexture", {
-    Text = "Enable Weapon Texture",
+    Text = "Ativar Textura da Arma",
     Default = false,
     Callback = function(v)
         getgenv().SetWeaponTextureEnabled(v)
@@ -1428,7 +1428,7 @@ PaintTab:AddCheckbox("EnableWeaponTexture", {
 PaintTab:AddDivider()
 
 PaintTab:AddSlider("WeaponTransparency", {
-    Text = "Weapon Transparency",
+    Text = "Transparência da Arma",
     Default = 0,
     Min = 0,
     Max = 1,
@@ -1441,8 +1441,8 @@ PaintTab:AddSlider("WeaponTransparency", {
 PaintTab:AddDropdown("WeaponMaterial", {
     Values = {"ForceField", "SmoothPlastic", "DiamondPlate", "Metal", "Marble", "Neon"},
     Default = "SmoothPlastic",
-    Text = "Weapon Material",
-    Tooltip = "Sets the material of your weapon",
+    Text = "Material da Arma",
+    Tooltip = "Define o material da sua arma",
     Callback = function(Value)
         getgenv().SetWeaponMaterial(Value)
     end,
@@ -1463,8 +1463,8 @@ PaintTab:AddDropdown("WeaponTexture", {
         "Blue Stars",
     },
     Default = "Matrix",
-    Text = "Weapon Texture",
-    Tooltip = "Sets the texture of your weapon",
+    Text = "Textura da arma",
+    Tooltip = "Define a textura da sua arma",
     Callback = function(Value)
         getgenv().SetWeaponTexture(Value)
     end,
@@ -1563,23 +1563,23 @@ SoundTab:AddDropdown("HitSound", {
 NotifyTab:AddLabel("Effects")
 
 NotifyTab:AddCheckbox("ColorScreenKillEffect", {
-    Text = "Color Screen Kill Effect",
+    Text = "Efeito de Tela ao Matar",
     Default = false,
     Callback = function(v)
         getgenv().SetKillEffectEnabled(v)
     end,
 }):AddColorPicker("ColorScreenKillEffectColor", {
     Default = Color3.fromRGB(255, 255, 255),
-    Title = "Kill Effect Color",
-    Text = "Kill Effect Color",
-    Tooltip = "Sets the color of the screen flash on kill",
+    Title = "Cor do Efeito",
+    Text = "Cor do Efeito",
+    Tooltip = "Cor que a tela pisca quando você mata alguém",
     Callback = function(Value)
         getgenv().SetKillEffectColor(Value)
     end,
 })
 
 NotifyTab:AddSlider("ColorEffectFadeDuration", {
-    Text = "Color Effect Fade Duration",
+    Text = "Duração do Efeito",
     Default = 0.25,
     Min = 0.05,
     Max = 1,

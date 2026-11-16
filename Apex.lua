@@ -381,7 +381,7 @@ TabSilent:Slider({
     Title = "Alcance (Range)",
     Desc = "Distância máxima para puxar a mira",
     Flag = "SilentRange",
-    Value = { Min = 100, Max = 2000, Default = Settings.SilentAimRange },
+    Value = { Min = 100, Max = 200000, Default = Settings.SilentAimRange },
     Callback = function(value)
         Settings.SilentAimRange = value
     end,

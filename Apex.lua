@@ -100,158 +100,26 @@ local Window = WindUI:CreateWindow({
     HasOutline = false,
 })
 
+-- =====================================================
+-- CRIAÇÃO DAS ABAS (LOGO NO INÍCIO PARA NÃO SUMIR)
+-- =====================================================
+
 -- Aba do Silent Aim (Fantasminha)
-local TabSilent = Window:Tab({ 
-    Title = "", 
-    Desc = "", 
-    Icon = "lucide:ghost", 
-    ShowTabTitle = false 
-})
+local TabSilent = Window:Tab({ Title = "", Desc = "", Icon = "lucide:ghost", ShowTabTitle = false })
 
 -- Aba do ESP (Olho)
 local TabESP = Window:Tab({ Title = "", Desc = "", Icon = "lucide:eye", ShowTabTitle = false })
-TabESP:Section({ Title = "ESP 2D Visual" })
 
-local ESPSettings = { ESPEnabled = false, TeamCheck = false }
-local ESPFolder = Instance.new("Folder")
-ESPFolder.Name = "ESP_Drawings"
-ESPFolder.Parent = game:GetService("CoreGui")
-local ESPObjects = {}
-
-local function CreateLine(color, thickness)
-    local line = Drawing.new("Line")
-    line.Color = color
-    line.Thickness = thickness or 1
-    line.Transparency = 1
-    line.Visible = false
-    return line
-end
-
-local function CleanupESP(plrName)
-    if ESPObjects[plrName] then
-        for _, obj in pairs(ESPObjects[plrName]) do
-            if obj.Remove then obj:Remove() end
-        end
-        ESPObjects[plrName] = nil
-    end
-end
-
-RunService.RenderStepped:Connect(function()
-    if not ESPFolder.Parent then ESPFolder.Parent = game:GetService("CoreGui") end
-    if not ESPSettings.ESPEnabled then
-        for plrName, _ in pairs(ESPObjects) do CleanupESP(plrName) end
-        return
-    end
-
-    for _, plr in ipairs(Players:GetPlayers()) do
-        if plr ~= LocalPlayer and plr.Character then
-            local char = plr.Character
-            local hum = char:FindFirstChildOfClass("Humanoid")
-            local hrp = char:FindFirstChild("HumanoidRootPart")
-            local head = char:FindFirstChild("Head")
-
-            if not hum or hum.Health <= 0 or not hrp or not head then
-                CleanupESP(plr.Name)
-            elseif ESPSettings.TeamCheck and plr.Team == LocalPlayer.Team then
-                CleanupESP(plr.Name)
-            else
-                local hrpPos, hrpOnScreen = Camera:WorldToViewportPoint(hrp.Position)
-                local headPos, headOnScreen = Camera:WorldToViewportPoint(head.Position)
-
-                if hrpOnScreen and headOnScreen then
-                    local height = math.abs(headPos.Y - hrpPos.Y) * 2.2
-                    local width = height / 2.5
-                    local x = hrpPos.X - (width / 2)
-                    local y = headPos.Y - (height * 0.2)
-
-                    if not ESPObjects[plr.Name] then
-                        ESPObjects[plr.Name] = {
-                            Top = CreateLine(Color3.new(1,1,1)),
-                            Bottom = CreateLine(Color3.new(1,1,1)),
-                            Left = CreateLine(Color3.new(1,1,1)),
-                            Right = CreateLine(Color3.new(1,1,1)),
-                            HealthBar = CreateLine(Color3.new(0,1,0), 2),
-                            Name = Drawing.new("Text")
-                        }
-                        ESPObjects[plr.Name].Name.Size = 14
-                        ESPObjects[plr.Name].Name.Center = true
-                        ESPObjects[plr.Name].Name.Outline = true
-                        ESPObjects[plr.Name].Name.OutlineColor = Color3.new(0,0,0)
-                    end
-
-                    local esp = ESPObjects[plr.Name]
-                    local isAlly = plr.Team and LocalPlayer.Team and (plr.Team == LocalPlayer.Team)
-                    local color = isAlly and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0)
-
-                    esp.Top.From = Vector2.new(x, y)
-                    esp.Top.To = Vector2.new(x + width, y)
-                    esp.Top.Color = color; esp.Top.Visible = true
-
-                    esp.Bottom.From = Vector2.new(x, y + height)
-                    esp.Bottom.To = Vector2.new(x + width, y + height)
-                    esp.Bottom.Color = color; esp.Bottom.Visible = true
-
-                    esp.Left.From = Vector2.new(x, y)
-                    esp.Left.To = Vector2.new(x, y + height)
-                    esp.Left.Color = color; esp.Left.Visible = true
-
-                    esp.Right.From = Vector2.new(x + width, y)
-                    esp.Right.To = Vector2.new(x + width, y + height)
-                    esp.Right.Color = color; esp.Right.Visible = true
-
-                    local healthPct = math.clamp(hum.Health / hum.MaxHealth, 0, 1)
-                    esp.HealthBar.From = Vector2.new(x - 4, y + height)
-                    esp.HealthBar.To = Vector2.new(x - 4, y + (height - (height * healthPct)))
-                    
-                    if healthPct > 0.5 then esp.HealthBar.Color = Color3.fromRGB(0, 255, 0)
-                    elseif healthPct > 0.2 then esp.HealthBar.Color = Color3.fromRGB(255, 255, 0)
-                    else esp.HealthBar.Color = Color3.fromRGB(255, 0, 0) end
-                    esp.HealthBar.Visible = true
-
-                    esp.Name.Text = plr.Name
-                    esp.Name.Position = Vector2.new(x + (width / 2), y - 16)
-                    esp.Name.Color = color
-                    esp.Name.Visible = true
-                else
-                    if ESPObjects[plr.Name] then
-                        for _, obj in pairs(ESPObjects[plr.Name]) do obj.Visible = false end
-                    end
-                end
-            end
-        end
-    end
-
-    for name, _ in pairs(ESPObjects) do
-        if not Players:FindFirstChild(name) then CleanupESP(name) end
-    end
-end)
-
-pcall(function()
-    local oldNamecall
-    oldNamecall = hookmetamethod(game, "__namecall", newcclosure(function(...)
-        local Method = getnamecallmethod()
-        local Arguments = {...}
-        local self = Arguments[1]
-
-        if (Method == "Destroy" or Method == "ClearAllChildren") and self == game:GetService("CoreGui") then return end
-        if (Method == "Destroy" or Method == "Remove") and self and (self.Name == "ESP_Drawings" or self.Name == "SilentHighlights") then return end
-
-        return oldNamecall(...)
-    end))
-end)
-
-TabESP:Toggle({ Title = "Ativar ESP 2D", Desc = "Desenha caixas e nomes", Icon = "lucide:eye", Flag = "ESPAtivo", Value = false, Callback = function(value) ESPSettings.ESPEnabled = value; if not value then for plrName, _ in pairs(ESPObjects) do CleanupESP(plrName) end end end })
-TabESP:Toggle({ Title = "Team Check", Desc = "Não mostra aliados", Flag = "ESPTeamCheck", Value = false, Callback = function(v) ESPSettings.TeamCheck = v end })
-
--- (O resto do seu script do Silent Aim continua aqui embaixo)
--- Aqui começa o seu código original (com a adição do Visible Check Azul)
+-- =====================================================
+-- SISTEMA DO SILENT AIM
+-- =====================================================
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local Camera = workspace.CurrentCamera
 local LocalPlayer = Players.LocalPlayer
 
 local Settings = {
-    Enabled = false, -- Começa desativado
+    Enabled = false,
     FOVRadius = 150,
     TargetPart = "Head",
     HitChance = 100,
@@ -342,28 +210,25 @@ local function getTarget()
     return closest
 end
 
--- LOOP PRINCIPAL (FOV + VISIBLE CHECK AZUL)
 RunService.RenderStepped:Connect(function()
     FOVCircle.Size = UDim2.fromOffset(Settings.FOVRadius * 2, Settings.FOVRadius * 2)
-    FOVCircle.Visible = Settings.Enabled -- Só mostra o FOV se estiver ativado
+    FOVCircle.Visible = Settings.Enabled 
     
     pcall(function()
         currentTarget = getTarget()
     end)
 
-    -- Limpa os highlights antigos
     for _, highlight in ipairs(HighlightsFolder:GetChildren()) do
         highlight:Destroy()
     end
 
-    -- Se o Visible Check estiver ligado e tiver um alvo, marca de AZUL
     if Settings.VisibleCheck and Settings.Enabled and currentTarget and currentTarget.Parent then
         local targetChar = currentTarget.Parent
         local highlight = Instance.new("Highlight")
         highlight.Name = "TargetHighlight"
         highlight.Adornee = targetChar
-        highlight.FillColor = Color3.fromRGB(65, 145, 255) -- Azul
-        highlight.OutlineColor = Color3.fromRGB(255, 255, 255) -- Branco
+        highlight.FillColor = Color3.fromRGB(65, 145, 255)
+        highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
         highlight.FillTransparency = 0.5
         highlight.OutlineTransparency = 0
         highlight.Parent = HighlightsFolder
@@ -460,72 +325,21 @@ end
 
 _G.SA_randomDelay = randomDelay
 
--- CONTROLES DO SILENT AIM NA GUI
-TabSilent:Toggle({
-    Title = "Ativar Silent Aim",
-    Desc = "Liga/desliga a mira invisível",
-    Icon = "lucide:ghost",
-    Flag = "SilentEnabled",
-    Value = Settings.Enabled, 
-    Callback = function(value)
-        Settings.Enabled = value
-    end,
-})
+-- =====================================================
+-- CONTROLES DO SILENT AIM
+-- =====================================================
+TabSilent:Section({ Title = "Silent Aim" })
+TabSilent:Toggle({ Title = "Ativar Silent Aim", Desc = "Liga/desliga a mira", Icon = "lucide:ghost", Flag = "SilentEnabled", Value = Settings.Enabled, Callback = function(v) Settings.Enabled = v end })
+TabSilent:Toggle({ Title = "Visible Check", Desc = "Marca o alvo de azul", Flag = "SilentVisibleCheck", Value = Settings.VisibleCheck, Callback = function(v) Settings.VisibleCheck = v end })
+TabSilent:Dropdown({ Title = "Parte do Corpo", Flag = "SilentTargetPart", Values = {"Head", "HumanoidRootPart", "UpperTorso", "LowerTorso"}, Value = Settings.TargetPart, Callback = function(v) Settings.TargetPart = v end })
+TabSilent:Slider({ Title = "FOV Radius", Flag = "SilentFOVRadius", Value = { Min = 30, Max = 500, Default = Settings.FOVRadius }, Callback = function(v) Settings.FOVRadius = v end })
+TabSilent:Slider({ Title = "Hit Chance (%)", Flag = "SilentHitChance", Value = { Min = 0, Max = 100, Default = Settings.HitChance }, Callback = function(v) Settings.HitChance = v end })
+TabSilent:Slider({ Title = "Alcance (Range)", Flag = "SilentRange", Value = { Min = 100, Max = 2000, Default = Settings.SilentAimRange }, Callback = function(v) Settings.SilentAimRange = v end })
 
-TabSilent:Toggle({
-    Title = "Visible Check",
-    Desc = "Marca APENAS o alvo focado de azul",
-    Flag = "SilentVisibleCheck",
-    Value = Settings.VisibleCheck,
-    Callback = function(value)
-        Settings.VisibleCheck = value
-    end,
-})
-
-TabSilent:Dropdown({
-    Title = "Parte do Corpo",
-    Desc = "Onde a mira vai puxar",
-    Flag = "SilentTargetPart",
-    Values = {"Head", "HumanoidRootPart", "UpperTorso", "LowerTorso"},
-    Value = Settings.TargetPart,
-    Callback = function(value)
-        Settings.TargetPart = value
-    end,
-})
-
-TabSilent:Slider({
-    Title = "FOV Radius",
-    Desc = "Tamanho do círculo de mira",
-    Flag = "SilentFOVRadius",
-    Value = { Min = 30, Max = 500, Default = Settings.FOVRadius },
-    Callback = function(value)
-        Settings.FOVRadius = value
-    end,
-})
-
-TabSilent:Slider({
-    Title = "Hit Chance (%)",
-    Desc = "Porcentagem de chance de acertar",
-    Flag = "SilentHitChance",
-    Value = { Min = 0, Max = 100, Default = Settings.HitChance },
-    Callback = function(value)
-        Settings.HitChance = value
-    end,
-})
-
-TabSilent:Slider({
-    Title = "Alcance (Range)",
-    Desc = "Distância máxima para puxar a mira",
-    Flag = "SilentRange",
-    Value = { Min = 100, Max = 200000, Default = Settings.SilentAimRange },
-    Callback = function(value)
-        Settings.SilentAimRange = value
-    end,
-})
--- ABA DO ESP (OLHO)
-local TabESP = Window:Tab({ Title = "", Desc = "", Icon = "lucide:eye", ShowTabTitle = false })
+-- =====================================================
+-- SISTEMA DO ESP 2D COM ANTI-DETECÇÃO
+-- =====================================================
 TabESP:Section({ Title = "ESP 2D Visual" })
-
 local ESPSettings = { ESPEnabled = false, TeamCheck = false }
 local ESPFolder = Instance.new("Folder")
 ESPFolder.Name = "ESP_Drawings"
@@ -641,43 +455,20 @@ RunService.RenderStepped:Connect(function()
 end)
 
 pcall(function()
-    local oldNamecall
+        local oldNamecall
     oldNamecall = hookmetamethod(game, "__namecall", newcclosure(function(...)
         local Method = getnamecallmethod()
         local Arguments = {...}
         local self = Arguments[1]
 
-        if (Method == "Destroy" or Method == "ClearAllChildren") and self == game:GetService("CoreGui") then
-            return 
-        end
-        if (Method == "Destroy" or Method == "Remove") and self and (self.Name == "ESP_Drawings" or self.Name == "SilentHighlights") then
-            return
-        end
+        if (Method == "Destroy" or Method == "ClearAllChildren") and self == game:GetService("CoreGui") then return end
+        if (Method == "Destroy" or Method == "Remove") and self and (self.Name == "ESP_Drawings" or self.Name == "SilentHighlights") then return end
 
         return oldNamecall(...)
     end))
 end)
 
-TabESP:Toggle({
-    Title = "Ativar ESP 2D",
-    Desc = "Desenha caixas e nomes",
-    Icon = "lucide:eye",
-    Flag = "ESPAtivo",
-    Value = false,
-    Callback = function(value)
-        ESPSettings.ESPEnabled = value
-        if not value then
-            for plrName, _ in pairs(ESPObjects) do CleanupESP(plrName) end
-        end
-    end,
-})
+TabESP:Toggle({ Title = "Ativar ESP 2D", Desc = "Desenha caixas e nomes", Icon = "lucide:eye", Flag = "ESPAtivo", Value = false, Callback = function(value) ESPSettings.ESPEnabled = value; if not value then for plrName, _ in pairs(ESPObjects) do CleanupESP(plrName) end end end })
+TabESP:Toggle({ Title = "Team Check", Desc = "Não mostra aliados", Flag = "ESPTeamCheck", Value = false, Callback = function(v) ESPSettings.TeamCheck = v end })
 
-TabESP:Toggle({
-    Title = "Team Check",
-    Desc = "Não mostra aliados",
-    Flag = "ESPTeamCheck",
-    Value = false,
-    Callback = function(value)
-        ESPSettings.TeamCheck = value
-    end,
-})
+TabSilent:Select()

@@ -100,27 +100,22 @@ local Window = WindUI:CreateWindow({
     HasOutline = false,
 })
 
-local TabMira = Window:Tab({ Title = "", Desc = "", Icon = "lucide:crosshair", ShowTabTitle = false })
-TabMira:Section({ Title = "Mira" })
-TabMira:Toggle({
-    Title = "Ativar Mira",
-    Desc = "Configurações de mira",
-    Icon = "lucide:crosshair",
-    Flag = "MiraAtiva",
-    Value = false,
-    Callback = function(value) print("Mira:", value) end,
+-- Aba do Silent Aim (Fantasminha)
+local TabSilent = Window:Tab({ 
+    Title = "", 
+    Desc = "", 
+    Icon = "lucide:ghost", 
+    ShowTabTitle = false 
 })
 
-local TabSilent = Window:Tab({ Title = "", Desc = "", Icon = "lucide:ghost", ShowTabTitle = false })
-TabSilent:Section({ Title = "Silent Aim" })
-
+-- Aqui começa o seu código original (com a adição do Visible Check Azul)
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local Camera = workspace.CurrentCamera
 local LocalPlayer = Players.LocalPlayer
 
 local Settings = {
-    Enabled = false, 
+    Enabled = false, -- Começa desativado
     FOVRadius = 150,
     TargetPart = "Head",
     HitChance = 100,
@@ -154,7 +149,7 @@ CircleCorner.CornerRadius = UDim.new(1, 0)
 CircleCorner.Parent = FOVCircle
 
 local CircleStroke = Instance.new("UIStroke")
-CircleStroke.Color = Color3.fromRGB(65, 145, 255) 
+CircleStroke.Color = Color3.fromRGB(65, 145, 255)
 CircleStroke.Thickness = 1.5
 CircleStroke.Parent = FOVCircle
 
@@ -197,7 +192,7 @@ local function getTarget()
         if isValidTarget(plr) then
             local part = plr.Character:FindFirstChild(Settings.TargetPart) or plr.Character:FindFirstChild("HumanoidRootPart")
             if part then
-                local screenPos, onScreen = Camera.WorldToViewportPoint(Camera, part.Position)
+                local screenPos, onScreen = Camera:WorldToViewportPoint(part.Position)
                 if onScreen then
                     local dist = (Vector2.new(screenPos.X, screenPos.Y) - center).Magnitude
                     if dist < shortestDist then
@@ -211,30 +206,23 @@ local function getTarget()
     return closest
 end
 
--- ESSA É A PARTE QUE MUDOU
+-- LOOP PRINCIPAL (FOV + VISIBLE CHECK AZUL)
 RunService.RenderStepped:Connect(function()
     FOVCircle.Size = UDim2.fromOffset(Settings.FOVRadius * 2, Settings.FOVRadius * 2)
+    FOVCircle.Visible = Settings.Enabled -- Só mostra o FOV se estiver ativado
     
-    if Settings.Enabled then
-        FOVCircle.Visible = true
-        pcall(function()
-            currentTarget = getTarget() -- Pega o alvo principal
-        end)
-    else
-        FOVCircle.Visible = false
-        currentTarget = nil
-    end
+    pcall(function()
+        currentTarget = getTarget()
+    end)
 
-    -- Limpa todos os highlights antigos
+    -- Limpa os highlights antigos
     for _, highlight in ipairs(HighlightsFolder:GetChildren()) do
         highlight:Destroy()
     end
 
-    -- Se o Visible Check estiver ligado e tiver um alvo, marca APENAS o alvo
+    -- Se o Visible Check estiver ligado e tiver um alvo, marca de AZUL
     if Settings.VisibleCheck and Settings.Enabled and currentTarget and currentTarget.Parent then
         local targetChar = currentTarget.Parent
-        
-        -- Cria o destaque apenas no alvo principal
         local highlight = Instance.new("Highlight")
         highlight.Name = "TargetHighlight"
         highlight.Adornee = targetChar
@@ -336,6 +324,7 @@ end
 
 _G.SA_randomDelay = randomDelay
 
+-- CONTROLES DO SILENT AIM NA GUI
 TabSilent:Toggle({
     Title = "Ativar Silent Aim",
     Desc = "Liga/desliga a mira invisível",
@@ -349,7 +338,7 @@ TabSilent:Toggle({
 
 TabSilent:Toggle({
     Title = "Visible Check",
-    Desc = "Marca APENAS o alvo focado de azul e checa visão",
+    Desc = "Marca APENAS o alvo focado de azul",
     Flag = "SilentVisibleCheck",
     Value = Settings.VisibleCheck,
     Callback = function(value)
@@ -397,152 +386,3 @@ TabSilent:Slider({
         Settings.SilentAimRange = value
     end,
 })
-
-local TabTrigger = Window:Tab({ Title = "", Desc = "", Icon = "lucide:sword", ShowTabTitle = false })
-TabTrigger:Section({ Title = "Trigger Bot" })
-TabTrigger:Toggle({
-    Title = "Ativar Trigger",
-    Desc = "Atira automaticamente",
-    Icon = "lucide:sword",
-    Flag = "TriggerAtivo",
-    Value = false,
-    Callback = function(value) print("Trigger:", value) end,
-})
-
-local TabHitbox = Window:Tab({ Title = "", Desc = "", Icon = "lucide:radio", ShowTabTitle = false })
-TabHitbox:Section({ Title = "Hitbox Expander" })
-TabHitbox:Toggle({
-    Title = "Expandir Hitbox",
-    Desc = "Aumenta a caixa de colisão",
-    Icon = "lucide:radio",
-    Flag = "HitboxExpandida",
-    Value = false,
-    Callback = function(value) print("Hitbox:", value) end,
-})
-TabHitbox:Slider({
-    Title = "Tamanho da Hitbox",
-    Flag = "HitboxTamanho",
-    Value = { Min = 1, Max = 15, Default = 3 },
-    Callback = function(val) print("Tamanho:", val) end,
-})
-
-local TabESP = Window:Tab({ Title = "", Desc = "", Icon = "lucide:eye", ShowTabTitle = false })
-TabESP:Section({ Title = "ESP" })
-TabESP:Toggle({
-    Title = "Ativar ESP",
-    Desc = "Visualização",
-    Icon = "lucide:eye",
-    Flag = "ESPAtivo",
-    Value = false,
-    Callback = function(value) print("ESP:", value) end,
-})
-
-local TabPlayer = Window:Tab({ Title = "", Desc = "", Icon = "lucide:user", ShowTabTitle = false })
-TabPlayer:Section({ Title = "Player" })
-TabPlayer:Toggle({
-    Title = "Opções de Jogador",
-    Desc = "Configurações",
-    Icon = "lucide:user",
-    Flag = "PlayerOpcoes",
-    Value = false,
-    Callback = function(value) print("Player:", value) end,
-})
-
-local TabNuvem = Window:Tab({ Title = "", Desc = "", Icon = "lucide:cloud", ShowTabTitle = false })
-TabNuvem:Section({ Title = "Nuvem - Configurações" })
-
-local ConfigManager = Window.ConfigManager
-local CurrentConfigName = "default"
-
-local ConfigNameInput = TabNuvem:Input({
-    Title = "Nome da Config",
-    Desc = "Digite o nome da config",
-    Icon = "lucide:file-text",
-    Value = CurrentConfigName,
-    Callback = function(value)
-        CurrentConfigName = value
-    end
-})
-
-TabNuvem:Button({
-    Title = "Salvar Config",
-    Desc = "Salva as opções atuais",
-    Icon = "lucide:save",
-    IconAlign = "Right",
-    IconColor = Color3.fromHex("#FCD34D"),
-    Color = Color3.fromHex("#F59E0B"),
-    Justify = "Between",
-    Callback = function()
-        if CurrentConfigName and CurrentConfigName ~= "" then
-            local config = ConfigManager:CreateConfig(CurrentConfigName)
-            if config:Save() then
-                ConfigDropdown:Refresh(ConfigManager:AllConfigs())
-                WindUI:Notify({ Title = "Sucesso", Content = "Config '"..CurrentConfigName.."' salva!", Icon = "lucide:check" })
-            end
-        end
-    end
-})
-
-TabNuvem:Button({
-    Title = "Carregar Config",
-    Desc = "Puxa as opções salvas",
-    Icon = "lucide:upload",
-    IconAlign = "Right",
-    IconColor = Color3.fromHex("#FCD34D"),
-    Color = Color3.fromHex("#FFFFFF"),
-    Justify = "Between",
-    Callback = function()
-        if CurrentConfigName and CurrentConfigName ~= "" then
-            local config = ConfigManager:CreateConfig(CurrentConfigName)
-            if config:Load() then
-                WindUI:Notify({ Title = "Carregado", Content = "Config '"..CurrentConfigName.."' aplicada!", Icon = "lucide:check" })
-            end
-        end
-    end
-})
-
-TabNuvem:Button({
-    Title = "Deletar Config",
-    Desc = "Apaga a config selecionada",
-    Icon = "lucide:trash-2",
-    IconAlign = "Right",
-    IconColor = Color3.fromHex("#FF6B6B"),
-    Color = Color3.fromHex("#FF4444"),
-    Justify = "Between",
-    Callback = function()
-        if CurrentConfigName and CurrentConfigName ~= "" then
-            local config = ConfigManager:CreateConfig(CurrentConfigName)
-            config:Delete()
-            ConfigDropdown:Refresh(ConfigManager:AllConfigs())
-            WindUI:Notify({ Title = "Deletado", Content = "Config removida.", Icon = "lucide:trash" })
-        end
-    end
-})
-
-ConfigDropdown = TabNuvem:Dropdown({
-    Title = "Configs Salvas",
-    Desc = "Escolha uma config para carregar",
-    Icon = "lucide:folder-open",
-    Values = ConfigManager:AllConfigs(),
-    Callback = function(value)
-        if value and value ~= "" then
-            CurrentConfigName = value
-            ConfigNameInput:Set(value)
-        end
-    end
-})
-
-local TabConfig = Window:Tab({ Title = "", Desc = "", Icon = "lucide:wrench", ShowTabTitle = false })
-TabConfig:Section({ Title = "Configurações" })
-TabConfig:Button({ 
-    Title = "Sobre", 
-    Desc = "Apex Hub - WindUI", 
-    Icon = "lucide:info", 
-    IconAlign = "Right", 
-    IconColor = Color3.fromHex("#FCD34D"), 
-    Color = Color3.fromHex("#F59E0B"), 
-    Justify = "Between", 
-    Callback = function() end 
-})
-
-TabMira:Select()

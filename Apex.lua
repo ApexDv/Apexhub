@@ -100,36 +100,6 @@ local Window = WindUI:CreateWindow({
     HasOutline = false,
 })
 
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-local UserInputService = game:GetService("UserInputService")
-local Camera = workspace.CurrentCamera
-local LocalPlayer = Players.LocalPlayer
-
--- ══════════════════════════════════════════════════════════════
--- ANTI-DETECÇÃO GLOBAL (HOOK DE PROTEÇÃO)
--- ══════════════════════════════════════════════════════════════
-pcall(function()
-    local oldNamecall
-    oldNamecall = hookmetamethod(game, "__namecall", newcclosure(function(...)
-        local Method = getnamecallmethod()
-        local Arguments = {...}
-        local self = Arguments[1]
-
-        if (Method == "Destroy" or Method == "ClearAllChildren") and self == game:GetService("CoreGui") then
-            return 
-        end
-        if (Method == "Destroy" or Method == "Remove") and self and (self.Name == "ESP_Drawings" or self.Name == "SilentHighlights" or self.Name == "HitboxExpanders") then
-            return
-        end
-
-        return oldNamecall(...)
-    end))
-end)
-
--- ══════════════════════════════════════════════════════════════
--- ABA MIRA
--- ══════════════════════════════════════════════════════════════
 local TabMira = Window:Tab({ Title = "", Desc = "", Icon = "lucide:crosshair", ShowTabTitle = false })
 TabMira:Section({ Title = "Mira" })
 TabMira:Toggle({
@@ -141,19 +111,23 @@ TabMira:Toggle({
     Callback = function(value) print("Mira:", value) end,
 })
 
--- ══════════════════════════════════════════════════════════════
--- ABA SILENT AIM
--- ══════════════════════════════════════════════════════════════
 local TabSilent = Window:Tab({ Title = "", Desc = "", Icon = "lucide:ghost", ShowTabTitle = false })
 TabSilent:Section({ Title = "Silent Aim" })
 
-local SilentSettings = {
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local Camera = workspace.CurrentCamera
+local LocalPlayer = Players.LocalPlayer
+
+local Settings = {
     Enabled = false, 
     FOVRadius = 150,
     TargetPart = "Head",
     HitChance = 100,
     SilentAimRange = 1000,
     VisibleCheck = false,
+    DelayMin = 0.05,
+    DelayMax = 0.15,
 }
 
 local currentTarget = nil
@@ -169,7 +143,7 @@ ScreenGui.DisplayOrder = 999
 ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
 
 local FOVCircle = Instance.new("Frame")
-FOVCircle.Size = UDim2.fromOffset(SilentSettings.FOVRadius * 2, SilentSettings.FOVRadius * 2)
+FOVCircle.Size = UDim2.fromOffset(Settings.FOVRadius * 2, Settings.FOVRadius * 2)
 FOVCircle.AnchorPoint = Vector2.new(0.5, 0.5)
 FOVCircle.Position = UDim2.fromScale(0.5, 0.5)
 FOVCircle.BackgroundTransparency = 1
@@ -184,8 +158,13 @@ CircleStroke.Color = Color3.fromRGB(65, 145, 255)
 CircleStroke.Thickness = 1.5
 CircleStroke.Parent = FOVCircle
 
+local function randomDelay()
+    local d = Settings.DelayMin + math.random() * (Settings.DelayMax - Settings.DelayMin)
+    task.wait(d)
+end
+
 local function isVisible(targetCharacter)
-    if not SilentSettings.VisibleCheck then return true end
+    if not Settings.VisibleCheck then return true end
     local targetHRP = targetCharacter:FindFirstChild("HumanoidRootPart")
     if not targetHRP then return false end
     local char = LocalPlayer.Character
@@ -204,21 +183,21 @@ local function isValidTarget(plr)
     local hrp = plr.Character:FindFirstChild("HumanoidRootPart")
     if not hum or hum.Health <= 0 or not hrp then return false end
     local localRoot = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-    if localRoot and (hrp.Position - localRoot.Position).Magnitude > SilentSettings.SilentAimRange then return false end
+    if localRoot and (hrp.Position - localRoot.Position).Magnitude > Settings.SilentAimRange then return false end
     if not isVisible(plr.Character) then return false end
     return true
 end
 
 local function getTarget()
-    if not SilentSettings.Enabled then return nil end
+    if not Settings.Enabled then return nil end
     local center = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)
     local closest = nil
-    local shortestDist = SilentSettings.FOVRadius
+    local shortestDist = Settings.FOVRadius
     for _, plr in ipairs(Players:GetPlayers()) do
         if isValidTarget(plr) then
-            local part = plr.Character:FindFirstChild(SilentSettings.TargetPart) or plr.Character:FindFirstChild("HumanoidRootPart")
+            local part = plr.Character:FindFirstChild(Settings.TargetPart) or plr.Character:FindFirstChild("HumanoidRootPart")
             if part then
-                local screenPos, onScreen = Camera:WorldToViewportPoint(part.Position)
+                local screenPos, onScreen = Camera.WorldToViewportPoint(Camera, part.Position)
                 if onScreen then
                     local dist = (Vector2.new(screenPos.X, screenPos.Y) - center).Magnitude
                     if dist < shortestDist then
@@ -232,30 +211,35 @@ local function getTarget()
     return closest
 end
 
+-- ESSA É A PARTE QUE MUDOU
 RunService.RenderStepped:Connect(function()
-    FOVCircle.Size = UDim2.fromOffset(SilentSettings.FOVRadius * 2, SilentSettings.FOVRadius * 2)
+    FOVCircle.Size = UDim2.fromOffset(Settings.FOVRadius * 2, Settings.FOVRadius * 2)
     
-    if SilentSettings.Enabled then
+    if Settings.Enabled then
         FOVCircle.Visible = true
         pcall(function()
-            currentTarget = getTarget()
+            currentTarget = getTarget() -- Pega o alvo principal
         end)
     else
         FOVCircle.Visible = false
         currentTarget = nil
     end
 
+    -- Limpa todos os highlights antigos
     for _, highlight in ipairs(HighlightsFolder:GetChildren()) do
         highlight:Destroy()
     end
 
-    if SilentSettings.VisibleCheck and SilentSettings.Enabled and currentTarget and currentTarget.Parent then
+    -- Se o Visible Check estiver ligado e tiver um alvo, marca APENAS o alvo
+    if Settings.VisibleCheck and Settings.Enabled and currentTarget and currentTarget.Parent then
         local targetChar = currentTarget.Parent
+        
+        -- Cria o destaque apenas no alvo principal
         local highlight = Instance.new("Highlight")
         highlight.Name = "TargetHighlight"
         highlight.Adornee = targetChar
-        highlight.FillColor = Color3.fromRGB(65, 145, 255)
-        highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
+        highlight.FillColor = Color3.fromRGB(65, 145, 255) -- Azul
+        highlight.OutlineColor = Color3.fromRGB(255, 255, 255) -- Branco
         highlight.FillTransparency = 0.5
         highlight.OutlineTransparency = 0
         highlight.Parent = HighlightsFolder
@@ -322,8 +306,8 @@ local hookOk, hookErr = pcall(function()
         if self == workspace and not checkcaller() then
             local Origin, Direction = tryGetOriginDirection(Method, Arguments)
             if Origin and Direction and isLocalPlayerShooting(Arguments, Method, Origin, Direction) then
-                if SilentSettings.Enabled and currentTarget and currentTarget.Parent then
-                    if math.random(1, 100) <= SilentSettings.HitChance then
+                if Settings.Enabled and currentTarget and currentTarget.Parent then
+                    if math.random(1, 100) <= Settings.HitChance then
                         local newDir = (currentTarget.Position - Origin).Unit * Direction.Magnitude
                         if Method == "FindPartOnRayWithIgnoreList" and ValidateArguments(Arguments, ExpectedArguments.FindPartOnRayWithIgnoreList) then
                             Arguments[2] = Ray.new(Origin, newDir)
@@ -344,14 +328,22 @@ local hookOk, hookErr = pcall(function()
     end))
 end)
 
+if hookOk then
+    print("[SA] hook instalado")
+else
+    warn("[SA] hook falhou:", hookErr)
+end
+
+_G.SA_randomDelay = randomDelay
+
 TabSilent:Toggle({
     Title = "Ativar Silent Aim",
     Desc = "Liga/desliga a mira invisível",
     Icon = "lucide:ghost",
     Flag = "SilentEnabled",
-    Value = SilentSettings.Enabled, 
+    Value = Settings.Enabled, 
     Callback = function(value)
-        SilentSettings.Enabled = value
+        Settings.Enabled = value
     end,
 })
 
@@ -359,9 +351,9 @@ TabSilent:Toggle({
     Title = "Visible Check",
     Desc = "Marca APENAS o alvo focado de azul e checa visão",
     Flag = "SilentVisibleCheck",
-    Value = SilentSettings.VisibleCheck,
+    Value = Settings.VisibleCheck,
     Callback = function(value)
-        SilentSettings.VisibleCheck = value
+        Settings.VisibleCheck = value
     end,
 })
 
@@ -370,9 +362,9 @@ TabSilent:Dropdown({
     Desc = "Onde a mira vai puxar",
     Flag = "SilentTargetPart",
     Values = {"Head", "HumanoidRootPart", "UpperTorso", "LowerTorso"},
-    Value = SilentSettings.TargetPart,
+    Value = Settings.TargetPart,
     Callback = function(value)
-        SilentSettings.TargetPart = value
+        Settings.TargetPart = value
     end,
 })
 
@@ -380,9 +372,9 @@ TabSilent:Slider({
     Title = "FOV Radius",
     Desc = "Tamanho do círculo de mira",
     Flag = "SilentFOVRadius",
-    Value = { Min = 30, Max = 500, Default = SilentSettings.FOVRadius },
+    Value = { Min = 30, Max = 500, Default = Settings.FOVRadius },
     Callback = function(value)
-        SilentSettings.FOVRadius = value
+        Settings.FOVRadius = value
     end,
 })
 
@@ -390,9 +382,9 @@ TabSilent:Slider({
     Title = "Hit Chance (%)",
     Desc = "Porcentagem de chance de acertar",
     Flag = "SilentHitChance",
-    Value = { Min = 0, Max = 100, Default = SilentSettings.HitChance },
+    Value = { Min = 0, Max = 100, Default = Settings.HitChance },
     Callback = function(value)
-        SilentSettings.HitChance = value
+        Settings.HitChance = value
     end,
 })
 
@@ -400,434 +392,62 @@ TabSilent:Slider({
     Title = "Alcance (Range)",
     Desc = "Distância máxima para puxar a mira",
     Flag = "SilentRange",
-    Value = { Min = 100, Max = 2000, Default = SilentSettings.SilentAimRange },
+    Value = { Min = 100, Max = 2000, Default = Settings.SilentAimRange },
     Callback = function(value)
-        SilentSettings.SilentAimRange = value
+        Settings.SilentAimRange = value
     end,
 })
 
--- ══════════════════════════════════════════════════════════════
--- ABA ESP
--- ══════════════════════════════════════════════════════════════
-local TabESP = Window:Tab({ Title = "", Desc = "", Icon = "lucide:eye", ShowTabTitle = false })
-TabESP:Section({ Title = "ESP 2D Visual" })
-
-local ESPSettings = {
-    Enabled = false,
-    TeamCheck = false,
-    ShowBox = true,
-    ShowHealth = true,
-    ShowName = true
-}
-
-local ESPFolder = Instance.new("Folder")
-ESPFolder.Name = "ESP_Drawings"
-ESPFolder.Parent = game:GetService("CoreGui")
-local ESPObjects = {}
-
-local function CreateLine(parent, color, thickness)
-    local line = Drawing.new("Line")
-    line.Color = color
-    line.Thickness = thickness or 1
-    line.Transparency = 1
-    line.Visible = false
-    line.Parent = parent 
-    return line
-end
-
-local function CleanupESP(plrName)
-    if ESPObjects[plrName] then
-        for _, obj in pairs(ESPObjects[plrName]) do
-            if obj.Remove then obj:Remove() end
-        end
-        ESPObjects[plrName] = nil
-    end
-end
-
-RunService.RenderStepped:Connect(function()
-    if not ESPFolder.Parent then
-        ESPFolder.Parent = game:GetService("CoreGui")
-    end
-
-    if not ESPSettings.Enabled then
-        for plrName, _ in pairs(ESPObjects) do
-            CleanupESP(plrName)
-        end
-        return
-    end
-
-    for _, plr in ipairs(Players:GetPlayers()) do
-        if plr ~= LocalPlayer and plr.Character then
-            local char = plr.Character
-            local hum = char:FindFirstChildOfClass("Humanoid")
-            local hrp = char:FindFirstChild("HumanoidRootPart")
-            local head = char:FindFirstChild("Head")
-
-            if not hum or hum.Health <= 0 or not hrp or not head then
-                CleanupESP(plr.Name)
-            else
-                if ESPSettings.TeamCheck and plr.Team == LocalPlayer.Team then
-                    CleanupESP(plr.Name)
-                else
-                    local hrpPos, hrpOnScreen = Camera:WorldToViewportPoint(hrp.Position)
-                    local headPos, headOnScreen = Camera:WorldToViewportPoint(head.Position)
-
-                    if hrpOnScreen and headOnScreen then
-                        local height = math.abs(headPos.Y - hrpPos.Y) * 2.2
-                        local width = height / 2.5
-                        local x = hrpPos.X - (width / 2)
-                        local y = headPos.Y - (height * 0.2)
-
-                        if not ESPObjects[plr.Name] then
-                            ESPObjects[plr.Name] = {
-                                TopLine = CreateLine(ESPFolder, Color3.new(1,1,1), 1),
-                                BottomLine = CreateLine(ESPFolder, Color3.new(1,1,1), 1),
-                                LeftLine = CreateLine(ESPFolder, Color3.new(1,1,1), 1),
-                                RightLine = CreateLine(ESPFolder, Color3.new(1,1,1), 1),
-                                HealthBar = CreateLine(ESPFolder, Color3.new(0,1,0), 2),
-                                NameText = Drawing.new("Text")
-                            }
-                            ESPObjects[plr.Name].NameText.Size = 14
-                            ESPObjects[plr.Name].NameText.Center = true
-                            ESPObjects[plr.Name].NameText.Outline = true
-                            ESPObjects[plr.Name].NameText.OutlineColor = Color3.new(0,0,0)
-                        end
-
-                        local esp = ESPObjects[plr.Name]
-                        local isAlly = plr.Team and LocalPlayer.Team and (plr.Team == LocalPlayer.Team)
-                        local color = isAlly and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0)
-
-                        if ESPSettings.ShowBox then
-                            esp.TopLine.From = Vector2.new(x, y)
-                            esp.TopLine.To = Vector2.new(x + width, y)
-                                                            esp.TopLine.Color = color
-                            esp.TopLine.Visible = true
-
-                            esp.BottomLine.From = Vector2.new(x, y + height)
-                            esp.BottomLine.To = Vector2.new(x + width, y + height)
-                            esp.BottomLine.Color = color
-                            esp.BottomLine.Visible = true
-
-                            esp.LeftLine.From = Vector2.new(x, y)
-                            esp.LeftLine.To = Vector2.new(x, y + height)
-                            esp.LeftLine.Color = color
-                            esp.LeftLine.Visible = true
-
-                            esp.RightLine.From = Vector2.new(x + width, y)
-                            esp.RightLine.To = Vector2.new(x + width, y + height)
-                            esp.RightLine.Color = color
-                            esp.RightLine.Visible = true
-                        else
-                            esp.TopLine.Visible = false
-                            esp.BottomLine.Visible = false
-                            esp.LeftLine.Visible = false
-                            esp.RightLine.Visible = false
-                        end
-
-                        if ESPSettings.ShowHealth and hum then
-                            local healthPct = math.clamp(hum.Health / hum.MaxHealth, 0, 1)
-                            esp.HealthBar.From = Vector2.new(x - 4, y + height)
-                            esp.HealthBar.To = Vector2.new(x - 4, y + (height - (height * healthPct)))
-                            
-                            if healthPct > 0.5 then
-                                esp.HealthBar.Color = Color3.fromRGB(0, 255, 0)
-                            elseif healthPct > 0.2 then
-                                esp.HealthBar.Color = Color3.fromRGB(255, 255, 0)
-                            else
-                                esp.HealthBar.Color = Color3.fromRGB(255, 0, 0)
-                            end
-                            esp.HealthBar.Visible = true
-                        else
-                            esp.HealthBar.Visible = false
-                        end
-
-                        if ESPSettings.ShowName then
-                            esp.NameText.Text = plr.Name
-                            esp.NameText.Position = Vector2.new(x + (width / 2), y - 16)
-                            esp.NameText.Color = color
-                            esp.NameText.Visible = true
-                        else
-                            esp.NameText.Visible = false
-                        end
-                    else
-                        if ESPObjects[plr.Name] then
-                            for _, obj in pairs(ESPObjects[plr.Name]) do
-                                obj.Visible = false
-                            end
-                        end
-                    end
-                end
-            end
-        end
-    end
-
-    for name, _ in pairs(ESPObjects) do
-        if not Players:FindFirstChild(name) then
-            CleanupESP(name)
-        end
-    end
-end)
-
-TabESP:Toggle({
-    Title = "Ativar ESP 2D",
-    Desc = "Desenha caixas e informações",
-    Icon = "lucide:eye",
-    Flag = "ESPAtivo",
-    Value = ESPSettings.Enabled,
-    Callback = function(value)
-        ESPSettings.Enabled = value
-        if not value then
-            for plrName, _ in pairs(ESPObjects) do
-                CleanupESP(plrName)
-            end
-        end
-    end,
+local TabTrigger = Window:Tab({ Title = "", Desc = "", Icon = "lucide:sword", ShowTabTitle = false })
+TabTrigger:Section({ Title = "Trigger Bot" })
+TabTrigger:Toggle({
+    Title = "Ativar Trigger",
+    Desc = "Atira automaticamente",
+    Icon = "lucide:sword",
+    Flag = "TriggerAtivo",
+    Value = false,
+    Callback = function(value) print("Trigger:", value) end,
 })
 
-TabESP:Toggle({
-    Title = "Team Check",
-    Desc = "Não mostra aliados",
-    Flag = "ESPTeamCheck",
-    Value = ESPSettings.TeamCheck,
-    Callback = function(value)
-        ESPSettings.TeamCheck = value
-    end,
-})
-
-TabESP:Toggle({
-    Title = "Mostrar Caixa",
-    Desc = "Desenha a caixa 2D",
-    Flag = "ESPShowBox",
-    Value = ESPSettings.ShowBox,
-    Callback = function(value)
-        ESPSettings.ShowBox = value
-    end,
-})
-
-TabESP:Toggle({
-    Title = "Mostrar Barra de Vida",
-    Desc = "Desenha a vida ao lado",
-    Flag = "ESPShowHealth",
-    Value = ESPSettings.ShowHealth,
-    Callback = function(value)
-        ESPSettings.ShowHealth = value
-    end,
-})
-
-TabESP:Toggle({
-    Title = "Mostrar Nome",
-    Desc = "Desenha o nome acima",
-    Flag = "ESPShowName",
-    Value = ESPSettings.ShowName,
-    Callback = function(value)
-        ESPSettings.ShowName = value
-    end,
-})
-
--- ══════════════════════════════════════════════════════════════
--- ABA PLAYER (SPEED, FLY JUMP, POWER JUMP)
--- ══════════════════════════════════════════════════════════════
-local TabPlayer = Window:Tab({ Title = "", Desc = "", Icon = "lucide:user", ShowTabTitle = false })
-TabPlayer:Section({ Title = "Movimentação" })
-
-local PlayerSettings = {
-    SpeedEnabled = false,
-    SpeedValue = 16,
-    FlyJumpEnabled = false,
-    PowerJumpEnabled = false,
-    PowerJumpValue = 50
-}
-
-task.spawn(function()
-    while task.wait(0.1) do
-        local char = LocalPlayer.Character
-        local hum = char and char:FindFirstChildOfClass("Humanoid")
-        if hum then
-            if PlayerSettings.SpeedEnabled then
-                hum.WalkSpeed = PlayerSettings.SpeedValue
-            end
-            if PlayerSettings.PowerJumpEnabled then
-                hum.JumpPower = PlayerSettings.PowerJumpValue
-                hum.UseJumpPower = true
-            end
-        end
-    end
-end)
-
-RunService.Heartbeat:Connect(function()
-    local char = LocalPlayer.Character
-    local hum = char and char:FindFirstChildOfClass("Humanoid")
-    local hrp = char and char:FindFirstChild("HumanoidRootPart")
-    
-    if PlayerSettings.FlyJumpEnabled and hrp and hum then
-        if UserInputService:IsKeyDown(Enum.KeyCode.Space) or game:GetService("UserInputService").TouchEnabled then
-            if hum:GetState() == Enum.HumanoidStateType.Freefall or hum:GetState() == Enum.HumanoidStateType.Jumping then
-                hrp.Velocity = Vector3.new(hrp.Velocity.X, 0, hrp.Velocity.Z)
-            end
-        end
-    end
-end)
-
-TabPlayer:Toggle({
-    Title = "Ativar Speed",
-    Desc = "Liga/desliga a velocidade",
-    Icon = "lucide:zap",
-    Flag = "PlayerSpeedToggle",
-    Value = PlayerSettings.SpeedEnabled,
-    Callback = function(value)
-        PlayerSettings.SpeedEnabled = value
-        if not value then
-            local char = LocalPlayer.Character
-            local hum = char and char:FindFirstChildOfClass("Humanoid")
-            if hum then hum.WalkSpeed = 16 end
-        end
-    end,
-})
-
-TabPlayer:Slider({
-    Title = "Velocidade (Speed)",
-    Desc = "Ajuste a velocidade",
-    Flag = "PlayerSpeedValue",
-    Value = { Min = 16, Max = 250, Default = 16 },
-    Callback = function(value)
-        PlayerSettings.SpeedValue = value
-    end,
-})
-
-TabPlayer:Toggle({
-    Title = "Ativar Fly Jump (Voo)",
-    Desc = "Permite flutuar no ar",
-    Icon = "lucide:wind",
-    Flag = "PlayerFlyJumpToggle",
-    Value = PlayerSettings.FlyJumpEnabled,
-    Callback = function(value)
-        PlayerSettings.FlyJumpEnabled = value
-    end,
-})
-
-TabPlayer:Toggle({
-    Title = "Ativar Power Jump",
-    Desc = "Liga/desliga o pulo alto",
-    Icon = "lucide:arrow-up",
-    Flag = "PlayerPowerJumpToggle",
-    Value = PlayerSettings.PowerJumpEnabled,
-    Callback = function(value)
-        PlayerSettings.PowerJumpEnabled = value
-        if not value then
-            local char = LocalPlayer.Character
-            local hum = char and char:FindFirstChildOfClass("Humanoid")
-            if hum then hum.JumpPower = 50 end
-        end
-    end,
-})
-
-TabPlayer:Slider({
-    Title = "Força do Pulo (Power Jump)",
-    Desc = "Ajuste a força do pulo",
-    Flag = "PlayerPowerJumpValue",
-    Value = { Min = 50, Max = 500, Default = 50 },
-    Callback = function(value)
-        PlayerSettings.PowerJumpValue = value
-    end,
-})
-
--- ══════════════════════════════════════════════════════════════
--- ABA HITBOX
--- ══════════════════════════════════════════════════════════════
 local TabHitbox = Window:Tab({ Title = "", Desc = "", Icon = "lucide:radio", ShowTabTitle = false })
 TabHitbox:Section({ Title = "Hitbox Expander" })
-
-local HitboxSettings = {
-    Enabled = false,
-    Size = 5
-}
-
-local HitboxFolder = Instance.new("Folder")
-HitboxFolder.Name = "HitboxExpanders"
-HitboxFolder.Parent = game:GetService("CoreGui")
-
-local function CleanupHitboxes()
-    for _, plr in ipairs(Players:GetPlayers()) do
-        if plr.Character then
-            local hrp = plr.Character:FindFirstChild("HumanoidRootPart")
-            if hrp then
-                if hrp:FindFirstChild("HitboxOriginalSize") then
-                    hrp.Size = hrp.HitboxOriginalSize.Value
-                    hrp.HitboxOriginalSize:Destroy()
-                else
-                    hrp.Size = Vector3.new(2, 2, 1)
-                end
-            end
-        end
-    end
-    for _, obj in ipairs(HitboxFolder:GetChildren()) do
-        obj:Destroy()
-    end
-end
-
-task.spawn(function()
-    while task.wait(0.1) do
-        if HitboxSettings.Enabled then
-            for _, plr in ipairs(Players:GetPlayers()) do
-                if plr ~= LocalPlayer and plr.Character then
-                    local hrp = plr.Character:FindFirstChild("HumanoidRootPart")
-                    if hrp then
-                        if not hrp:FindFirstChild("HitboxOriginalSize") then
-                            local originalSize = Instance.new("Vector3Value")
-                            originalSize.Name = "HitboxOriginalSize"
-                            originalSize.Value = hrp.Size
-                            originalSize.Parent = hrp
-                        end
-                        
-                        hrp.Size = Vector3.new(HitboxSettings.Size, HitboxSettings.Size, HitboxSettings.Size)
-                        hrp.CanCollide = false
-                        
-                        local visualBox = HitboxFolder:FindFirstChild(plr.Name)
-                        if not visualBox then
-                            visualBox = Instance.new("BoxHandleAdornment")
-                            visualBox.Name = plr.Name
-                            visualBox.Adornee = hrp
-                            visualBox.AlwaysOnTop = true
-                            visualBox.ZIndex = 5
-                            visualBox.Color3 = Color3.fromRGB(255, 0, 0)
-                            visualBox.Transparency = 0.7
-                            visualBox.Parent = HitboxFolder
-                        end
-                        visualBox.Size = hrp.Size
-                    end
-                end
-            end
-        end
-    end
-end)
-
 TabHitbox:Toggle({
-    Title = "Ativar Hitbox Expander",
-    Desc = "Aumenta a hitbox de todos os inimigos",
+    Title = "Expandir Hitbox",
+    Desc = "Aumenta a caixa de colisão",
     Icon = "lucide:radio",
     Flag = "HitboxExpandida",
-    Value = HitboxSettings.Enabled,
-    Callback = function(value)
-        HitboxSettings.Enabled = value
-        if not value then
-            CleanupHitboxes()
-        end
-    end,
+    Value = false,
+    Callback = function(value) print("Hitbox:", value) end,
 })
-
 TabHitbox:Slider({
     Title = "Tamanho da Hitbox",
-    Desc = "Ajuste o tamanho da caixa de colisão",
     Flag = "HitboxTamanho",
-    Value = { Min = 1, Max = 50, Default = 5 },
-    Callback = function(value)
-        HitboxSettings.Size = value
-    end,
+    Value = { Min = 1, Max = 15, Default = 3 },
+    Callback = function(val) print("Tamanho:", val) end,
 })
 
--- ══════════════════════════════════════════════════════════════
--- OUTRAS ABAS
--- ══════════════════════════════════════════════════════════════
+local TabESP = Window:Tab({ Title = "", Desc = "", Icon = "lucide:eye", ShowTabTitle = false })
+TabESP:Section({ Title = "ESP" })
+TabESP:Toggle({
+    Title = "Ativar ESP",
+    Desc = "Visualização",
+    Icon = "lucide:eye",
+    Flag = "ESPAtivo",
+    Value = false,
+    Callback = function(value) print("ESP:", value) end,
+})
+
+local TabPlayer = Window:Tab({ Title = "", Desc = "", Icon = "lucide:user", ShowTabTitle = false })
+TabPlayer:Section({ Title = "Player" })
+TabPlayer:Toggle({
+    Title = "Opções de Jogador",
+    Desc = "Configurações",
+    Icon = "lucide:user",
+    Flag = "PlayerOpcoes",
+    Value = false,
+    Callback = function(value) print("Player:", value) end,
+})
+
 local TabNuvem = Window:Tab({ Title = "", Desc = "", Icon = "lucide:cloud", ShowTabTitle = false })
 TabNuvem:Section({ Title = "Nuvem - Configurações" })
 
@@ -916,7 +536,7 @@ local TabConfig = Window:Tab({ Title = "", Desc = "", Icon = "lucide:wrench", Sh
 TabConfig:Section({ Title = "Configurações" })
 TabConfig:Button({ 
     Title = "Sobre", 
-    Desc = "Apex Hub", 
+    Desc = "Apex Hub - WindUI", 
     Icon = "lucide:info", 
     IconAlign = "Right", 
     IconColor = Color3.fromHex("#FCD34D"), 

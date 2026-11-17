@@ -304,7 +304,6 @@ end)
 
 _G.SA_randomDelay = function() task.wait(0.05) end
 
--- CONTROLES DO SILENT AIM (DENTRO DA ABA)
 TabSilent:Section({ Title = "Silent Aim" })
 TabSilent:Toggle({ Title = "Ativar Silent Aim", Desc = "Liga/desliga a mira", Icon = "lucide:ghost", Flag = "SilentEnabled", Value = Settings.Enabled, Callback = function(v) Settings.Enabled = v end })
 TabSilent:Toggle({ Title = "Visible Check", Desc = "Marca o alvo de azul", Flag = "SilentVisibleCheck", Value = Settings.VisibleCheck, Callback = function(v) Settings.VisibleCheck = v end })
@@ -313,8 +312,6 @@ TabSilent:Slider({ Title = "FOV Radius", Flag = "SilentFOVRadius", Value = { Min
 TabSilent:Slider({ Title = "Hit Chance (%)", Flag = "SilentHitChance", Value = { Min = 0, Max = 100, Default = Settings.HitChance }, Callback = function(v) Settings.HitChance = v end })
 TabSilent:Slider({ Title = "Alcance (Range)", Flag = "SilentRange", Value = { Min = 100, Max = 2000, Default = Settings.SilentAimRange }, Callback = function(v) Settings.SilentAimRange = v end })
 
--- CONTROLES DO ESP (DENTRO DA ABA)
-TabESP:Section({ Title = "ESP 2D Visual" })
 local ESPSettings = { ESPEnabled = false, TeamCheck = false }
 local ESPFolder = Instance.new("Folder")
 ESPFolder.Name = "ESP_Drawings"
@@ -443,8 +440,9 @@ pcall(function()
     end))
 end)
 
-TabESP:Toggle({ Title = "Ativar ESP 2D", Desc = "Desenha caixas e nomes", Icon = "lucide:eye", Flag = "ESPAtivo", Value = false, Callback = function(value) ESPSettings.ESPEnabled = value; if not value then for plrName, _ in pairs(ESPObjects) do CleanupESP(plrName) end end
-            end })
-TabESP:Toggle({ Title = "Team Check", Desc = "Não mostra aliados", Flag = "ESPTeamCheck", Value = false, Callback = function(v) ESPSettings.TeamCheck = v end })
+TabESP:Section({ Title = "ESP 2D Visual" })
+TabESP:Toggle({ Title = "Ativar ESP 2D", Desc = "Desenha caixas e nomes", Icon = "lucide:eye", Flag = "ESPAtivo", Value = false, Callback = function(value) ESPSettings.ESPEnabled = value; if not value then for plrName, _ in pairs(ESPObjects) do CleanupESP(plrName) end end end })
+TabESP:Toggle({ Title = "Team Check", Desc = "Não mostra aliados", Flag
+         = "ESPTeamCheck", Value = false, Callback = function(v) ESPSettings.TeamCheck = v end })
 
 TabSilent:Select()

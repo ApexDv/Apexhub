@@ -11,7 +11,7 @@ local Settings = {
     SilentFOV = 150,
     SilentPart = "Head",
     SilentRange = 1000,
-    SilentVisible = false,
+    SilentVisible = false, -- Inicia desligado
     SilentHitChance = 100,
     
     AimbotEnabled = false,
@@ -20,10 +20,10 @@ local Settings = {
     AimbotPart = "Head",
     
     ESPEnabled = false,
-    ESPBox = true,
-    ESPHealthBar = true,
-    ESPName = true,
-    ESPDistance = true,
+    ESPBox = false, -- Inicia desligado
+    ESPHealthBar = false, -- Inicia desligado
+    ESPName = false, -- Inicia desligado
+    ESPDistance = false, -- Inicia desligado
     ESPColor = Color3.fromRGB(65, 145, 255),
     
     SpeedEnabled = false,
@@ -109,7 +109,7 @@ FOVCircle.Size = UDim2.fromOffset(Settings.SilentFOV * 2, Settings.SilentFOV * 2
 FOVCircle.AnchorPoint = Vector2.new(0.5, 0.5)
 FOVCircle.Position = UDim2.fromScale(0.5, 0.5)
 FOVCircle.BackgroundTransparency = 1
-FOVCircle.Visible = Settings.SilentEnabled -- Inicia invisível
+FOVCircle.Visible = Settings.SilentEnabled
 FOVCircle.Parent = ScreenGui
 
 local CircleCorner = Instance.new("UICorner")
@@ -189,7 +189,7 @@ end
 
 RunService.RenderStepped:Connect(function()
     FOVCircle.Size = UDim2.fromOffset(Settings.SilentFOV * 2, Settings.SilentFOV * 2)
-    FOVCircle.Visible = Settings.SilentEnabled -- Só aparece se o Silent estiver ativado
+    FOVCircle.Visible = Settings.SilentEnabled
     
     pcall(function()
         currentTarget = getSilentTarget()
@@ -300,12 +300,11 @@ RunService.RenderStepped:Connect(function()
             
             if hum and hum.Health > 0 and hrp and head then
                 local headPos, headOnScreen = Camera:WorldToViewportPoint(head.Position + Vector3.new(0, 0.5, 0))
-                local hrpPos, hrpOnScreen = Camera:WorldToViewportPoint(hrp.Position)
-                local footPos, footOnScreen = Camera:WorldToViewportPoint(hrp.Position - Vector3.new(0, 3, 0))
+                local hrpPos, hrpOnScreen = Camera:WorldToViewportPoint(hrp.Position - Vector3.new(0, 1.5, 0))
                 
-                if headOnScreen and hrpOnScreen and footOnScreen and headPos.Z > 0 then
-                    local height = math.abs(footPos.Y - headPos.Y)
-                    local width = height / 2
+                if headOnScreen and hrpOnScreen and headPos.Z > 0 then
+                    local height = math.abs(hrpPos.Y - headPos.Y)
+                    local width = height / 2.5
                     local x = headPos.X - width / 2
                     local y = headPos.Y
                     

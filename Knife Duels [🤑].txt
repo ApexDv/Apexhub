@@ -1,0 +1,371 @@
+-- ================================================
+-- CROWN UI | Knife Duels Fixed & Enhanced Script
+-- Developer: develop:crown
+-- ================================================
+
+local CoreGui = game:GetService("CoreGui")
+local TweenService = game:GetService("TweenService")
+local Players = game:GetService("Players")
+local Workspace = game:GetService("Workspace")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local Camera = Workspace.CurrentCamera
+local LocalPlayer = Players.LocalPlayer
+local SetClipboard = setclipboard or toclipboard or set_clipboard or set_clipboard_text
+
+-- 1. Loading Screen
+local function ShowLoadingScreen()
+    local ScreenGui = Instance.new("ScreenGui")
+    ScreenGui.Name = "CrownLoader"
+    ScreenGui.ResetOnSpawn = false
+    ScreenGui.Parent = CoreGui
+
+    local Frame = Instance.new("Frame")
+    Frame.Size = UDim2.new(0, 290, 0, 150)
+    Frame.Position = UDim2.new(0.5, -145, 0.5, -75)
+    Frame.BackgroundColor3 = Color3.fromRGB(18, 18, 22)
+    Frame.BorderSizePixel = 0
+    Frame.Parent = ScreenGui
+
+    local UICorner = Instance.new("UICorner")
+    UICorner.CornerRadius = UDim.new(0, 14)
+    UICorner.Parent = Frame
+
+    local UIStroke = Instance.new("UIStroke")
+    UIStroke.Color = Color3.fromRGB(255, 215, 0)
+    UIStroke.Thickness = 1.5
+    UIStroke.Parent = Frame
+
+    local Title = Instance.new("TextLabel")
+    Title.Size = UDim2.new(1, 0, 0, 40)
+    Title.Position = UDim2.new(0, 0, 0, 15)
+    Title.BackgroundTransparency = 1
+    Title.Text = "👑 CROWN - KNIFE DUELS"
+    Title.TextColor3 = Color3.fromRGB(255, 215, 0)
+    Title.TextSize = 22
+    Title.Font = Enum.Font.Garamond
+    Title.Parent = Frame
+
+    local Status = Instance.new("TextLabel")
+    Status.Size = UDim2.new(1, 0, 0, 20)
+    Status.Position = UDim2.new(0, 0, 0, 60)
+    Status.BackgroundTransparency = 1
+    Status.Text = "Loading Enhanced Combat..."
+    Status.TextColor3 = Color3.fromRGB(200, 200, 200)
+    Status.TextSize = 13
+    Status.Font = Enum.Font.GothamMedium
+    Status.Parent = Frame
+
+    local ProgressBarBg = Instance.new("Frame")
+    ProgressBarBg.Size = UDim2.new(0.85, 0, 0, 6)
+    ProgressBarBg.Position = UDim2.new(0.075, 0, 0, 100)
+    ProgressBarBg.BackgroundColor3 = Color3.fromRGB(35, 35, 45)
+    ProgressBarBg.BorderSizePixel = 0
+    ProgressBarBg.Parent = Frame
+
+    local BarCorner = Instance.new("UICorner")
+    BarCorner.CornerRadius = UDim.new(1, 0)
+    BarCorner.Parent = ProgressBarBg
+
+    local ProgressBar = Instance.new("Frame")
+    ProgressBar.Size = UDim2.new(0, 0, 1, 0)
+    ProgressBar.BackgroundColor3 = Color3.fromRGB(255, 215, 0)
+    ProgressBar.BorderSizePixel = 0
+    ProgressBar.Parent = ProgressBarBg
+
+    local FillCorner = Instance.new("UICorner")
+    FillCorner.CornerRadius = UDim.new(1, 0)
+    FillCorner.Parent = ProgressBar
+
+    TweenService:Create(ProgressBar, TweenInfo.new(1.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(1, 0, 1, 0)}):Play()
+    task.wait(1.6)
+
+    ScreenGui:Destroy()
+end
+
+ShowLoadingScreen()
+
+-- 2. Load WindUI Library
+local success, WindUI = pcall(function()
+    return loadstring(game:HttpGet("https://raw.githubusercontent.com/Footagesus/WindUI/main/dist/main.lua"))()
+end)
+
+if not success or not WindUI then
+    warn("Failed to load WindUI library.")
+    return
+end
+
+-- 3. Initialize Window & Key System
+local Window = WindUI:CreateWindow({
+    Title = "Crown | Knife Duels",
+    Icon = "crown",
+    Author = "develop:crown",
+    Folder = "CrownKnifeDuelsConfig",
+    Size = UDim2.fromOffset(550, 360),
+    Transparent = true,
+    Theme = "Dark",
+    KeySystem = {
+        Key = { "devkey:crownscriptdev", "CROWN-KD-2026-KEY" },
+        Note = "Use devkey:crownscriptdev to bypass",
+        URL = "https://linkvertise.com/your-key-link-here",
+        SaveKey = true
+    }
+})
+
+-- 4. Mobile Floating Toggle Button (👑)
+local OpenCloseGui = Instance.new("ScreenGui")
+OpenCloseGui.Name = "CrownMobileToggle"
+OpenCloseGui.ResetOnSpawn = false
+OpenCloseGui.Parent = CoreGui
+
+local ToggleButton = Instance.new("TextButton")
+ToggleButton.Size = UDim2.new(0, 48, 0, 48)
+ToggleButton.Position = UDim2.new(0.05, 0, 0.25, 0)
+ToggleButton.BackgroundColor3 = Color3.fromRGB(20, 20, 26)
+ToggleButton.Text = "👑"
+ToggleButton.TextSize = 24
+ToggleButton.BorderSizePixel = 0
+ToggleButton.Active = true
+ToggleButton.Draggable = true
+ToggleButton.Parent = OpenCloseGui
+
+local ToggleCorner = Instance.new("UICorner")
+ToggleCorner.CornerRadius = UDim.new(0.5, 0)
+ToggleCorner.Parent = ToggleButton
+
+local ToggleStroke = Instance.new("UIStroke")
+ToggleStroke.Color = Color3.fromRGB(255, 215, 0)
+ToggleStroke.Thickness = 2
+ToggleStroke.Parent = ToggleButton
+
+local isUiOpen = true
+ToggleButton.MouseButton1Click:Connect(function()
+    isUiOpen = not isUiOpen
+    Window:Toggle(isUiOpen)
+end)
+
+-- TAB 1: Combat & Aimbot
+local CombatTab = Window:Tab({ Title = "Combat / Aimbot", Icon = "swords" })
+CombatTab:Section({ Title = "Aimbot & Targeting" })
+
+CombatTab:Toggle({
+    Title = "Camera Lock Aimbot (Lock onto Nearest Enemy)",
+    Desc = "Automatically directs your camera to the closest enemy's upper torso",
+    Value = false,
+    Callback = function(state)
+        _G.CameraAimbot = state
+        RunService.RenderStepped:Connect(function()
+            if not _G.CameraAimbot then return end
+            local closestPlayer = nil
+            local shortestDistance = math.huge
+            
+            for _, p in pairs(Players:GetPlayers()) do
+                if p ~= LocalPlayer and p.Character and p.Character:FindFirstChild("HumanoidRootPart") and p.Character:FindFirstChild("Humanoid") and p.Character.Humanoid.Health > 0 then
+                    local hrp = p.Character.HumanoidRootPart
+                    local dist = (hrp.Position - LocalPlayer.Character.HumanoidRootPart.Position).Magnitude
+                    if dist < shortestDistance then
+                        shortestDistance = dist
+                        closestPlayer = p
+                    end
+                end
+            end
+            
+            if closestPlayer and closestPlayer.Character and closestPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                local targetPos = closestPlayer.Character.HumanoidRootPart.Position
+                Camera.CFrame = CFrame.new(Camera.CFrame.Position, targetPos)
+            end
+        end)
+    end
+})
+
+CombatTab:Toggle({
+    Title = "ESP Enemy Highlights",
+    Desc = "Puts glowing red outlines on enemies",
+    Value = false,
+    Callback = function(state)
+        _G.KD_ESP = state
+        RunService.RenderStepped:Connect(function()
+            if not _G.KD_ESP then return end
+            for _, p in pairs(Players:GetPlayers()) do
+                if p ~= LocalPlayer and p.Character then
+                    local hl = p.Character:FindFirstChild("CrownKDHighlight") or Instance.new("Highlight")
+                    hl.Name = "CrownKDHighlight"
+                    hl.FillColor = Color3.fromRGB(255, 0, 0)
+                    hl.OutlineColor = Color3.fromRGB(255, 255, 255)
+                    hl.Parent = p.Character
+                end
+            end
+        end)
+    end
+})
+
+CombatTab:Slider({
+    Title = "Knife Hitbox Expander",
+    Min = 2,
+    Max = 20,
+    Default = 2,
+    Callback = function(size)
+        _G.HitboxSize = size
+        task.spawn(function()
+            while task.wait(1) do
+                pcall(function()
+                    for _, p in pairs(Players:GetPlayers()) do
+                        if p ~= LocalPlayer and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+                            p.Character.HumanoidRootPart.Size = Vector3.new(_G.HitboxSize, _G.HitboxSize, _G.HitboxSize)
+                            p.Character.HumanoidRootPart.Transparency = 0.7
+                            p.Character.HumanoidRootPart.CanCollide = false
+                        end
+                    end
+                end)
+            end
+        end)
+    end
+})
+
+CombatTab:Toggle({
+    Title = "Auto Swing / Attack Aura",
+    Desc = "Automatically triggers knife attacks when close",
+    Value = false,
+    Callback = function(state)
+        _G.AutoSwing = state
+        task.spawn(function()
+            while _G.AutoSwing do
+                task.wait(0.05)
+                pcall(function()
+                    local char = LocalPlayer.Character
+                    if char then
+                        local tool = char:FindFirstChildOfClass("Tool")
+                        if tool then
+                            tool:Activate()
+                        end
+                    end
+                end)
+            end
+        end)
+    end
+})
+
+-- TAB 2: Player Mods (Fixed Sliders)
+local PlayerTab = Window:Tab({ Title = "Player Mods", Icon = "user" })
+PlayerTab:Section({ Title = "Fixed Movement Options" })
+
+PlayerTab:Slider({
+    Title = "WalkSpeed",
+    Min = 16,
+    Max = 150,
+    Default = 16,
+    Callback = function(speed)
+        pcall(function()
+            if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
+                LocalPlayer.Character.Humanoid.WalkSpeed = speed
+            end
+        end)
+    end
+})
+
+PlayerTab:Slider({
+    Title = "Jump Power / Height",
+    Min = 50,
+    Max = 300,
+    Default = 50,
+    Callback = function(power)
+        pcall(function()
+            if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
+                local hum = LocalPlayer.Character.Humanoid
+                hum.UseJumpPower = true
+                hum.JumpPower = power
+            end
+        end)
+    end
+})
+
+local infJump = false
+PlayerTab:Toggle({
+    Title = "Infinite Jump",
+    Desc = "Jump continuously in the air",
+    Value = false,
+    Callback = function(state)
+        infJump = state
+    end
+})
+
+UserInputService.JumpRequest:Connect(function()
+    if infJump and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
+        LocalPlayer.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+    end
+})
+
+local noclip = false
+PlayerTab:Toggle({
+    Title = "Noclip",
+    Desc = "Walk through obstacles",
+    Value = false,
+    Callback = function(state)
+        noclip = state
+    end
+})
+
+RunService.Stepped:Connect(function()
+    if noclip and LocalPlayer.Character then
+        for _, part in pairs(LocalPlayer.Character:GetDescendants()) do
+            if part:IsA("BasePart") then
+                part.CanCollide = false
+            end
+        end
+    end
+end)
+
+-- TAB 3: Visuals & Arena
+local VisualsTab = Window:Tab({ Title = "Visuals & Arena", Icon = "eye" })
+VisualsTab:Section({ Title = "World & Lighting" })
+
+VisualsTab:Toggle({
+    Title = "Fullbright",
+    Desc = "Removes dark shadows",
+    Value = false,
+    Callback = function(state)
+        if state then
+            game:GetService("Lighting").Brightness = 2
+            game:GetService("Lighting").ClockTime = 14
+            game:GetService("Lighting").GlobalShadows = false
+        else
+            game:GetService("Lighting").GlobalShadows = true
+        end
+    end
+})
+
+-- TAB 4: Settings & Discord
+local SettingsTab = Window:Tab({ Title = "Settings", Icon = "settings" })
+SettingsTab:Section({ Title = "Community & Support" })
+
+SettingsTab:Button({
+    Title = "Copy Discord Link",
+    Desc = "https://discord.gg/2wZbs9atQA",
+    Callback = function()
+        if SetClipboard then
+            SetClipboard("https://discord.gg/2wZbs9atQA")
+            WindUI:Notify({
+                Title = "Crown Community",
+                Content = "Discord invite link copied to clipboard!",
+                Duration = 4
+            })
+        end
+    end
+})
+
+SettingsTab:Section({ Title = "Script Management" })
+
+SettingsTab:Button({
+    Title = "Unload / Remove Crown UI",
+    Callback = function()
+        OpenCloseGui:Destroy()
+        Window:Destroy()
+    end
+})
+
+SettingsTab:Section({ Title = "Credits" })
+
+SettingsTab:Paragraph({
+    Title = "Developer",
+    Desc = "develop:crown"
+})

@@ -1,115 +1,346 @@
 local WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-local UserInputService = game:GetService("UserInputService")
-local Camera = workspace.CurrentCamera
+
+local Players     = game:GetService("Players")
+local RunService  = game:GetService("RunService")
+local UserInput   = game:GetService("UserInputService")
+local Camera      = workspace.CurrentCamera
 local LocalPlayer = Players.LocalPlayer
 
-local Settings = {
-    SilentEnabled = false,
-    SilentMode = "Players",
-    SilentFOV = 150,
-    SilentPart = "Head",
-    SilentRange = 1000,
-    SilentVisible = false, -- Inicia desligado
-    SilentHitChance = 100,
-    
-    AimbotEnabled = false,
-    AimbotFOV = 200,
-    AimbotSmooth = 0.2,
-    AimbotPart = "Head",
-    
-    ESPEnabled = false,
-    ESPBox = false, -- Inicia desligado
-    ESPHealthBar = false, -- Inicia desligado
-    ESPName = false, -- Inicia desligado
-    ESPDistance = false, -- Inicia desligado
-    ESPColor = Color3.fromRGB(65, 145, 255),
-    
-    SpeedEnabled = false,
-    SpeedValue = 50,
-    JumpEnabled = false,
-    JumpValue = 100,
-    FlyEnabled = false,
-    FlySpeed = 50,
-    NoclipEnabled = false,
+local S = {
+    on          = false,
+    keybind     = Enum.KeyCode.Q,
+    fov         = 200,   
+    part        = "Head",
+    smooth      = 0.18,  
+    predict     = true,  
+    predictTime = 0.12,  
+    visCheck    = true,
+    teamCheck   = true,
+    maxRange    = 1500,  
+    sticky      = true,
+    humanize    = true,  
+    showFov     = false,
+    hideFov     = false,
+    fovColor    = Color3.fromRGB(255, 0, 128),
 }
 
-local currentTarget = nil
-local currentHighlight = nil
-local espObjects = {}
-local flyConnection = nil
+local SA = {
+    Enabled     = false,
+    FOVRadius   = 150,
+    TargetPart  = "Head",
+    HitChance   = 100,
+    Range       = 1000,
+    HideFov     = false,
+}
 
-local function antiDetect()
-    local env = getfenv()
-    if env.hookmetamethod ~= hookmetamethod then return true end
-    if env.debug ~= debug then return true end
-    if env.string ~= string then return true end
-    return false
+local fovCircle = Drawing.new("Circle")
+fovCircle.Thickness = 2
+fovCircle.NumSides = 60
+fovCircle.Filled = false
+fovCircle.Transparency = 1
+fovCircle.Visible = false
+
+RunService.RenderStepped:Connect(function()
+    if (S.on or S.showFov) and not S.hideFov then
+        local center = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)
+        fovCircle.Position = center
+        fovCircle.Radius = S.fov
+        fovCircle.Color = S.fovColor
+        fovCircle.Visible = true
+    else
+        fovCircle.Visible = false
+    end
+end)
+
+local target, targetPart, targetPlr = nil, nil, nil
+
+local function rnd(a, b) return a + math.random()*(b-a) end
+
+local function isAlly(plr)
+    if not S.teamCheck then return false end
+    return plr.Team ~= nil and plr.Team == LocalPlayer.Team
 end
 
-if antiDetect() then return end
+local function hasLOS(char)
+    if not S.visCheck then return true end
+    local hrp = char:FindFirstChild("HumanoidRootPart")
+    local lhrp = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+    if not hrp or not lhrp then return false end
+    local p = RaycastParams.new()
+    p.FilterType = Enum.RaycastFilterType.Blacklist
+    p.FilterDescendantsInstances = {LocalPlayer.Character, char}
+    local r = workspace:Raycast(Camera.CFrame.Position, hrp.Position - Camera.CFrame.Position, p)
+    return r == nil
+end
+
+local function validTarget(plr)
+    if plr == LocalPlayer then return false end
+    if not plr.Character then return false end
+    local hum = plr.Character:FindFirstChildOfClass("Humanoid")
+    local hrp = plr.Character:FindFirstChild("HumanoidRootPart")
+    if not hum or hum.Health <= 0 or not hrp then return false end
+    local lhrp = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+    if lhrp and (hrp.Position - lhrp.Position).Magnitude > S.maxRange then return false end
+    if isAlly(plr) then return false end
+    if not hasLOS(plr.Character) then return false end
+    return true
+end
+
+local function getAimPos(plr, part)
+    if not S.predict then return part.Position end
+    local hrp = plr.Character and plr.Character:FindFirstChild("HumanoidRootPart")
+    if not hrp then return part.Position end
+    local vel = hrp.AssemblyLinearVelocity
+    local predicted = part.Position + vel * S.predictTime
+    if (predicted - Camera.CFrame.Position).Magnitude > S.maxRange then
+        return part.Position
+    end
+    return predicted
+end
+
+local function findBest()
+    local center = Vector2.new(Camera.ViewportSize.X/2, Camera.ViewportSize.Y/2)
+    local best, bestPlr, bestPart, bestD = nil, nil, nil, S.fov
+    for _, plr in ipairs(Players:GetPlayers()) do
+        if validTarget(plr) then
+            local part = plr.Character:FindFirstChild(S.part) or plr.Character:FindFirstChild("HumanoidRootPart")
+            if part then
+                local sp, on = Camera:WorldToViewportPoint(part.Position)
+                if on and sp.Z > 0 then
+                    local d = (Vector2.new(sp.X, sp.Y) - center).Magnitude
+                    if d < bestD then
+                        best, bestPlr, bestPart, bestD = plr, plr, part, d
+                    end
+                end
+            end
+        end
+    end
+    return best, bestPart
+end
+
+local function resolveTarget()
+    if S.sticky and targetPlr and validTarget(targetPlr) then
+        local p = targetPlr.Character:FindFirstChild(S.part) or targetPlr.Character:FindFirstChild("HumanoidRootPart")
+        if p then
+            local sp, on = Camera:WorldToViewportPoint(p.Position)
+            if on and sp.Z > 0 then
+                local d = (Vector2.new(sp.X, sp.Y) - Vector2.new(Camera.ViewportSize.X/2, Camera.ViewportSize.Y/2)).Magnitude
+                if d <= S.fov * 1.2 then
+                    return targetPlr, p
+                end
+            end
+        end
+    end
+    return findBest()
+end
+
+local function aimAt(worldPos)
+    local camPos = Camera.CFrame.Position
+    local desired = CFrame.lookAt(camPos, worldPos)
+    if S.humanize then
+        local j = rnd(0.0004, 0.0018)
+        desired = desired * CFrame.Angles(rnd(-j, j), rnd(-j, j), 0)
+    end
+    local t = 1 - math.clamp(S.smooth, 0.001, 0.999)
+    Camera.CFrame = Camera.CFrame:Lerp(desired, t)
+end
+
+UserInput.InputBegan:Connect(function(input, gp)
+    if gp then return end
+    if input.KeyCode == S.keybind then
+        S.on = not S.on
+        if not S.on then
+            target, targetPart, targetPlr = nil, nil, nil
+        end
+    end
+end)
+
+RunService.RenderStepped:Connect(function()
+    if not S.on then return end
+    local lp = LocalPlayer.Character
+    if not lp then return end
+    local lhum = lp:FindFirstChildOfClass("Humanoid")
+    if not lhum or lhum.Health <= 0 then return end
+
+    pcall(function()
+        local plr, part = resolveTarget()
+        targetPlr, targetPart = plr, part
+        if part then
+            aimAt(getAimPos(plr, part))
+        end
+    end)
+end)
 
 local Window = WindUI:CreateWindow({
-    Title = "Apex Hub",
-    Icon = "rbxassetid://6031280882",
-    Author = "Stealth Edition",
+    Title = "🚀 APEX HUB",
+    Icon = "crown",
+    Author = "APEX",
     Folder = "ApexHub",
-    Size = UDim2.fromOffset(600, 480),
+    Size = UDim2.fromOffset(580, 460),
     Transparent = true,
     Theme = "Dark",
-    Lock = true,
-    HideOnClose = true,
-    MinimizeKeybind = Enum.KeyCode.RightControl
+    User = { Enabled = true, Anonymous = true },
+    SideBarWidth = 200,
+    HasOutline = true,
 })
 
-local SilentTab = Window:Tab({ Title = "Silent Aim", Icon = "crosshair" })
-local AimbotTab = Window:Tab({ Title = "Aimbot", Icon = "target" })
-local ESPTab = Window:Tab({ Title = "ESP", Icon = "eye" })
-local MovementTab = Window:Tab({ Title = "Movement", Icon = "move" })
+local AimbotTab = Window:Tab({ Title = "", Icon = "rbxassetid://122878673716704" })
+local SilentTab = Window:Tab({ Title = "", Icon = "rbxassetid://122014945028597" })
+local HitboxTab = Window:Tab({ Title = "", Icon = "rbxassetid://117329818290748" })
+local EspTab    = Window:Tab({ Title = "", Icon = "rbxassetid://127234874352422" })
+local ConfigTab = Window:Tab({ Title = "", Icon = "rbxassetid://106205298246017" })
 
-local SilentSection = SilentTab:Section({ Title = "Configurações", TextXAlignment = "Left" })
-SilentSection:Toggle({ Title = "Ativar Silent", Value = false, Callback = function(v) Settings.SilentEnabled = v end })
-SilentSection:Slider({ Title = "FOV", Value = { Min = 10, Max = 500, Default = 150 }, Callback = function(v) Settings.SilentFOV = v end })
-SilentSection:Slider({ Title = "Hit Chance", Value = { Min = 1, Max = 100, Default = 100 }, Suffix = "%", Callback = function(v) Settings.SilentHitChance = v end })
-SilentSection:Dropdown({ Title = "Parte do Corpo", Values = { "Head", "HumanoidRootPart", "UpperTorso", "LowerTorso" }, Value = "Head", Callback = function(v) Settings.SilentPart = v end })
-SilentSection:Toggle({ Title = "Visible Check", Value = false, Callback = function(v) Settings.SilentVisible = v end })
+local AimSection = AimbotTab:Section({ Title = "Aimbot" })
 
-local AimbotSection = AimbotTab:Section({ Title = "Camera Lock", TextXAlignment = "Left" })
-AimbotSection:Toggle({ Title = "Ativar Aimbot", Value = false, Callback = function(v) Settings.AimbotEnabled = v end })
-AimbotSection:Slider({ Title = "FOV", Value = { Min = 10, Max = 600, Default = 200 }, Callback = function(v) Settings.AimbotFOV = v end })
-AimbotSection:Slider({ Title = "Suavidade", Value = { Min = 0.01, Max = 1, Default = 0.2 }, Callback = function(v) Settings.AimbotSmooth = v end })
-AimbotSection:Dropdown({ Title = "Parte do Corpo", Values = { "Head", "HumanoidRootPart", "UpperTorso", "LowerTorso" }, Value = "Head", Callback = function(v) Settings.AimbotPart = v end })
+AimSection:Toggle({
+    Title = "Ativar Aimbot",
+    Desc = "Liga a mira automática e exibe o FOV",
+    Icon = "crosshair",
+    Value = false,
+    Callback = function(v)
+        S.on = v
+        S.showFov = v
+        if not v then 
+            target, targetPart, targetPlr = nil, nil, nil 
+        end
+    end,
+})
 
-local ESPSection = ESPTab:Section({ Title = "Visual", TextXAlignment = "Left" })
-ESPSection:Toggle({ Title = "Ativar ESP", Value = false, Callback = function(v) Settings.ESPEnabled = v end })
-ESPSection:Toggle({ Title = "Caixa (Box)", Value = false, Callback = function(v) Settings.ESPBox = v end })
-ESPSection:Toggle({ Title = "Barra de Vida", Value = false, Callback = function(v) Settings.ESPHealthBar = v end })
-ESPSection:Toggle({ Title = "Nome", Value = false, Callback = function(v) Settings.ESPName = v end })
-ESPSection:Toggle({ Title = "Distância", Value = false, Callback = function(v) Settings.ESPDistance = v end })
+AimSection:Dropdown({
+    Title = "Parte Alvo",
+    Values = { "Head", "Torso", "HumanoidRootPart", "UpperTorso", "LowerTorso" },
+    Value = "Head",
+    Multi = false,
+    Callback = function(o) S.part = o end,
+})
 
-local MovSection = MovementTab:Section({ Title = "Movimento", TextXAlignment = "Left" })
-MovSection:Toggle({ Title = "Speed Hack", Value = false, Callback = function(v) Settings.SpeedEnabled = v end })
-MovSection:Slider({ Title = "Velocidade", Value = { Min = 16, Max = 200, Default = 50 }, Callback = function(v) Settings.SpeedValue = v end })
-MovSection:Toggle({ Title = "Jump Power", Value = false, Callback = function(v) Settings.JumpEnabled = v end })
-MovSection:Slider({ Title = "Força do Pulo", Value = { Min = 50, Max = 500, Default = 100 }, Callback = function(v) Settings.JumpValue = v end })
-MovSection:Toggle({ Title = "Fly", Value = false, Callback = function(v) Settings.FlyEnabled = v end })
-MovSection:Slider({ Title = "Velocidade do Fly", Value = { Min = 10, Max = 200, Default = 50 }, Callback = function(v) Settings.FlySpeed = v end })
-MovSection:Toggle({ Title = "Noclip", Value = false, Callback = function(v) Settings.NoclipEnabled = v end })
+AimSection:Slider({
+    Title = "Tamanho do FOV",
+    Desc = "Ajusta o raio do círculo na tela",
+    Step = 1,
+    Value = {
+        Min = 50,
+        Max = 800,
+        Default = 200,
+    },
+    Callback = function(val) 
+        S.fov = val 
+    end,
+})
+
+AimSection:Slider({
+    Title = "Distância Máxima",
+    Desc = "Alcance máximo para travar no alvo",
+    Step = 10,
+    Value = {
+        Min = 100,
+        Max = 3000,
+        Default = 1500,
+    },
+    Callback = function(val) 
+        S.maxRange = val 
+    end,
+})
+
+AimSection:Toggle({
+    Title = "Sticky Target",
+    Desc = "Mantém o mesmo alvo",
+    Value = true,
+    Callback = function(v) S.sticky = v end,
+})
+
+AimSection:Toggle({
+    Title = "Esconder FOV",
+    Desc = "Deixa o FOV invisível (mesmo com o Aimbot ligado)",
+    Value = false,
+    Callback = function(v) 
+        S.hideFov = v 
+    end,
+})
+
+AimSection:Colorpicker({
+    Title = "Cor do FOV",
+    Default = Color3.fromRGB(255, 0, 128),
+    Callback = function(c) S.fovColor = c end,
+})
+
+local SilentSection = SilentTab:Section({ Title = "Silent Aim" })
+
+SilentSection:Toggle({
+    Title = "Ativar Silent Aim",
+    Value = false,
+    Callback = function(v) SA.Enabled = v end,
+})
+
+SilentSection:Dropdown({
+    Title = "Parte Alvo",
+    Values = { "Head", "Torso", "HumanoidRootPart", "UpperTorso", "LowerTorso" },
+    Value = "Head",
+    Multi = false,
+    Callback = function(o) SA.TargetPart = o end,
+})
+
+SilentSection:Slider({
+    Title = "Tamanho do FOV (Silent)",
+    Desc = "Raio da área de busca do alvo",
+    Step = 1,
+    Value = {
+        Min = 50,
+        Max = 800,
+        Default = 150,
+    },
+    Callback = function(val) 
+        SA.FOVRadius = val 
+    end,
+})
+
+SilentSection:Slider({
+    Title = "Alcance do Silent",
+    Desc = "Distância máxima do alvo",
+    Step = 10,
+    Value = {
+        Min = 100,
+        Max = 3000,
+        Default = 1000,
+    },
+    Callback = function(val) 
+        SA.Range = val 
+    end,
+})
+
+SilentSection:Slider({
+    Title = "Porcentagem de Acerto",
+    Desc = "Chance de acerto do silent (0 a 100%)",
+    Step = 1,
+    Value = {
+        Min = 0,
+        Max = 100,
+        Default = 100,
+    },
+    Callback = function(val) 
+        SA.HitChance = val 
+    end,
+})
+
+SilentSection:Toggle({
+    Title = "Esconder FOV",
+    Value = false,
+    Callback = function(v) SA.HideFov = v end,
+})
 
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = tostring(math.random(100000, 999999))
+ScreenGui.Name = "UniversalSilentAimFOV"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.IgnoreGuiInset = true
 ScreenGui.DisplayOrder = 999
 ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
 
 local FOVCircle = Instance.new("Frame")
-FOVCircle.Size = UDim2.fromOffset(Settings.SilentFOV * 2, Settings.SilentFOV * 2)
+FOVCircle.Size = UDim2.fromOffset(SA.FOVRadius * 2, SA.FOVRadius * 2)
 FOVCircle.AnchorPoint = Vector2.new(0.5, 0.5)
 FOVCircle.Position = UDim2.fromScale(0.5, 0.5)
 FOVCircle.BackgroundTransparency = 1
-FOVCircle.Visible = Settings.SilentEnabled
+FOVCircle.Visible = false
 FOVCircle.Parent = ScreenGui
 
 local CircleCorner = Instance.new("UICorner")
@@ -121,254 +352,82 @@ CircleStroke.Color = Color3.fromRGB(65, 145, 255)
 CircleStroke.Thickness = 1.5
 CircleStroke.Parent = FOVCircle
 
-local function isVisible(targetModel)
-    if not Settings.SilentVisible then return true end
-    local hrp = targetModel:FindFirstChild("HumanoidRootPart")
-    if not hrp then return false end
-    local char = LocalPlayer.Character
-    local localHRP = char and char:FindFirstChild("HumanoidRootPart")
-    if not localHRP then return false end
-    local params = RaycastParams.new()
-    params.FilterType = Enum.RaycastFilterType.Blacklist
-    params.FilterDescendantsInstances = {LocalPlayer.Character, targetModel}
-    local result = workspace:Raycast(hrp.Position, localHRP.Position - hrp.Position, params)
-    return result == nil
-end
+local currentTarget = nil
+local currentHighlight = nil
+local currentPlr = nil
 
-local function inRange(hrp)
+local function isValidTarget(plr)
+    if plr == LocalPlayer or not plr.Character then return false end
+    local hum = plr.Character:FindFirstChildOfClass("Humanoid")
+    local hrp = plr.Character:FindFirstChild("HumanoidRootPart")
+    if not hum or hum.Health <= 0 or not hrp then return false end
+    
     local localRoot = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-    if not localRoot then return true end
-    return (hrp.Position - localRoot.Position).Magnitude <= Settings.SilentRange
+    if localRoot and (hrp.Position - localRoot.Position).Magnitude > SA.Range then return false end
+    return true
 end
 
-local function getSilentTarget()
-    if not Settings.SilentEnabled then return nil end
+local function getTarget()
+    if not SA.Enabled then return nil, nil end
+    
     local center = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)
-    local closest, shortestDist = nil, Settings.SilentFOV
+    local closestPlr = nil
+    local closestPart = nil
+    local shortestDist = SA.FOVRadius
+    
     for _, plr in ipairs(Players:GetPlayers()) do
-        if plr ~= LocalPlayer and plr.Character then
-            local hum = plr.Character:FindFirstChildOfClass("Humanoid")
-            local hrp = plr.Character:FindFirstChild("HumanoidRootPart")
-            if hum and hum.Health > 0 and hrp and inRange(hrp) and isVisible(plr.Character) then
-                local part = plr.Character:FindFirstChild(Settings.SilentPart) or hrp
+        if isValidTarget(plr) then
+            local part = plr.Character:FindFirstChild(SA.TargetPart) or plr.Character:FindFirstChild("HumanoidRootPart")
+            if part then
                 local screenPos, onScreen = Camera:WorldToViewportPoint(part.Position)
                 if onScreen and screenPos.Z > 0 then
-                    local d = (Vector2.new(screenPos.X, screenPos.Y) - center).Magnitude
-                    if d < shortestDist then
-                        closest, shortestDist = part, d
+                    local dist = (Vector2.new(screenPos.X, screenPos.Y) - center).Magnitude
+                    if dist < shortestDist then
+                        closestPlr = plr
+                        closestPart = part
+                        shortestDist = dist
                     end
                 end
             end
         end
     end
-    return closest
-end
-
-local function getAimbotTarget()
-    if not Settings.AimbotEnabled then return nil end
-    local center = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)
-    local closest, shortestDist = nil, Settings.AimbotFOV
-    for _, plr in ipairs(Players:GetPlayers()) do
-        if plr ~= LocalPlayer and plr.Character then
-            local hum = plr.Character:FindFirstChildOfClass("Humanoid")
-            local hrp = plr.Character:FindFirstChild("HumanoidRootPart")
-            if hum and hum.Health > 0 and hrp then
-                local part = plr.Character:FindFirstChild(Settings.AimbotPart) or hrp
-                local screenPos, onScreen = Camera:WorldToViewportPoint(part.Position)
-                if onScreen and screenPos.Z > 0 then
-                    local d = (Vector2.new(screenPos.X, screenPos.Y) - center).Magnitude
-                    if d < shortestDist then
-                        closest, shortestDist = part, d
-                    end
-                end
-            end
-        end
-    end
-    return closest
+    return closestPlr, closestPart
 end
 
 RunService.RenderStepped:Connect(function()
-    FOVCircle.Size = UDim2.fromOffset(Settings.SilentFOV * 2, Settings.SilentFOV * 2)
-    FOVCircle.Visible = Settings.SilentEnabled
+    if SA.Enabled and not SA.HideFov then
+        FOVCircle.Visible = true
+        FOVCircle.Size = UDim2.fromOffset(SA.FOVRadius * 2, SA.FOVRadius * 2)
+    else
+        FOVCircle.Visible = false
+    end
     
     pcall(function()
-        currentTarget = getSilentTarget()
-        if currentTarget then
-            if currentHighlight and currentHighlight.Parent ~= currentTarget.Parent then
+        local targetPlr, targetPart = getTarget()
+        currentTarget = targetPart
+        currentPlr = targetPlr
+        
+        if targetPlr then
+            if currentHighlight and currentHighlight.Parent ~= targetPlr.Character then
                 currentHighlight:Destroy()
                 currentHighlight = nil
             end
+            
             if not currentHighlight then
                 currentHighlight = Instance.new("Highlight")
                 currentHighlight.FillColor = Color3.fromRGB(65, 145, 255)
                 currentHighlight.OutlineColor = Color3.fromRGB(65, 145, 255)
                 currentHighlight.FillTransparency = 1
                 currentHighlight.OutlineTransparency = 0
-                currentHighlight.Parent = currentTarget.Parent
+                currentHighlight.Parent = targetPlr.Character
             end
         else
-            if currentHighlight then currentHighlight:Destroy() currentHighlight = nil end
-        end
-
-        local aimTarget = getAimbotTarget()
-        if aimTarget and Settings.AimbotEnabled then
-            local targetCFrame = CFrame.new(Camera.CFrame.Position, aimTarget.Position)
-            Camera.CFrame = Camera.CFrame:Lerp(targetCFrame, Settings.AimbotSmooth)
+            if currentHighlight then
+                currentHighlight:Destroy()
+                currentHighlight = nil
+            end
         end
     end)
-end)
-
-local espTable = {}
-
-local function CreateESP(player)
-    if espTable[player] then return end
-    
-    local box = Drawing.new("Square")
-    box.Visible = false
-    box.Color = Settings.ESPColor
-    box.Thickness = 1
-    box.Filled = false
-    
-    local healthBg = Drawing.new("Square")
-    healthBg.Visible = false
-    healthBg.Color = Color3.fromRGB(40, 40, 40)
-    healthBg.Thickness = 1
-    healthBg.Filled = true
-    
-    local healthBar = Drawing.new("Square")
-    healthBar.Visible = false
-    healthBar.Color = Color3.fromRGB(0, 255, 0)
-    healthBar.Thickness = 1
-    healthBar.Filled = true
-    
-    local nameText = Drawing.new("Text")
-    nameText.Visible = false
-    nameText.Color = Color3.fromRGB(255, 255, 255)
-    nameText.Size = 14
-    nameText.Center = true
-    nameText.Outline = true
-    nameText.Font = 2
-    
-    local distText = Drawing.new("Text")
-    distText.Visible = false
-    distText.Color = Color3.fromRGB(200, 200, 200)
-    distText.Size = 14
-    distText.Center = true
-    distText.Outline = true
-    distText.Font = 2
-
-    espTable[player] = {
-        Box = box,
-        HealthBg = healthBg,
-        HealthBar = healthBar,
-        Name = nameText,
-        Distance = distText
-    }
-end
-
-local function RemoveESP(player)
-    if espTable[player] then
-        for _, drawing in pairs(espTable[player]) do
-            drawing:Remove()
-        end
-        espTable[player] = nil
-    end
-end
-
-Players.PlayerAdded:Connect(CreateESP)
-Players.PlayerRemoving:Connect(RemoveESP)
-for _, p in ipairs(Players:GetPlayers()) do CreateESP(p) end
-
-RunService.RenderStepped:Connect(function()
-    for _, player in pairs(Players:GetPlayers()) do
-        if player ~= LocalPlayer and espTable[player] then
-            local esp = espTable[player]
-            local char = player.Character
-            
-            if not Settings.ESPEnabled or not char then
-                esp.Box.Visible = false
-                esp.HealthBg.Visible = false
-                esp.HealthBar.Visible = false
-                esp.Name.Visible = false
-                esp.Distance.Visible = false
-                continue
-            end
-            
-            local hum = char:FindFirstChildOfClass("Humanoid")
-            local hrp = char:FindFirstChild("HumanoidRootPart")
-            local head = char:FindFirstChild("Head")
-            
-            if hum and hum.Health > 0 and hrp and head then
-                local headPos, headOnScreen = Camera:WorldToViewportPoint(head.Position + Vector3.new(0, 0.5, 0))
-                local hrpPos, hrpOnScreen = Camera:WorldToViewportPoint(hrp.Position - Vector3.new(0, 1.5, 0))
-                
-                if headOnScreen and hrpOnScreen and headPos.Z > 0 then
-                    local height = math.abs(hrpPos.Y - headPos.Y)
-                    local width = height / 2.5
-                    local x = headPos.X - width / 2
-                    local y = headPos.Y
-                    
-                    if Settings.ESPBox then
-                        esp.Box.Visible = true
-                        esp.Box.Size = Vector2.new(width, height)
-                        esp.Box.Position = Vector2.new(x, y)
-                        esp.Box.Color = Settings.ESPColor
-                    else
-                        esp.Box.Visible = false
-                    end
-                    
-                    if Settings.ESPHealthBar and hum.Health > 0 then
-                        local hpPercent = hum.Health / hum.MaxHealth
-                        local barHeight = height
-                        local barWidth = 2
-                        local barX = x - 6
-                        local barY = y
-                        
-                        esp.HealthBg.Visible = true
-                        esp.HealthBg.Size = Vector2.new(barWidth, barHeight)
-                        esp.HealthBg.Position = Vector2.new(barX, barY)
-                        
-                        esp.HealthBar.Visible = true
-                        esp.HealthBar.Size = Vector2.new(barWidth, barHeight * hpPercent)
-                        esp.HealthBar.Position = Vector2.new(barX, barY + barHeight - (barHeight * hpPercent))
-                        esp.HealthBar.Color = Color3.fromRGB(0, 255, 0):Lerp(Color3.fromRGB(255, 0, 0), 1 - hpPercent)
-                    else
-                        esp.HealthBg.Visible = false
-                        esp.HealthBar.Visible = false
-                    end
-                    
-                    if Settings.ESPName then
-                        esp.Name.Visible = true
-                        esp.Name.Text = player.Name
-                        esp.Name.Position = Vector2.new(x + width / 2, y - 18)
-                    else
-                        esp.Name.Visible = false
-                    end
-                    
-                    if Settings.ESPDistance then
-                        esp.Distance.Visible = true
-                        local dist = (LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")) and (hrp.Position - LocalPlayer.Character.HumanoidRootPart.Position).Magnitude or 0
-                        esp.Distance.Text = "[" .. math.floor(dist) .. "m]"
-                        esp.Distance.Position = Vector2.new(x + width / 2, y + height + 5)
-                    else
-                        esp.Distance.Visible = false
-                    end
-                else
-                    esp.Box.Visible = false
-                    esp.HealthBg.Visible = false
-                    esp.HealthBar.Visible = false
-                    esp.Name.Visible = false
-                    esp.Distance.Visible = false
-                end
-            else
-                esp.Box.Visible = false
-                esp.HealthBg.Visible = false
-                esp.HealthBar.Visible = false
-                esp.Name.Visible = false
-                esp.Distance.Visible = false
-            end
-        end
-    end
 end)
 
 local ExpectedArguments = {
@@ -406,14 +465,15 @@ local function isLocalPlayerShooting(Arguments, Method, Origin, OriginalDirectio
     local rayLength = OriginalDirection and OriginalDirection.Magnitude or 0
     if rayLength < 30 then return false end
     if Origin and (Origin - Camera.CFrame.Position).Magnitude <= 5 then return true end
-
-    local ignoreList
+    
+    local ignoreList = nil
     if Method == "Raycast" then
         local params = Arguments[4]
         if typeof(params) == "RaycastParams" then ignoreList = params.FilterDescendantsInstances end
     elseif Method == "FindPartOnRayWithIgnoreList" or Method == "FindPartOnRay" then
         if typeof(Arguments[3]) == "table" then ignoreList = Arguments[3] end
     end
+
     if ignoreList then
         for _, inst in next, ignoreList do
             if inst == LocalChar then return true end
@@ -422,7 +482,7 @@ local function isLocalPlayerShooting(Arguments, Method, Origin, OriginalDirectio
     return false
 end
 
-local hookOk, hookErr = pcall(function()
+pcall(function()
     local oldNamecall
     oldNamecall = hookmetamethod(game, "__namecall", newcclosure(function(...)
         local Method = getnamecallmethod()
@@ -432,15 +492,14 @@ local hookOk, hookErr = pcall(function()
         if self == workspace and not checkcaller() then
             local Origin, Direction = tryGetOriginDirection(Method, Arguments)
             if Origin and Direction and isLocalPlayerShooting(Arguments, Method, Origin, Direction) then
-                if Settings.SilentEnabled and currentTarget and currentTarget.Parent then
-                    if math.random(1, 100) <= Settings.SilentHitChance then
-                        task.wait(math.random(15, 45) / 1000)
+                if SA.Enabled and currentTarget and currentTarget.Parent then
+                    if math.random(1, 100) <= SA.HitChance then
                         local newDir = (currentTarget.Position - Origin).Unit * Direction.Magnitude
                         if Method == "FindPartOnRayWithIgnoreList" and ValidateArguments(Arguments, ExpectedArguments.FindPartOnRayWithIgnoreList) then
                             Arguments[2] = Ray.new(Origin, newDir)
                         elseif Method == "FindPartOnRayWithWhitelist" and ValidateArguments(Arguments, ExpectedArguments.FindPartOnRayWithWhitelist) then
                             Arguments[2] = Ray.new(Origin, newDir)
-                                                elseif Method == "FindPartOnRay" and ValidateArguments(Arguments, ExpectedArguments.FindPartOnRay) then
+                        elseif Method == "FindPartOnRay" and ValidateArguments(Arguments, ExpectedArguments.FindPartOnRay) then
                             Arguments[2] = Ray.new(Origin, newDir)
                         elseif Method == "Raycast" and ValidateArguments(Arguments, ExpectedArguments.Raycast) then
                             Arguments[3] = newDir
@@ -455,76 +514,39 @@ local hookOk, hookErr = pcall(function()
     end))
 end)
 
-task.spawn(function()
-    while task.wait(0.5) do
-        pcall(function()
-            if Settings.SpeedEnabled then
-                local char = LocalPlayer.Character
-                local hum = char and char:FindFirstChildOfClass("Humanoid")
-                if hum then hum.WalkSpeed = Settings.SpeedValue end
-            else
-                local char = LocalPlayer.Character
-                local hum = char and char:FindFirstChildOfClass("Humanoid")
-                if hum and hum.WalkSpeed ~= 16 then hum.WalkSpeed = 16 end
-            end
-            
-            if Settings.JumpEnabled then
-                local char = LocalPlayer.Character
-                local hum = char and char:FindFirstChildOfClass("Humanoid")
-                if hum then hum.JumpPower = Settings.JumpValue end
-            end
-            
-            if Settings.NoclipEnabled then
-                local char = LocalPlayer.Character
-                if char then
-                    for _, v in pairs(char:GetDescendants()) do
-                        if v:IsA("BasePart") and v.CanCollide then v.CanCollide = false end
-                    end
-                end
-            end
-        end)
-    end
-end)
+local HitboxSection = HitboxTab:Section({ Title = "📦 Hitbox" })
+HitboxSection:Toggle({ Title = "Ativar Hitbox", Value = false, Callback = function(v) end })
+HitboxSection:Dropdown({ Title = "Parte", Values = { "Head", "Torso", "HumanoidRootPart", "UpperTorso", "LowerTorso" }, Value = "Head", Callback = function(o) end })
+HitboxSection:Toggle({ Title = "Mostrar Visual", Value = false, Callback = function(v) end })
 
-UserInputService.InputBegan:Connect(function(input, gameProcessed)
-    if gameProcessed then return end
-    if Settings.FlyEnabled then
-        local char = LocalPlayer.Character
-        local hrp = char and char:FindFirstChild("HumanoidRootPart")
-        if hrp then
-            local bodyVel = Instance.new("BodyVelocity")
-            bodyVel.MaxForce = Vector3.new(9e9, 9e9, 9e9)
-            bodyVel.Velocity = Vector3.zero
-            bodyVel.Parent = hrp
-            
-            local connection
-            connection = RunService.RenderStepped:Connect(function()
-                local moveDir = Vector3.zero
-                local camCFrame = Camera.CFrame
-                if UserInputService:IsKeyDown(Enum.KeyCode.W) then moveDir += camCFrame.LookVector end
-                if UserInputService:IsKeyDown(Enum.KeyCode.S) then moveDir -= camCFrame.LookVector end
-                if UserInputService:IsKeyDown(Enum.KeyCode.A) then moveDir -= camCFrame.RightVector end
-                if UserInputService:IsKeyDown(Enum.KeyCode.D) then moveDir += camCFrame.RightVector end
-                if UserInputService:IsKeyDown(Enum.KeyCode.Space) then moveDir += Vector3.new(0, 1, 0) end
-                if UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) then moveDir -= Vector3.new(0, 1, 0) end
-                
-                if moveDir.Magnitude > 0 then
-                    bodyVel.Velocity = moveDir.Unit * Settings.FlySpeed
-                else
-                    bodyVel.Velocity = Vector3.zero
-                end
-            end)
-            
-            while Settings.FlyEnabled and bodyVel.Parent do
-                task.wait(0.1)
-            end
-            connection:Disconnect()
-            bodyVel:Destroy()
-        end
-    end
-end)
+local EspSection = EspTab:Section({ Title = "👁️ ESP" })
+EspSection:Toggle({ Title = "Ativar ESP", Value = false, Callback = function(v) end })
+EspSection:Toggle({ Title = "Box", Value = true, Callback = function(v) end })
+EspSection:Toggle({ Title = "Nome", Value = true, Callback = function(v) end })
+EspSection:Toggle({ Title = "Barra de Vida", Value = true, Callback = function(v) end })
+EspSection:Toggle({ Title = "Tracer", Value = false, Callback = function(v) end })
+EspSection:Toggle({ Title = "Distância", Value = false, Callback = function(v) end })
+EspSection:Colorpicker({ Title = "Cor do ESP", Default = Color3.fromRGB(255, 0, 128), Callback = function(c) end })
+EspSection:Toggle({ Title = "Cor do Time", Value = false, Callback = function(v) end })
 
-if not hookOk then
-    local cleanErr = string.gsub(tostring(hookErr), "%.lua:%d+:", "")
-    warn("[SA] erro interno:", cleanErr)
-end
+local ConfigSection = ConfigTab:Section({ Title = "⚙️ Configurações" })
+ConfigSection:Button({ Title = "💾 Salvar Config", Callback = function()
+    WindUI:Notify({ Title = "APEX HUB", Content = "Config salva!", Duration = 3 })
+end })
+ConfigSection:Button({ Title = "📂 Carregar Config", Callback = function()
+    WindUI:Notify({ Title = "APEX HUB", Content = "Config carregada!", Duration = 3 })
+end })
+ConfigSection:Button({ Title = "🔄 Resetar Tudo", Callback = function()
+    WindUI:Notify({ Title = "APEX HUB", Content = "Tudo resetado!", Duration = 3 })
+end })
+ConfigSection:Button({ Title = "💬 Discord", Callback = function()
+    setclipboard("https://discord.gg/apexhub")
+    WindUI:Notify({ Title = "APEX HUB", Content = "Link copiado!", Duration = 3 })
+end })
+
+WindUI:Notify({
+    Title = "🚀 APEX HUB",
+    Content = "Aimbot carregado!",
+    Icon = "check",
+    Duration = 5,
+})

@@ -172,7 +172,7 @@ RunService.RenderStepped:Connect(function()
 end)
 
 local Window = WindUI:CreateWindow({
-    Title = "🚀 APEX HUB",
+    Title = "APEX HUB",
     Icon = "crown",
     Author = "APEX",
     Folder = "ApexHub",
@@ -193,8 +193,8 @@ local ConfigTab = Window:Tab({ Title = "", Icon = "rbxassetid://106205298246017"
 local AimSection = AimbotTab:Section({ Title = "Aimbot" })
 
 AimSection:Toggle({
-    Title = "Ativar Aimbot",
-    Desc = "Liga a mira automática e exibe o FOV",
+    Title = "Aimbot",
+    Desc = "Crava sua Mira na Cabeça doa player",
     Icon = "crosshair",
     Value = false,
     Callback = function(v)
@@ -207,7 +207,7 @@ AimSection:Toggle({
 })
 
 AimSection:Dropdown({
-    Title = "Parte Alvo",
+    Title = "Alvo",
     Values = { "Head", "Torso", "HumanoidRootPart", "UpperTorso", "LowerTorso" },
     Value = "Head",
     Multi = false,
@@ -215,7 +215,7 @@ AimSection:Dropdown({
 })
 
 AimSection:Slider({
-    Title = "Tamanho do FOV",
+    Title = "Ajustar FOV",
     Desc = "Ajusta o raio do círculo na tela",
     Step = 1,
     Value = {
@@ -229,7 +229,7 @@ AimSection:Slider({
 })
 
 AimSection:Slider({
-    Title = "Distância Máxima",
+    Title = "Distância",
     Desc = "Alcance máximo para travar no alvo",
     Step = 10,
     Value = {
@@ -243,7 +243,7 @@ AimSection:Slider({
 })
 
 AimSection:Toggle({
-    Title = "Sticky Target",
+    Title = "Sticky",
     Desc = "Mantém o mesmo alvo",
     Value = true,
     Callback = function(v) S.sticky = v end,
@@ -267,13 +267,13 @@ AimSection:Colorpicker({
 local SilentSection = SilentTab:Section({ Title = "Silent Aim" })
 
 SilentSection:Toggle({
-    Title = "Ativar Silent Aim",
+    Title = "Silent Aim",
     Value = false,
     Callback = function(v) SA.Enabled = v end,
 })
 
 SilentSection:Dropdown({
-    Title = "Parte Alvo",
+    Title = "Alvo",
     Values = { "Head", "Torso", "HumanoidRootPart", "UpperTorso", "LowerTorso" },
     Value = "Head",
     Multi = false,
@@ -281,7 +281,7 @@ SilentSection:Dropdown({
 })
 
 SilentSection:Slider({
-    Title = "Tamanho do FOV (Silent)",
+    Title = "Tamanho da FOV",
     Desc = "Raio da área de busca do alvo",
     Step = 1,
     Value = {
@@ -295,7 +295,7 @@ SilentSection:Slider({
 })
 
 SilentSection:Slider({
-    Title = "Alcance do Silent",
+    Title = "Alcance",
     Desc = "Distância máxima do alvo",
     Step = 10,
     Value = {
@@ -309,7 +309,7 @@ SilentSection:Slider({
 })
 
 SilentSection:Slider({
-    Title = "Porcentagem de Acerto",
+    Title = "Acertos",
     Desc = "Chance de acerto do silent (0 a 100%)",
     Step = 1,
     Value = {

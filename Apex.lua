@@ -1,448 +1,817 @@
-local WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
+-- Sniper Arena.lua — UI only + Silent Aim
+-- Mario Hub shell preserved. All original combat/movement/economy logic removed.
+-- Silent Aim hook (namecall rewrite) dropped in as a scheduler module.
 
-WindUI:AddTheme({
-    Name = "Amber",
-    Primary = Color3.fromHex("#F59E0B"),
-    White   = Color3.new(1, 1, 1),
-    Black   = Color3.new(0, 0, 0),
-    Dialog     = Color3.fromHex("#18181b"),
-    Background = Color3.fromHex("#101010"),
-    BackgroundTransparency = 0,
-    Hover = Color3.fromHex("#FFFFFF"),
-    PanelBackground = Color3.new(1, 1, 1),
-    PanelBackgroundTransparency = 0.95,
-    WindowBackground = Color3.fromHex("#101010"),
-    WindowShadow = Color3.new(0, 0, 0),
-    WindowTopbarTitle  = Color3.fromHex("#FFFFFF"),
-    WindowTopbarAuthor = Color3.fromHex("#FFFFFF"),
-    WindowTopbarIcon   = Color3.fromHex("#a1a1aa"),
-    WindowTopbarButtonIcon = Color3.fromHex("#a1a1aa"),
-    WindowSearchBarBackground = Color3.fromHex("#101010"),
-    TabBackground = Color3.fromHex("#FFFFFF"),
-    TabBackgroundHover = Color3.fromHex("#FFFFFF"),
-    TabBackgroundHoverTransparency = 0.97,
-    TabBackgroundActive = Color3.fromHex("#FFFFFF"),
-    TabBackgroundActiveTransparency = 0.93,
-    TabText = Color3.fromHex("#FFFFFF"),
-    TabTextTransparency = 0.3,
-    TabTextTransparencyActive = 0,
-    TabTitle = Color3.fromHex("#FFFFFF"),
-    TabIcon  = Color3.fromHex("#a1a1aa"),
-    TabIconTransparency = 0.4,
-    TabIconTransparencyActive = 0.1,
-    TabBorderTransparency = 1,
-    TabBorderTransparencyActive = 0.75,
-    TabBorder = Color3.new(1, 1, 1),
-    ElementBackground = Color3.fromHex("#FFFFFF"),
-    ElementBackgroundTransparency = 0.93,
-    ElementBackgroundHover = Color3.fromHex("#2a2a2a"),
-    ElementTitle = Color3.fromHex("#FFFFFF"),
-    ElementDesc  = Color3.fromHex("#FFFFFF"),
-    ElementIcon  = Color3.fromHex("#a1a1aa"),
-    PopupBackground = Color3.fromHex("#101010"),
-    PopupBackgroundTransparency = 0,
-    PopupTitle   = Color3.fromHex("#FFFFFF"),
-    PopupContent = Color3.fromHex("#FFFFFF"),
-    PopupIcon    = Color3.fromHex("#a1a1aa"),
-    DialogBackground = Color3.fromHex("#101010"),
-    DialogBackgroundTransparency = 0,
-    DialogTitle   = Color3.fromHex("#FFFFFF"),
-    DialogContent = Color3.fromHex("#FFFFFF"),
-    DialogIcon    = Color3.fromHex("#a1a1aa"),
-    Toggle    = Color3.fromHex("#52525b"),
-    ToggleBar = Color3.new(1, 1, 1),
-    Checkbox = Color3.fromHex("#F59E0B"),
-    CheckboxIcon = Color3.new(1, 1, 1),
-    CheckboxBorder = Color3.new(1, 1, 1),
-    CheckboxBorderTransparency = 0.75,
-    SliderIcon = Color3.fromHex("#a1a1aa"),
-    Slider     = Color3.fromHex("#F59E0B"),
-    SliderThumb = Color3.new(1, 1, 1),
-    SliderIconFrom = Color3.fromHex("#a1a1aa"),
-    SliderIconTo   = Color3.fromHex("#a1a1aa"),
-    Tooltip = Color3.fromHex("#4C4C4C"),
-    TooltipText = Color3.new(1, 1, 1),
-    TooltipSecondary = Color3.fromHex("#F59E0B"),
-    TooltipSecondaryText = Color3.new(1, 1, 1),
-    TabSectionIcon = Color3.fromHex("#a1a1aa"),
-    SectionIcon    = Color3.fromHex("#a1a1aa"),
-    SectionExpandIcon = Color3.new(1, 1, 1),
-    SectionExpandIconTransparency = 0.4,
-    SectionBox = Color3.new(1, 1, 1),
-    SectionBoxTransparency = 0.95,
-    SectionBoxBorder = Color3.new(1, 1, 1),
-    SectionBoxBorderTransparency = 0.75,
-    SectionBoxBackground = Color3.new(1, 1, 1),
-    SectionBoxBackgroundTransparency = 0.95,
-    SearchBarBorder = Color3.new(1, 1, 1),
-    SearchBarBorderTransparency = 0.75,
-    Notification = Color3.fromHex("#101010"),
-    NotificationTitle   = Color3.fromHex("#FFFFFF"),
-    NotificationTitleTransparency = 0,
-    NotificationContent = Color3.fromHex("#FFFFFF"),
-    NotificationContentTransparency = 0.4,
-    NotificationDuration = Color3.new(1, 1, 1),
-    NotificationDurationTransparency = 0.95,
-    NotificationBorder = Color3.new(1, 1, 1),
-    NotificationBorderTransparency = 0.75,
-    DropdownTabBorder = Color3.new(1, 1, 1),
-    LabelBackground = Color3.new(1, 1, 1),
-    LabelBackgroundTransparency = 0.95,
-})
+if not game:IsLoaded() then
+    game.Loaded:Wait()
+end
 
-local Window = WindUI:CreateWindow({
-    Title = "Opções",
-    Folder = "ApexHub",
-    Theme = "Amber",
-    Size = UDim2.fromOffset(580, 460),
-    Transparent = true,
-    SideBarWidth = 180,
-    HasOutline = false,
-})
+if game.GameId ~= 9534705677 then
+    game:GetService("Players").LocalPlayer:Kick("Mario Hub: this script is for Sniper Arena only")
+    return
+end
 
-local TabSilent = Window:Tab({ Title = "", Desc = "", Icon = "lucide:ghost", ShowTabTitle = false })
-local TabESP = Window:Tab({ Title = "", Desc = "", Icon = "lucide:eye", ShowTabTitle = false })
+if not LPH_OBFUSCATED then
+    local function Passthrough(fn) return fn end
+    LPH_JIT, LPH_JIT_MAX, LPH_NO_VIRTUALIZE = Passthrough, Passthrough, Passthrough
+end
 
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-local Camera = workspace.CurrentCamera
+local environment = getgenv and getgenv() or _G
+if type(environment.SniperArenaUnload) == "function" then
+    pcall(environment.SniperArenaUnload)
+end
+
+local Players          = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService       = game:GetService("RunService")
+local Workspace        = game:GetService("Workspace")
+local UserInputService = game:GetService("UserInputService")
+local StarterGui       = game:GetService("StarterGui")
+
 local LocalPlayer = Players.LocalPlayer
+local osClock = os.clock
 
-local Settings = {
-    Enabled = false,
-    FOVRadius = 150,
-    TargetPart = "Head",
-    HitChance = 100,
-    SilentAimRange = 1000,
-    VisibleCheck = false,
-    DelayMin = 0.05,
-    DelayMax = 0.15,
+local xDTaraZ = setmetatable({}, {
+    __newindex = function(self, key, value)
+        rawset(self, key, type(value) == "function" and LPH_JIT(value) or value)
+    end,
+})
+
+xDTaraZ.Config = {
+    UiSource = "https://raw.githubusercontent.com/xDTaraZz/Roblox-Scripts/refs/heads/main/ui.lua",
+    Discord = "https://discord.gg/FHVfmeSceA",
+    UpdateLog = {
+        { "2026-11-16", "Sniper Arena shell + custom Silent Aim\nFOV circle, hit chance, part picker, per-shot delay" },
+        { "2026-10-10", "Previous Mario Hub build" },
+    },
+    LoadTimeout = 10,
+    AlertTries  = 20,
+    AlertGap    = 0.5,
+    MaxFails    = 5,
+    FailWindow  = 10,
+    FovColor    = Color3.fromRGB(65, 145, 255),
+    BannerCaps  = { "HookFunction", "Namecall", "Drawing", "Connections", "FileSystem" },
+    AimRenderPriority = Enum.RenderPriority.Camera.Value + 5,
 }
 
-local currentTarget = nil
-local HighlightsFolder = Instance.new("Folder")
-HighlightsFolder.Name = "SilentHighlights"
-HighlightsFolder.Parent = game:GetService("CoreGui")
+xDTaraZ.State = {
+    Alive       = true,
+    Connections = {},
+    Halted      = {},
+    Overlay     = nil,
+}
 
-local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "UniversalSilentAim"
-ScreenGui.ResetOnSpawn = false
-ScreenGui.IgnoreGuiInset = true
-ScreenGui.DisplayOrder = 999
-ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+xDTaraZ.Options = {
+    -- Silent Aim
+    SilentAimEnabled      = false,
+    SilentAimFov          = 150,
+    SilentAimRange        = 1000,
+    SilentAimHitChance    = 100,
+    SilentAimVisibleCheck = false,
+    SilentAimDelayMin     = 0.05,
+    SilentAimDelayMax     = 0.15,
+    TargetPart            = "Head",
+    ShowFov               = true,
+    -- Misc
+    AntiAfk               = false,
+}
 
-local FOVCircle = Instance.new("Frame")
-FOVCircle.Size = UDim2.fromOffset(Settings.FOVRadius * 2, Settings.FOVRadius * 2)
-FOVCircle.AnchorPoint = Vector2.new(0.5, 0.5)
-FOVCircle.Position = UDim2.fromScale(0.5, 0.5)
-FOVCircle.BackgroundTransparency = 1
-FOVCircle.Parent = ScreenGui
+xDTaraZ.Util = {}
+local Util = xDTaraZ.Util
 
-local CircleCorner = Instance.new("UICorner")
-CircleCorner.CornerRadius = UDim.new(1, 0)
-CircleCorner.Parent = FOVCircle
-
-local CircleStroke = Instance.new("UIStroke")
-CircleStroke.Color = Color3.fromRGB(65, 145, 255)
-CircleStroke.Thickness = 1.5
-CircleStroke.Parent = FOVCircle
-
-local function isVisible(targetCharacter)
-    if not Settings.VisibleCheck then return true end
-    local targetHRP = targetCharacter:FindFirstChild("HumanoidRootPart")
-    if not targetHRP then return false end
-    local char = LocalPlayer.Character
-    local localHRP = char and char:FindFirstChild("HumanoidRootPart")
-    if not localHRP then return false end
-    local params = RaycastParams.new()
-    params.FilterType = Enum.RaycastFilterType.Blacklist
-    params.FilterDescendantsInstances = {LocalPlayer.Character, targetCharacter}
-    local result = workspace:Raycast(targetHRP.Position, localHRP.Position - targetHRP.Position, params)
-    return result == nil
+local function Resolve(...)
+    for index = 1, select("#", ...) do
+        local candidate = select(index, ...)
+        if type(candidate) == "function" then return candidate end
+    end
+    return nil
 end
 
-local function isValidTarget(plr)
-    if plr == LocalPlayer or not plr.Character then return false end
-    local hum = plr.Character:FindFirstChildOfClass("Humanoid")
-    local hrp = plr.Character:FindFirstChild("HumanoidRootPart")
-    if not hum or hum.Health <= 0 or not hrp then return false end
-    local localRoot = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-    if localRoot and (hrp.Position - localRoot.Position).Magnitude > Settings.SilentAimRange then return false end
-    if not isVisible(plr.Character) then return false end
-    return true
+Util.Request        = Resolve(request, http_request, syn and syn.request, http and http.request)
+Util.SetClipboard   = Resolve(setclipboard, toclipboard)
+Util.GetHui         = Resolve(gethui, get_hidden_gui)
+Util.GetRawMetatable = Resolve(getrawmetatable)
+Util.GetUpvalues    = Resolve(getupvalues, debug and debug.getupvalues)
+
+xDTaraZ.Probes = {}
+function xDTaraZ.Probes.Namecall()
+    return type(hookmetamethod) == "function" and type(newcclosure) == "function" and Util.GetRawMetatable ~= nil
+end
+function xDTaraZ.Probes.Drawing()
+    return type(Drawing) == "table" and type(Drawing.new) == "function"
 end
 
-local function getTarget()
-    if not Settings.Enabled then return nil end
-    local center = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)
-    local closest = nil
-    local shortestDist = Settings.FOVRadius
-    for _, plr in ipairs(Players:GetPlayers()) do
-        if isValidTarget(plr) then
-            local part = plr.Character:FindFirstChild(Settings.TargetPart) or plr.Character:FindFirstChild("HumanoidRootPart")
-            if part then
-                local screenPos, onScreen = Camera:WorldToViewportPoint(part.Position)
-                if onScreen then
-                    local dist = (Vector2.new(screenPos.X, screenPos.Y) - center).Magnitude
-                    if dist < shortestDist then
-                        closest = part
-                        shortestDist = dist
-                    end
+xDTaraZ.Caps = setmetatable({}, {
+    __index = function(caps, name)
+        local probe = xDTaraZ.Probes[name]
+        if probe then
+            local has = probe()
+            rawset(caps, name, has)
+            return has
+        end
+        local lib = xDTaraZ.Library
+        if not (lib and lib.Compat) then return false end
+        return lib.Compat.Caps and lib.Compat.Caps[name] == true
+    end,
+})
+
+function Util.HttpGet(url)
+    local ok, body = pcall(function() return game:HttpGet(url) end)
+    if ok and type(body) == "string" then return body end
+    if not Util.Request then error("HttpGet failed: " .. url) end
+    local sent, response = pcall(Util.Request, { Url = url, Method = "GET" })
+    if not sent then error(response) end
+    local status = type(response) == "table" and tonumber(response.StatusCode) or nil
+    if status == 200 and type(response.Body) == "string" then return response.Body end
+    error("HttpGet " .. url .. ": status " .. tostring(status))
+end
+
+function Util.Alert(text, detail)
+    warn("[SniperArena] menu: " .. tostring(detail or text))
+    task.spawn(function()
+        for _ = 1, xDTaraZ.Config.AlertTries do
+            local shown = pcall(StarterGui.SetCore, StarterGui, "SendNotification", {
+                Title = "Mario Hub", Text = text, Duration = 10,
+            })
+            if shown then return end
+            task.wait(xDTaraZ.Config.AlertGap)
+        end
+    end)
+end
+
+function Util.LoadLibrary(url)
+    local fetched, source = pcall(Util.HttpGet, url)
+    if not fetched or type(source) ~= "string" or not source:sub(-64):find("return Library%s*$") then
+        Util.Alert("Could not download the menu. Check your connection and run it again.", fetched and "response is not the full menu" or source)
+        return nil
+    end
+    local chunk, problem = loadstring(source)
+    if type(chunk) ~= "function" then
+        Util.Alert("The menu failed to load on this executor: " .. tostring(problem))
+        return nil
+    end
+    local ran, lib = pcall(chunk)
+    if not ran or type(lib) ~= "table" then
+        Util.Alert("The menu failed to load on this executor: " .. tostring(lib))
+        return nil
+    end
+    return lib
+end
+
+function Util.Try(label, callback, ...)
+    local ok, err = pcall(callback, ...)
+    if not ok then warn("[SniperArena] " .. label .. ": " .. tostring(err)) end
+    return ok
+end
+
+function Util.Overlay()
+    local screen = xDTaraZ.State.Overlay
+    if screen and screen.Parent then return screen end
+    screen = Instance.new("ScreenGui")
+    screen.Name = "MarioHubOverlay"
+    screen.IgnoreGuiInset = true
+    screen.ResetOnSpawn = false
+    screen.DisplayOrder = 50
+    local mounts = { function() return game:GetService("CoreGui") end }
+    if Util.GetHui then table.insert(mounts, 1, Util.GetHui) end
+    for _, mount in ipairs(mounts) do
+        if pcall(function() screen.Parent = mount() end) and screen.Parent then break end
+    end
+    if not screen.Parent then
+        screen.Parent = LocalPlayer:FindFirstChildOfClass("PlayerGui") or LocalPlayer:WaitForChild("PlayerGui", xDTaraZ.Config.LoadTimeout)
+    end
+    xDTaraZ.State.Overlay = screen
+    return screen
+end
+
+function Util.SortedKeys(map)
+    local keys = {}
+    for key in pairs(map or {}) do keys[#keys + 1] = tostring(key) end
+    table.sort(keys)
+    return keys
+end
+
+function xDTaraZ:Connect(signal, handler)
+    local connection = signal:Connect(handler)
+    table.insert(self.State.Connections, connection)
+    return connection
+end
+
+xDTaraZ.Banner = {
+    Print = print,
+    Started = osClock(),
+    Last = osClock(),
+    Done = 0,
+    Total = 4,
+    Title = [[
+  __  __    _    ____  ___ ___    _   _ _   _ ____
+ |  \/  |  / \  |  _ \|_ _/ _ \  | | | | | | | __ )
+ | |\/| | / _ \ | |_) || | | | | | |_| | | | |  _ \
+ | |  | |/ ___ \|  _ < | | |_| | |  _  | |_| | |_) |
+ |_|  |_/_/   \_\_| \_\___\___/  |_| |_|\___/|____/
+]],
+}
+
+pcall(function()
+    local renv = getrenv()
+    if type(renv.print) == "function" then xDTaraZ.Banner.Print = renv.print end
+end)
+
+function xDTaraZ.Banner.Show()
+    local ok, executor = pcall(identifyexecutor)
+    if not ok or type(executor) ~= "string" then executor = "Unknown" end
+    local rule = string.rep("=", 54)
+    xDTaraZ.Banner.Print(table.concat({
+        "",
+        xDTaraZ.Banner.Title,
+        rule,
+        "   SNIPER ARENA  //  Silent Aim build  //  " .. xDTaraZ.Config.Discord,
+        "   executor: " .. tostring(executor) .. "   //   player: " .. LocalPlayer.Name,
+        rule,
+    }, "\n"))
+end
+
+function xDTaraZ.Banner.Step(label)
+    local b = xDTaraZ.Banner
+    local now = osClock()
+    b.Done = math.min(b.Done + 1, b.Total)
+    local filled = math.floor(b.Done / b.Total * 20 + 0.5)
+    local bar = string.rep("#", filled) .. string.rep(".", 20 - filled)
+    b.Print(string.format("[Mario Hub] [%s] %3d%%  %-24s +%dms",
+        bar, math.floor(b.Done / b.Total * 100), label, math.floor((now - b.Last) * 1000)))
+    b.Last = now
+end
+
+function xDTaraZ.Banner.Ready()
+    local rule = string.rep("=", 54)
+    xDTaraZ.Banner.Print(table.concat({
+        rule,
+        string.format("   >> READY in %dms  //  LeftCtrl = menu",
+            math.floor((osClock() - xDTaraZ.Banner.Started) * 1000)),
+        rule,
+    }, "\n"))
+end
+
+pcall(xDTaraZ.Banner.Show)
+pcall(xDTaraZ.Banner.Step, "Core")
+
+xDTaraZ.Faults = { Streaks = {}, Said = {} }
+
+function xDTaraZ.Faults.Say(name, err)
+    local text, now = tostring(err), osClock()
+    local last = xDTaraZ.Faults.Said[name]
+    if last and last[1] == text and now - last[2] < xDTaraZ.Config.FailWindow then return end
+    xDTaraZ.Faults.Said[name] = { text, now }
+    warn("[SniperArena] " .. name .. ": " .. text)
+end
+
+function xDTaraZ.Faults.Clear(name)
+    xDTaraZ.Faults.Streaks[name] = nil
+end
+
+function xDTaraZ.Faults.Report(name, err)
+    local now = osClock()
+    local streak = xDTaraZ.Faults.Streaks[name]
+    if not streak then
+        streak = { Count = 0, First = now, Warned = false }
+        xDTaraZ.Faults.Streaks[name] = streak
+    end
+    streak.Count += 1
+    if streak.Count == 1 then xDTaraZ.Faults.Say(name, err) end
+    if streak.Warned then return false end
+    if streak.Count < xDTaraZ.Config.MaxFails or now - streak.First < xDTaraZ.Config.FailWindow then return false end
+    streak.Warned = true
+    warn("[SniperArena] " .. name .. " keeps failing: " .. tostring(err))
+    return false
+end
+
+xDTaraZ.Scheduler = { Jobs = {}, Booted = false }
+
+function xDTaraZ.Scheduler.Every(name, interval, work)
+    xDTaraZ.Scheduler.Jobs[name] = { Interval = interval, Fn = work, Last = 0, Running = false, Error = nil }
+end
+
+function xDTaraZ.Scheduler.Step()
+    if not xDTaraZ.State.Alive then return end
+    local now = osClock()
+    for name, job in pairs(xDTaraZ.Scheduler.Jobs) do
+        if job.Running then continue end
+        if job.Error ~= nil then
+            local err = job.Error; job.Error = nil
+            if err then xDTaraZ.Faults.Report(name, err) else xDTaraZ.Faults.Clear(name) end
+        end
+        if now - job.Last < job.Interval then continue end
+        job.Last = now
+        job.Running = true
+        task.spawn(function()
+            local ok, err = pcall(job.Fn)
+            job.Error = (not ok) and tostring(err) or false
+            job.Running = false
+        end)
+    end
+end
+
+function xDTaraZ.Scheduler.Boot()
+    if xDTaraZ.Scheduler.Booted then return end
+    xDTaraZ.Scheduler.Booted = true
+    xDTaraZ:Connect(RunService.Heartbeat, xDTaraZ.Scheduler.Step)
+end
+
+xDTaraZ.Player = { Client = LocalPlayer }
+function xDTaraZ.Player:Bind(character)
+    self.Character = character
+    self.Humanoid = character:WaitForChild("Humanoid", xDTaraZ.Config.LoadTimeout)
+    self.Root = character:WaitForChild("HumanoidRootPart", xDTaraZ.Config.LoadTimeout)
+end
+if LocalPlayer.Character then xDTaraZ.Player:Bind(LocalPlayer.Character) end
+xDTaraZ:Connect(LocalPlayer.CharacterAdded, function(char) pcall(xDTaraZ.Player.Bind, xDTaraZ.Player, char) end)
+
+-- =========================================================================
+-- Anti AFK (isolated, stays from original shell)
+-- =========================================================================
+xDTaraZ.AntiAfk = { Connection = nil, Status = "Off" }
+local VirtualUser = game:GetService("VirtualUser")
+
+function xDTaraZ.AntiAfk.OnIdled()
+    if not xDTaraZ.Options.AntiAfk then return end
+    VirtualUser:CaptureController()
+    VirtualUser:ClickButton2(Vector2.zero)
+end
+
+function xDTaraZ.AntiAfk.SetEnabled(on)
+    xDTaraZ.Options.AntiAfk = on
+    if on then
+        if not xDTaraZ.AntiAfk.Connection then
+            xDTaraZ.AntiAfk.Connection = xDTaraZ:Connect(LocalPlayer.Idled, xDTaraZ.AntiAfk.OnIdled)
+        end
+        xDTaraZ.AntiAfk.Status = "Armed"
+    else
+        if xDTaraZ.AntiAfk.Connection then
+            xDTaraZ.AntiAfk.Connection:Disconnect()
+            xDTaraZ.AntiAfk.Connection = nil
+        end
+        xDTaraZ.AntiAfk.Status = "Off"
+    end
+end
+
+-- =========================================================================
+-- SILENT AIM  (hook + FOV + target acquisition)
+-- =========================================================================
+xDTaraZ.SilentAim = {
+    Target       = nil,
+    TargetPart   = nil,
+    LastShotAt   = 0,
+    Hooked       = false,
+    OldNamecall  = nil,
+    CircleDrawing = nil,
+    CircleFrame  = nil,
+}
+
+local SA = xDTaraZ.SilentAim
+
+function SA.GetPart(character)
+    if not character then return nil end
+    local partName = xDTaraZ.Options.TargetPart or "Head"
+    local collider = character:FindFirstChild("Collider")
+    local part = collider and collider:FindFirstChild(partName)
+    if part and part:IsA("BasePart") then return part end
+    part = character:FindFirstChild(partName)
+    if part and part:IsA("BasePart") then return part end
+    return character:FindFirstChild("HumanoidRootPart")
+end
+
+function SA.IsValidTarget(player)
+    if player == LocalPlayer then return false end
+    local char = player.Character
+    if not char then return false end
+    local hum = char:FindFirstChildOfClass("Humanoid")
+    if not hum or hum.Health <= 0 then return false end
+    local part = SA.GetPart(char)
+    if not part then return false end
+
+    local localChar = LocalPlayer.Character
+    local localRoot = localChar and localChar:FindFirstChild("HumanoidRootPart")
+    if localRoot and (part.Position - localRoot.Position).Magnitude > xDTaraZ.Options.SilentAimRange then
+        return false
+    end
+
+    if xDTaraZ.Options.SilentAimVisibleCheck then
+        local params = RaycastParams.new()
+        params.FilterType = Enum.RaycastFilterType.Exclude
+        params.FilterDescendantsInstances = { LocalPlayer.Character, char }
+        local camera = Workspace.CurrentCamera
+        if not camera then return false end
+        local result = Workspace:Raycast(camera.CFrame.Position, part.Position - camera.CFrame.Position, params)
+        if result then return false end
+    end
+
+    return true, part
+end
+
+function SA.FindTarget()
+    local camera = Workspace.CurrentCamera
+    if not camera then return nil end
+    local center = Vector2.new(camera.ViewportSize.X / 2, camera.ViewportSize.Y / 2)
+    local radius = xDTaraZ.Options.SilentAimFov
+    local bestPart, bestDist = nil, radius
+
+    for _, player in ipairs(Players:GetPlayers()) do
+        local ok, part = SA.IsValidTarget(player)
+        if ok and part then
+            local screenPos, onScreen = camera:WorldToViewportPoint(part.Position)
+            if onScreen then
+                local dist = (Vector2.new(screenPos.X, screenPos.Y) - center).Magnitude
+                if dist < bestDist then
+                    bestPart, bestDist = part, dist
                 end
             end
         end
     end
-    return closest
+    return bestPart
 end
 
-RunService.RenderStepped:Connect(function()
-    FOVCircle.Size = UDim2.fromOffset(Settings.FOVRadius * 2, Settings.FOVRadius * 2)
-    FOVCircle.Visible = Settings.Enabled 
-    
-    pcall(function()
-        currentTarget = getTarget()
-    end)
-
-    for _, highlight in ipairs(HighlightsFolder:GetChildren()) do
-        highlight:Destroy()
-    end
-
-    if Settings.VisibleCheck and Settings.Enabled and currentTarget and currentTarget.Parent then
-        local targetChar = currentTarget.Parent
-        local highlight = Instance.new("Highlight")
-        highlight.Name = "TargetHighlight"
-        highlight.Adornee = targetChar
-        highlight.FillColor = Color3.fromRGB(65, 145, 255)
-        highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
-        highlight.FillTransparency = 0.5
-        highlight.OutlineTransparency = 0
-        highlight.Parent = HighlightsFolder
-    end
-end)
-
-local ExpectedArguments = {
-    FindPartOnRayWithIgnoreList = { ArgCountRequired = 3, Args = { "Instance", "Ray", "table", "boolean", "boolean" } },
-    FindPartOnRayWithWhitelist = { ArgCountRequired = 3, Args = { "Instance", "Ray", "table", "boolean" } },
-    FindPartOnRay = { ArgCountRequired = 2, Args = { "Instance", "Ray", "Instance", "boolean", "boolean" } },
-    Raycast = { ArgCountRequired = 3, Args = { "Instance", "Vector3", "Vector3", "RaycastParams" } }
+-- ----- hook helpers -----------------------------------------------------
+local RayMethods = {
+    FindPartOnRayWithIgnoreList = { MinArgs = 3, Types = { "Instance", "Ray", "table", "boolean", "boolean" } },
+    FindPartOnRayWithWhitelist  = { MinArgs = 3, Types = { "Instance", "Ray", "table", "boolean" } },
+    FindPartOnRay               = { MinArgs = 2, Types = { "Instance", "Ray", "Instance", "boolean", "boolean" } },
+    Raycast                     = { MinArgs = 3, Types = { "Instance", "Vector3", "Vector3", "RaycastParams" } },
 }
 
-local function ValidateArguments(Args, RayMethod)
-    local Matches = 0
-    if #Args < RayMethod.ArgCountRequired then return false end
-    for Pos, Argument in next, Args do
-        if typeof(Argument) == RayMethod.Args[Pos] then Matches = Matches + 1 end
+local function ArgsMatch(args, spec)
+    if #args < spec.MinArgs then return false end
+    local matches = 0
+    for pos, arg in next, args do
+        if typeof(arg) == spec.Types[pos] then matches += 1 end
     end
-    return Matches >= RayMethod.ArgCountRequired
+    return matches >= spec.MinArgs
 end
 
-local function tryGetOriginDirection(Method, Arguments)
-    if Method == "FindPartOnRayWithIgnoreList" or Method == "FindPartOnRayWithWhitelist" or Method == "FindPartOnRay" then
-        local A_Ray = Arguments[2]
-        if typeof(A_Ray) == "Ray" then return A_Ray.Origin, A_Ray.Direction end
-    elseif Method == "Raycast" then
-        local A_Origin, A_Direction = Arguments[2], Arguments[3]
-        if typeof(A_Origin) == "Vector3" and typeof(A_Direction) == "Vector3" then
-            return A_Origin, A_Direction
+local function ExtractOriginDir(method, args)
+    if method == "FindPartOnRayWithIgnoreList" or method == "FindPartOnRayWithWhitelist" or method == "FindPartOnRay" then
+        local ray = args[2]
+        if typeof(ray) == "Ray" then return ray.Origin, ray.Direction end
+    elseif method == "Raycast" then
+        local origin, direction = args[2], args[3]
+        if typeof(origin) == "Vector3" and typeof(direction) == "Vector3" then
+            return origin, direction
         end
     end
     return nil, nil
 end
 
-local function isLocalPlayerShooting(Arguments, Method, Origin, OriginalDirection)
-    local LocalChar = LocalPlayer.Character
-    if not LocalChar then return false end
-    local rayLength = OriginalDirection and OriginalDirection.Magnitude or 0
-    if rayLength < 30 then return false end
-    if Origin and (Origin - Camera.CFrame.Position).Magnitude <= 5 then return true end
-    local ignoreList = nil
-    if Method == "Raycast" then
-        local params = Arguments[4]
+local function IsLocalShooting(args, method, origin, direction)
+    local localChar = LocalPlayer.Character
+    if not localChar then return false end
+    local length = direction and direction.Magnitude or 0
+    if length < 30 then return false end
+    local camera = Workspace.CurrentCamera
+    if camera and origin and (origin - camera.CFrame.Position).Magnitude <= 5 then return true end
+
+    local ignoreList
+    if method == "Raycast" then
+        local params = args[4]
         if typeof(params) == "RaycastParams" then ignoreList = params.FilterDescendantsInstances end
-    elseif Method == "FindPartOnRayWithIgnoreList" or Method == "FindPartOnRay" then
-        if typeof(Arguments[3]) == "table" then ignoreList = Arguments[3] end
+    elseif method == "FindPartOnRayWithIgnoreList" or method == "FindPartOnRay" then
+        if typeof(args[3]) == "table" then ignoreList = args[3] end
     end
     if ignoreList then
         for _, inst in next, ignoreList do
-            if inst == LocalChar then return true end
+            if inst == localChar then return true end
         end
     end
     return false
 end
 
-local hookOk, hookErr = pcall(function()
-    local oldNamecall
-    oldNamecall = hookmetamethod(game, "__namecall", newcclosure(function(...)
-        local Method = getnamecallmethod()
-        local Arguments = {...}
-        local self = Arguments[1]
-
-        if self == workspace and not checkcaller() then
-            local Origin, Direction = tryGetOriginDirection(Method, Arguments)
-            if Origin and Direction and isLocalPlayerShooting(Arguments, Method, Origin, Direction) then
-                if Settings.Enabled and currentTarget and currentTarget.Parent then
-                    if math.random(1, 100) <= Settings.HitChance then
-                        local newDir = (currentTarget.Position - Origin).Unit * Direction.Magnitude
-                        if Method == "FindPartOnRayWithIgnoreList" and ValidateArguments(Arguments, ExpectedArguments.FindPartOnRayWithIgnoreList) then
-                            Arguments[2] = Ray.new(Origin, newDir)
-                        elseif Method == "FindPartOnRayWithWhitelist" and ValidateArguments(Arguments, ExpectedArguments.FindPartOnRayWithWhitelist) then
-                            Arguments[2] = Ray.new(Origin, newDir)
-                        elseif Method == "FindPartOnRay" and ValidateArguments(Arguments, ExpectedArguments.FindPartOnRay) then
-                            Arguments[2] = Ray.new(Origin, newDir)
-                        elseif Method == "Raycast" and ValidateArguments(Arguments, ExpectedArguments.Raycast) then
-                            Arguments[3] = newDir
-                        end
-                    end
-                end
-                local rets = table.pack(oldNamecall(unpack(Arguments)))
-                return table.unpack(rets, 1, rets.n)
-            end
-        end
-        return oldNamecall(...)
-    end))
-end)
-
-_G.SA_randomDelay = function() task.wait(0.05) end
-
-TabSilent:Section({ Title = "Silent Aim" })
-TabSilent:Toggle({ Title = "Ativar Silent Aim", Desc = "Liga/desliga a mira", Icon = "lucide:ghost", Flag = "SilentEnabled", Value = Settings.Enabled, Callback = function(v) Settings.Enabled = v end })
-TabSilent:Toggle({ Title = "Visible Check", Desc = "Marca o alvo de azul", Flag = "SilentVisibleCheck", Value = Settings.VisibleCheck, Callback = function(v) Settings.VisibleCheck = v end })
-TabSilent:Dropdown({ Title = "Parte do Corpo", Flag = "SilentTargetPart", Values = {"Head", "HumanoidRootPart", "UpperTorso", "LowerTorso"}, Value = Settings.TargetPart, Callback = function(v) Settings.TargetPart = v end })
-TabSilent:Slider({ Title = "FOV Radius", Flag = "SilentFOVRadius", Value = { Min = 30, Max = 500, Default = Settings.FOVRadius }, Callback = function(v) Settings.FOVRadius = v end })
-TabSilent:Slider({ Title = "Hit Chance (%)", Flag = "SilentHitChance", Value = { Min = 0, Max = 100, Default = Settings.HitChance }, Callback = function(v) Settings.HitChance = v end })
-TabSilent:Slider({ Title = "Alcance (Range)", Flag = "SilentRange", Value = { Min = 100, Max = 2000, Default = Settings.SilentAimRange }, Callback = function(v) Settings.SilentAimRange = v end })
-
-local ESPSettings = { ESPEnabled = false, TeamCheck = false }
-local ESPFolder = Instance.new("Folder")
-ESPFolder.Name = "ESP_Drawings"
-ESPFolder.Parent = game:GetService("CoreGui")
-local ESPObjects = {}
-
-local function CreateLine(color, thickness)
-    local line = Drawing.new("Line")
-    line.Color = color
-    line.Thickness = thickness or 1
-    line.Transparency = 1
-    line.Visible = false
-    return line
-end
-
-local function CleanupESP(plrName)
-    if ESPObjects[plrName] then
-        for _, obj in pairs(ESPObjects[plrName]) do
-            if obj.Remove then obj:Remove() end
-        end
-        ESPObjects[plrName] = nil
+local function RewriteArgs(method, args, newDir)
+    if method == "FindPartOnRayWithIgnoreList" and ArgsMatch(args, RayMethods.FindPartOnRayWithIgnoreList) then
+        args[2] = Ray.new(args[2].Origin, newDir)
+    elseif method == "FindPartOnRayWithWhitelist" and ArgsMatch(args, RayMethods.FindPartOnRayWithWhitelist) then
+        args[2] = Ray.new(args[2].Origin, newDir)
+    elseif method == "FindPartOnRay" and ArgsMatch(args, RayMethods.FindPartOnRay) then
+        args[2] = Ray.new(args[2].Origin, newDir)
+    elseif method == "Raycast" and ArgsMatch(args, RayMethods.Raycast) then
+        args[3] = newDir
     end
 end
 
-RunService.RenderStepped:Connect(function()
-    if not ESPFolder.Parent then ESPFolder.Parent = game:GetService("CoreGui") end
-    if not ESPSettings.ESPEnabled then
-        for plrName, _ in pairs(ESPObjects) do CleanupESP(plrName) end
+function SA.RandomDelay()
+    local minD = xDTaraZ.Options.SilentAimDelayMin
+    local maxD = xDTaraZ.Options.SilentAimDelayMax
+    if maxD < minD then maxD = minD end
+    return minD + math.random() * (maxD - minD)
+end
+
+-- ----- apply / remove hook ---------------------------------------------
+function SA.Apply()
+    if SA.Hooked then return end
+    if not xDTaraZ.Caps.Namecall then
+        warn("[SniperArena] SilentAim: executor lacks hookmetamethod")
         return
     end
+    local ok, err = pcall(function()
+        local mt = Util.GetRawMetatable(game)
+        local old = mt.__namecall
+        SA.OldNamecall = old
+        setreadonly(mt, false)
+        mt.__namecall = newcclosure(function(...)
+            local method = getnamecallmethod()
+            local args = { ... }
+            local self = args[1]
 
-    for _, plr in ipairs(Players:GetPlayers()) do
-        if plr ~= LocalPlayer and plr.Character then
-            local char = plr.Character
-            local hum = char:FindFirstChildOfClass("Humanoid")
-            local hrp = char:FindFirstChild("HumanoidRootPart")
-            local head = char:FindFirstChild("Head")
-
-            if not hum or hum.Health <= 0 or not hrp or not head then
-                CleanupESP(plr.Name)
-            elseif ESPSettings.TeamCheck and plr.Team == LocalPlayer.Team then
-                CleanupESP(plr.Name)
-            else
-                local hrpPos, hrpOnScreen = Camera:WorldToViewportPoint(hrp.Position)
-                local headPos, headOnScreen = Camera:WorldToViewportPoint(head.Position)
-
-                if hrpOnScreen and headOnScreen then
-                    local height = math.abs(headPos.Y - hrpPos.Y) * 2.2
-                    local width = height / 2.5
-                    local x = hrpPos.X - (width / 2)
-                    local y = headPos.Y - (height * 0.2)
-
-                    if not ESPObjects[plr.Name] then
-                        ESPObjects[plr.Name] = {
-                            Top = CreateLine(Color3.new(1,1,1)),
-                            Bottom = CreateLine(Color3.new(1,1,1)),
-                            Left = CreateLine(Color3.new(1,1,1)),
-                            Right = CreateLine(Color3.new(1,1,1)),
-                            HealthBar = CreateLine(Color3.new(0,1,0), 2),
-                            Name = Drawing.new("Text")
-                        }
-                        ESPObjects[plr.Name].Name.Size = 14
-                        ESPObjects[plr.Name].Name.Center = true
-                        ESPObjects[plr.Name].Name.Outline = true
-                        ESPObjects[plr.Name].Name.OutlineColor = Color3.new(0,0,0)
+            if self == Workspace and not checkcaller() then
+                local origin, direction = ExtractOriginDir(method, args)
+                if origin and direction and IsLocalShooting(args, method, origin, direction) then
+                    local targetPart = SA.Target
+                    if xDTaraZ.Options.SilentAimEnabled and targetPart and targetPart.Parent then
+                        local now = osClock()
+                        if now - SA.LastShotAt >= SA.RandomDelay() then
+                            if math.random(1, 100) <= xDTaraZ.Options.SilentAimHitChance then
+                                SA.LastShotAt = now
+                                local newDir = (targetPart.Position - origin).Unit * direction.Magnitude
+                                RewriteArgs(method, args, newDir)
+                            end
+                        end
                     end
-
-                    local esp = ESPObjects[plr.Name]
-                    local isAlly = plr.Team and LocalPlayer.Team and (plr.Team == LocalPlayer.Team)
-                    local color = isAlly and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0)
-
-                    esp.Top.From = Vector2.new(x, y)
-                    esp.Top.To = Vector2.new(x + width, y)
-                    esp.Top.Color = color; esp.Top.Visible = true
-
-                    esp.Bottom.From = Vector2.new(x, y + height)
-                    esp.Bottom.To = Vector2.new(x + width, y + height)
-                    esp.Bottom.Color = color; esp.Bottom.Visible = true
-
-                    esp.Left.From = Vector2.new(x, y)
-                    esp.Left.To = Vector2.new(x, y + height)
-                    esp.Left.Color = color; esp.Left.Visible = true
-
-                    esp.Right.From = Vector2.new(x + width, y)
-                    esp.Right.To = Vector2.new(x + width, y + height)
-                    esp.Right.Color = color; esp.Right.Visible = true
-
-                    local healthPct = math.clamp(hum.Health / hum.MaxHealth, 0, 1)
-                    esp.HealthBar.From = Vector2.new(x - 4, y + height)
-                    esp.HealthBar.To = Vector2.new(x - 4, y + (height - (height * healthPct)))
-                    
-                    if healthPct > 0.5 then esp.HealthBar.Color = Color3.fromRGB(0, 255, 0)
-                    elseif healthPct > 0.2 then esp.HealthBar.Color = Color3.fromRGB(255, 255, 0)
-                    else esp.HealthBar.Color = Color3.fromRGB(255, 0, 0) end
-                    esp.HealthBar.Visible = true
-
-                    esp.Name.Text = plr.Name
-                    esp.Name.Position = Vector2.new(x + (width / 2), y - 16)
-                    esp.Name.Color = color
-                    esp.Name.Visible = true
-                else
-                    if ESPObjects[plr.Name] then
-                        for _, obj in pairs(ESPObjects[plr.Name]) do obj.Visible = false end
-                    end
+                    local packed = table.pack(old(unpack(args)))
+                    return table.unpack(packed, 1, packed.n)
                 end
             end
-        end
+            return old(...)
+        end)
+        setreadonly(mt, true)
+        SA.Hooked = true
+    end)
+            if not ok then
+        warn("[SniperArena] SilentAim hook failed: " .. tostring(err))
+        SA.Hooked = false
     end
+end
 
-    for name, _ in pairs(ESPObjects) do
-        if not Players:FindFirstChild(name) then CleanupESP(name) end
+function SA.Restore()
+    if not SA.Hooked or not SA.OldNamecall then return end
+    pcall(function()
+        local mt = Util.GetRawMetatable(game)
+        setreadonly(mt, false)
+        mt.__namecall = SA.OldNamecall
+        setreadonly(mt, true)
+    end)
+    SA.OldNamecall = nil
+    SA.Hooked = false
+end
+
+-- ----- FOV circle -------------------------------------------------------
+function SA.BuildCircle()
+    if SA.CircleDrawing or SA.CircleFrame then return end
+    if xDTaraZ.Caps.Drawing then
+        local circle = Drawing.new("Circle")
+        circle.Thickness = 1.5
+        circle.NumSides  = 64
+        circle.Filled    = false
+        circle.Color     = xDTaraZ.Config.FovColor
+        circle.Visible   = false
+        SA.CircleDrawing = circle
+        return
+    end
+    local ring = Instance.new("Frame")
+    ring.Name = "SilentAimFov"
+    ring.AnchorPoint = Vector2.new(0.5, 0.5)
+    ring.BackgroundTransparency = 1
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(1, 0)
+    corner.Parent = ring
+    local stroke = Instance.new("UIStroke")
+    stroke.Color = xDTaraZ.Config.FovColor
+    stroke.Thickness = 1.5
+    stroke.Parent = ring
+    ring.Parent = Util.Overlay()
+    SA.CircleFrame = ring
+end
+
+function SA.UpdateCircle()
+    if not xDTaraZ.Options.ShowFov then
+        if SA.CircleDrawing then SA.CircleDrawing.Visible = false end
+        if SA.CircleFrame then SA.CircleFrame.Visible = false end
+        return
+    end
+    SA.BuildCircle()
+
+    local camera = Workspace.CurrentCamera
+    if not camera then return end
+    local center = Vector2.new(camera.ViewportSize.X / 2, camera.ViewportSize.Y / 2)
+    local radius = xDTaraZ.Options.SilentAimFov
+
+    if SA.CircleDrawing then
+        SA.CircleDrawing.Position = center
+        SA.CircleDrawing.Radius   = radius
+        SA.CircleDrawing.Visible  = true
+        return
+    end
+    if SA.CircleFrame then
+        SA.CircleFrame.Position = UDim2.fromOffset(center.X, center.Y)
+        SA.CircleFrame.Size     = UDim2.fromOffset(radius * 2, radius * 2)
+        SA.CircleFrame.Visible  = true
+    end
+end
+
+function SA.Destroy()
+    SA.Restore()
+    if SA.CircleDrawing then
+        pcall(function() SA.CircleDrawing:Remove() end)
+        SA.CircleDrawing = nil
+    end
+    if SA.CircleFrame then
+        SA.CircleFrame:Destroy()
+        SA.CircleFrame = nil
+    end
+end
+
+-- ----- scheduler jobs ---------------------------------------------------
+xDTaraZ.Scheduler.Every("SilentAim.Target", 0.05, function()
+    if not xDTaraZ.Options.SilentAimEnabled then
+        SA.Target = nil
+        return
+    end
+    SA.Target = SA.FindTarget()
+end)
+
+xDTaraZ.Scheduler.Every("SilentAim.Circle", 0, function()
+    SA.UpdateCircle()
+end)
+
+xDTaraZ.Scheduler.Every("SilentAim.Hook", 1, function()
+    if xDTaraZ.Options.SilentAimEnabled and not SA.Hooked then
+        SA.Apply()
+    elseif not xDTaraZ.Options.SilentAimEnabled and SA.Hooked then
+        SA.Restore()
     end
 end)
 
-pcall(function()
-    local oldNamecall
-    oldNamecall = hookmetamethod(game, "__namecall", newcclosure(function(...)
-        local Method = getnamecallmethod()
-        local Arguments = {...}
-        local self = Arguments[1]
+-- =========================================================================
+-- LOAD UI LIBRARY + BUILD MENU
+-- =========================================================================
+local Library = Util.LoadLibrary(xDTaraZ.Config.UiSource)
+if not Library then
+    warn("[SniperArena] menu unavailable, aborting UI build")
+    return
+end
+xDTaraZ.Library = Library
+pcall(xDTaraZ.Banner.Step, "Library")
 
-        if (Method == "Destroy" or Method == "ClearAllChildren") and self == game:GetService("CoreGui") then return end
-        if (Method == "Destroy" or Method == "Remove") and self and (self.Name == "ESP_Drawings" or self.Name == "SilentHighlights") then return end
+local Window = Library:Window({
+    Title = "Mario Hub",
+    SubTitle = "Sniper Arena — Silent Aim",
+    TabWidth = 160,
+    Size = UDim2.fromOffset(560, 420),
+    Theme = "Dark",
+})
 
-        return oldNamecall(...)
-    end))
+-- ----- Silent Aim tab ---------------------------------------------------
+local AimTab = Window:Tab({ Title = "Silent Aim", Icon = "crosshair" })
+
+AimTab:Toggle({
+    Title = "Silent Aim",
+    Description = "Rewrites your shot direction to the locked target.",
+    Default = false,
+    Flag = "SilentAimEnabled",
+}, function(state)
+    xDTaraZ.Options.SilentAimEnabled = state
+    if not state then SA.Target = nil end
 end)
 
-TabESP:Section({ Title = "ESP 2D Visual" })
-TabESP:Toggle({ Title = "Ativar ESP 2D", Desc = "Desenha caixas e nomes", Icon = "lucide:eye", Flag = "ESPAtivo", Value = false, Callback = function(value) ESPSettings.ESPEnabled = value; if not value then for plrName, _ in pairs(ESPObjects) do CleanupESP(plrName) end end end })
-TabESP:Toggle({ Title = "Team Check", Desc = "Não mostra aliados", Flag
-         = "ESPTeamCheck", Value = false, Callback = function(v) ESPSettings.TeamCheck = v end })
+AimTab:Toggle({
+    Title = "Show FOV",
+    Default = true,
+    Flag = "ShowFov",
+}, function(state)
+    xDTaraZ.Options.ShowFov = state
+end)
 
-TabSilent:Select()
+AimTab:Slider({
+    Title = "FOV Radius",
+    Min = 20, Max = 600, Default = 150,
+    Flag = "SilentAimFov",
+}, function(value)
+    xDTaraZ.Options.SilentAimFov = value
+end)
+
+AimTab:Slider({
+    Title = "Max Range",
+    Min = 100, Max = 3000, Default = 1000,
+    Flag = "SilentAimRange",
+}, function(value)
+    xDTaraZ.Options.SilentAimRange = value
+end)
+
+AimTab:Slider({
+    Title = "Hit Chance (%)",
+    Min = 1, Max = 100, Default = 100,
+    Flag = "SilentAimHitChance",
+}, function(value)
+    xDTaraZ.Options.SilentAimHitChance = value
+end)
+
+AimTab:Slider({
+    Title = "Delay Min (s)",
+    Min = 0, Max = 1, Default = 0.05, Decimals = 2,
+    Flag = "SilentAimDelayMin",
+}, function(value)
+    xDTaraZ.Options.SilentAimDelayMin = value
+end)
+
+AimTab:Slider({
+    Title = "Delay Max (s)",
+    Min = 0, Max = 1, Default = 0.15, Decimals = 2,
+    Flag = "SilentAimDelayMax",
+}, function(value)
+    xDTaraZ.Options.SilentAimDelayMax = value
+end)
+
+AimTab:Dropdown({
+    Title = "Target Part",
+    Options = { "Head", "HumanoidRootPart", "UpperTorso", "LowerTorso" },
+    Default = "Head",
+    Flag = "TargetPart",
+}, function(value)
+    xDTaraZ.Options.TargetPart = value
+end)
+
+AimTab:Toggle({
+    Title = "Visible Check",
+    Description = "Require line of sight from camera to target.",
+    Default = false,
+    Flag = "SilentAimVisibleCheck",
+}, function(state)
+    xDTaraZ.Options.SilentAimVisibleCheck = state
+end)
+
+-- ----- Misc tab ---------------------------------------------------------
+local MiscTab = Window:Tab({ Title = "Misc", Icon = "settings" })
+
+MiscTab:Toggle({
+    Title = "Anti AFK",
+    Default = false,
+    Flag = "AntiAfk",
+}, function(state)
+    xDTaraZ.AntiAfk.SetEnabled(state)
+end)
+
+MiscTab:Button({ Title = "Copy Discord" }, function()
+    if Util.SetClipboard then Util.SetClipboard(xDTaraZ.Config.Discord) end
+end)
+
+MiscTab:Button({ Title = "Unload Script" }, function()
+    if type(environment.SniperArenaUnload) == "function" then
+        pcall(environment.SniperArenaUnload)
+    end
+end)
+
+-- ----- Info tab ---------------------------------------------------------
+local InfoTab = Window:Tab({ Title = "Info", Icon = "info" })
+
+local logLines = {}
+for _, entry in ipairs(xDTaraZ.Config.UpdateLog) do
+    table.insert(logLines, string.format("[%s]  %s", entry[1], entry[2]))
+end
+
+InfoTab:Label({ Title = "Update Log" })
+InfoTab:Paragraph({ Title = table.concat(logLines, "\n\n") })
+InfoTab:Label({ Title = "Discord: " .. xDTaraZ.Config.Discord })
+InfoTab:Label({ Title = "Build: Silent Aim only. Mario Hub shell." })
+
+pcall(xDTaraZ.Banner.Step, "UI")
+
+-- =========================================================================
+-- UNLOAD
+-- =========================================================================
+function environment.SniperArenaUnload()
+    if not xDTaraZ.State.Alive then return end
+    xDTaraZ.State.Alive = false
+
+    pcall(SA.Destroy)
+    pcall(xDTaraZ.AntiAfk.SetEnabled, false)
+    if xDTaraZ.AntiAfk.Connection then
+        pcall(function() xDTaraZ.AntiAfk.Connection:Disconnect() end)
+        xDTaraZ.AntiAfk.Connection = nil
+    end
+
+    for _, conn in ipairs(xDTaraZ.State.Connections) do
+        pcall(function() conn:Disconnect() end)
+    end
+    table.clear(xDTaraZ.State.Connections)
+
+    if xDTaraZ.State.Overlay then
+        pcall(function() xDTaraZ.State.Overlay:Destroy() end)
+        xDTaraZ.State.Overlay = nil
+    end
+
+    if Library and Library.Unload then pcall(Library.Unload, Library) end
+    warn("[SniperArena] unloaded")
+end
+
+-- =========================================================================
+-- BOOT
+-- =========================================================================
+xDTaraZ.Scheduler.Boot()
+pcall(xDTaraZ.Banner.Step, "Boot")
+pcall(xDTaraZ.Banner.Ready)

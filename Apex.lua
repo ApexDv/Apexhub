@@ -1,826 +1,531 @@
--- Hub — Universal Silent Aim
-if not game:IsLoaded() then
-    game.Loaded:Wait()
-end
-
-if not LPH_OBFUSCATED then
-    local function Passthrough(fn) return fn end
-    LPH_JIT, LPH_JIT_MAX, LPH_NO_VIRTUALIZE = Passthrough, Passthrough, Passthrough
-end
-
-local environment = getgenv and getgenv() or _G
-if type(environment.HubUnload) == "function" then
-    pcall(environment.HubUnload)
-end
-
-local Players          = game:GetService("Players")
-local RunService       = game:GetService("RunService")
-local Workspace        = game:GetService("Workspace")
+local WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
-local StarterGui       = game:GetService("StarterGui")
-local VirtualUser      = game:GetService("VirtualUser")
-
+local Camera = workspace.CurrentCamera
 local LocalPlayer = Players.LocalPlayer
-local osClock = os.clock
 
-local hub = setmetatable({}, {
-    __newindex = function(self, key, value)
-        rawset(self, key, type(value) == "function" and LPH_JIT(value) or value)
-    end,
-})
-
-hub.Config = {
-    UiSource = "https://raw.githubusercontent.com/xDTaraZz/Roblox-Scripts/refs/heads/main/ui.lua",
-    Discord = "https://discord.gg/FHVfmeSceA",
-    UpdateLog = {
-        { "2026-11-16", "Universal build: no game guard\nNamecall hook + camera snap fallback\nSmoother menu and faster target lock" },
-        { "2026-10-10", "Previous build" },
-    },
-    LoadTimeout = 10,
-    AlertTries  = 20,
-    AlertGap    = 0.5,
-    MaxFails    = 5,
-    FailWindow  = 10,
-    FovColor    = Color3.fromRGB(65, 145, 255),
-    BannerCaps  = { "HookFunction", "Namecall", "Drawing", "Connections", "FileSystem" },
-    AimRenderPriority = Enum.RenderPriority.Camera.Value + 5,
+local Settings = {
+    SilentEnabled = false,
+    SilentMode = "Players",
+    SilentFOV = 150,
+    SilentPart = "Head",
+    SilentRange = 1000,
+    SilentVisible = false,
+    SilentHitChance = 100,
+    
+    AimbotEnabled = false,
+    AimbotFOV = 200,
+    AimbotSmooth = 0.2,
+    AimbotPart = "Head",
+    
+    ESPEnabled = false,
+    ESPBox = true,
+    ESPHealthBar = true,
+    ESPName = true,
+    ESPDistance = true,
+    ESPColor = Color3.fromRGB(65, 145, 255),
+    
+    SpeedEnabled = false,
+    SpeedValue = 50,
+    JumpEnabled = false,
+    JumpValue = 100,
+    FlyEnabled = false,
+    FlySpeed = 50,
+    NoclipEnabled = false,
 }
 
-hub.State = {
-    Alive       = true,
-    Connections = {},
-    Halted      = {},
-    Overlay     = nil,
-}
+local currentTarget = nil
+local currentHighlight = nil
+local espObjects = {}
+local flyConnection = nil
 
-hub.Options = {
-    SilentAimEnabled      = false,
-    SilentAimFov          = 150,
-    SilentAimRange        = 1000,
-    SilentAimHitChance    = 100,
-    SilentAimVisibleCheck = false,
-    SilentAimDelayMin     = 0.05,
-    SilentAimDelayMax     = 0.15,
-    TargetPart            = "Head",
-    ShowFov               = true,
-    CameraSnapEnabled     = false,
-    CameraSnapSmooth      = 1,
-    AntiAfk               = false,
-}
-
-hub.Util = {}
-local Util = hub.Util
-
-local function Resolve(...)
-    for index = 1, select("#", ...) do
-        local candidate = select(index, ...)
-        if type(candidate) == "function" then return candidate end
-    end
-    return nil
-end
-
-Util.Request         = Resolve(request, http_request, syn and syn.request, http and http.request)
-Util.SetClipboard    = Resolve(setclipboard, toclipboard)
-Util.GetHui          = Resolve(gethui, get_hidden_gui)
-Util.GetRawMetatable = Resolve(getrawmetatable)
-
-hub.Probes = {}
-function hub.Probes.Namecall()
-    return type(hookmetamethod) == "function" and type(newcclosure) == "function" and Util.GetRawMetatable ~= nil
-end
-function hub.Probes.Drawing()
-    return type(Drawing) == "table" and type(Drawing.new) == "function"
-end
-
-hub.Caps = setmetatable({}, {
-    __index = function(caps, name)
-        local probe = hub.Probes[name]
-        if probe then
-            local has = probe()
-            rawset(caps, name, has)
-            return has
-        end
-        return false
-    end,
-})
-
-function Util.HttpGet(url)
-    local ok, body = pcall(function() return game:HttpGet(url) end)
-    if ok and type(body) == "string" then return body end
-    if not Util.Request then error("HttpGet failed: " .. url) end
-    local sent, response = pcall(Util.Request, { Url = url, Method = "GET" })
-    if not sent then error(response) end
-    local status = type(response) == "table" and tonumber(response.StatusCode) or nil
-    if status == 200 and type(response.Body) == "string" then return response.Body end
-    error("HttpGet " .. url .. ": status " .. tostring(status))
-end
-
-function Util.Alert(text, detail)
-    warn("[Hub] menu: " .. tostring(detail or text))
-    task.spawn(function()
-        for _ = 1, hub.Config.AlertTries do
-            local shown = pcall(StarterGui.SetCore, StarterGui, "SendNotification", {
-                Title = "Hub", Text = text, Duration = 10,
-            })
-            if shown then return end
-            task.wait(hub.Config.AlertGap)
-        end
-    end)
-end
-
-function Util.LoadLibrary(url)
-    local fetched, source = pcall(Util.HttpGet, url)
-    if not fetched or type(source) ~= "string" or not source:sub(-64):find("return Library%s*$") then
-        Util.Alert("Could not download the menu. Check your connection and run it again.", fetched and "response is not the full menu" or source)
-        return nil
-    end
-    local chunk, problem = loadstring(source)
-    if type(chunk) ~= "function" then
-        Util.Alert("The menu failed to load on this executor: " .. tostring(problem))
-        return nil
-    end
-    local ran, lib = pcall(chunk)
-    if not ran or type(lib) ~= "table" then
-        Util.Alert("The menu failed to load on this executor: " .. tostring(lib))
-        return nil
-    end
-    return lib
-end
-
-function Util.Overlay()
-    local screen = hub.State.Overlay
-    if screen and screen.Parent then return screen end
-    screen = Instance.new("ScreenGui")
-    screen.Name = "HubOverlay"
-    screen.IgnoreGuiInset = true
-    screen.ResetOnSpawn = false
-    screen.DisplayOrder = 50
-    local mounts = { function() return game:GetService("CoreGui") end }
-    if Util.GetHui then table.insert(mounts, 1, Util.GetHui) end
-    for _, mount in ipairs(mounts) do
-        if pcall(function() screen.Parent = mount() end) and screen.Parent then break end
-    end
-    if not screen.Parent then
-        screen.Parent = LocalPlayer:FindFirstChildOfClass("PlayerGui") or LocalPlayer:WaitForChild("PlayerGui", hub.Config.LoadTimeout)
-    end
-    hub.State.Overlay = screen
-    return screen
-end
-
-function hub:Connect(signal, handler)
-    local connection = signal:Connect(handler)
-    table.insert(self.State.Connections, connection)
-    return connection
-end
-
-hub.Banner = {
-    Print = print,
-    Started = osClock(),
-    Last = osClock(),
-    Done = 0,
-    Total = 4,
-    Title = [[
-  _   _ _   _ ____  
- | | | | | | | __ ) 
- | |_| | | | |  _ \ 
- |  _  | |_| | |_) |
- |_| |_|\___/|____/ 
-]],
-}
-
-pcall(function()
-    local renv = getrenv()
-    if type(renv.print) == "function" then hub.Banner.Print = renv.print end
-end)
-
-function hub.Banner.Show()
-    local ok, executor = pcall(identifyexecutor)
-    if not ok or type(executor) ~= "string" then executor = "Unknown" end
-    local rule = string.rep("=", 54)
-    hub.Banner.Print(table.concat({
-        "",
-        hub.Banner.Title,
-        rule,
-        "   UNIVERSAL SILENT AIM  //  " .. hub.Config.Discord,
-        "   executor: " .. tostring(executor) .. "   //   player: " .. LocalPlayer.Name,
-        rule,
-    }, "\n"))
-end
-
-function hub.Banner.Step(label)
-    local b = hub.Banner
-    local now = osClock()
-    b.Done = math.min(b.Done + 1, b.Total)
-    local filled = math.floor(b.Done / b.Total * 20 + 0.5)
-    local bar = string.rep("#", filled) .. string.rep(".", 20 - filled)
-    b.Print(string.format("[Hub] [%s] %3d%%  %-24s +%dms",
-        bar, math.floor(b.Done / b.Total * 100), label, math.floor((now - b.Last) * 1000)))
-    b.Last = now
-end
-
-function hub.Banner.Ready()
-    local names = hub.Config.BannerCaps
-    local caps = 0
-    for _, name in ipairs(names) do
-        if hub.Caps[name] then caps += 1 end
-    end
-    local rule = string.rep("=", 54)
-    hub.Banner.Print(table.concat({
-        rule,
-        string.format("   >> READY in %dms  //  caps %d/%d  //  LeftCtrl = menu",
-            math.floor((osClock() - hub.Banner.Started) * 1000), caps, #names),
-        rule,
-    }, "\n"))
-end
-
-pcall(hub.Banner.Show)
-pcall(hub.Banner.Step, "Core")
-
-hub.Faults = { Streaks = {}, Said = {} }
-
-function hub.Faults.Say(name, err)
-    local text, now = tostring(err), osClock()
-    local last = hub.Faults.Said[name]
-    if last and last[1] == text and now - last[2] < hub.Config.FailWindow then return end
-    hub.Faults.Said[name] = { text, now }
-    warn("[Hub] " .. name .. ": " .. text)
-end
-
-function hub.Faults.Clear(name)
-    hub.Faults.Streaks[name] = nil
-end
-
-function hub.Faults.Report(name, err)
-    local now = osClock()
-    local streak = hub.Faults.Streaks[name]
-    if not streak then
-        streak = { Count = 0, First = now, Warned = false }
-        hub.Faults.Streaks[name] = streak
-    end
-    streak.Count += 1
-    if streak.Count == 1 then hub.Faults.Say(name, err) end
-    if streak.Warned then return false end
-    if streak.Count < hub.Config.MaxFails or now - streak.First < hub.Config.FailWindow then return false end
-    streak.Warned = true
-    warn("[Hub] " .. name .. " keeps failing: " .. tostring(err))
+local function antiDetect()
+    local env = getfenv()
+    if env.hookmetamethod ~= hookmetamethod then return true end
+    if env.debug ~= debug then return true end
+    if env.string ~= string then return true end
     return false
 end
 
-hub.Scheduler = { Jobs = {}, Booted = false }
+if antiDetect() then return end
 
-function hub.Scheduler.Every(name, interval, work)
-    hub.Scheduler.Jobs[name] = { Interval = interval, Fn = work, Last = 0, Running = false, Error = nil }
+local Window = WindUI:CreateWindow({
+    Title = "Apex Hub",
+    Icon = "rbxassetid://6031280882",
+    Author = "Stealth Edition",
+    Folder = "ApexHub",
+    Size = UDim2.fromOffset(600, 480),
+    Transparent = true,
+    Theme = "Dark",
+    Lock = true,
+    HideOnClose = true,
+    MinimizeKeybind = Enum.KeyCode.RightControl
+})
+
+local SilentTab = Window:Tab({ Title = "Silent Aim", Icon = "crosshair" })
+local AimbotTab = Window:Tab({ Title = "Aimbot", Icon = "target" })
+local ESPTab = Window:Tab({ Title = "ESP", Icon = "eye" })
+local MovementTab = Window:Tab({ Title = "Movement", Icon = "move" })
+
+local SilentSection = SilentTab:Section({ Title = "Configurações", TextXAlignment = "Left" })
+SilentSection:Toggle({ Title = "Ativar Silent", Value = false, Callback = function(v) Settings.SilentEnabled = v end })
+SilentSection:Slider({ Title = "FOV", Value = { Min = 10, Max = 500, Default = 150 }, Callback = function(v) Settings.SilentFOV = v end })
+SilentSection:Slider({ Title = "Hit Chance", Value = { Min = 1, Max = 100, Default = 100 }, Suffix = "%", Callback = function(v) Settings.SilentHitChance = v end })
+SilentSection:Dropdown({ Title = "Parte do Corpo", Values = { "Head", "HumanoidRootPart", "UpperTorso", "LowerTorso" }, Value = "Head", Callback = function(v) Settings.SilentPart = v end })
+SilentSection:Toggle({ Title = "Visible Check", Value = false, Callback = function(v) Settings.SilentVisible = v end })
+
+local AimbotSection = AimbotTab:Section({ Title = "Camera Lock", TextXAlignment = "Left" })
+AimbotSection:Toggle({ Title = "Ativar Aimbot", Value = false, Callback = function(v) Settings.AimbotEnabled = v end })
+AimbotSection:Slider({ Title = "FOV", Value = { Min = 10, Max = 600, Default = 200 }, Callback = function(v) Settings.AimbotFOV = v end })
+AimbotSection:Slider({ Title = "Suavidade", Value = { Min = 0.01, Max = 1, Default = 0.2 }, Callback = function(v) Settings.AimbotSmooth = v end })
+AimbotSection:Dropdown({ Title = "Parte do Corpo", Values = { "Head", "HumanoidRootPart", "UpperTorso", "LowerTorso" }, Value = "Head", Callback = function(v) Settings.AimbotPart = v end })
+
+local ESPSection = ESPTab:Section({ Title = "Visual", TextXAlignment = "Left" })
+ESPSection:Toggle({ Title = "Ativar ESP", Value = false, Callback = function(v) Settings.ESPEnabled = v end })
+ESPSection:Toggle({ Title = "Caixa (Box)", Value = false, Callback = function(v) Settings.ESPBox = v end })
+ESPSection:Toggle({ Title = "Barra de Vida", Value = false, Callback = function(v) Settings.ESPHealthBar = v end })
+ESPSection:Toggle({ Title = "Nome", Value = false, Callback = function(v) Settings.ESPName = v end })
+ESPSection:Toggle({ Title = "Distância", Value = false, Callback = function(v) Settings.ESPDistance = v end })
+
+local MovSection = MovementTab:Section({ Title = "Movimento", TextXAlignment = "Left" })
+MovSection:Toggle({ Title = "Speed Hack", Value = false, Callback = function(v) Settings.SpeedEnabled = v end })
+MovSection:Slider({ Title = "Velocidade", Value = { Min = 16, Max = 200, Default = 50 }, Callback = function(v) Settings.SpeedValue = v end })
+MovSection:Toggle({ Title = "Jump Power", Value = false, Callback = function(v) Settings.JumpEnabled = v end })
+MovSection:Slider({ Title = "Força do Pulo", Value = { Min = 50, Max = 500, Default = 100 }, Callback = function(v) Settings.JumpValue = v end })
+MovSection:Toggle({ Title = "Fly", Value = false, Callback = function(v) Settings.FlyEnabled = v end })
+MovSection:Slider({ Title = "Velocidade do Fly", Value = { Min = 10, Max = 200, Default = 50 }, Callback = function(v) Settings.FlySpeed = v end })
+MovSection:Toggle({ Title = "Noclip", Value = false, Callback = function(v) Settings.NoclipEnabled = v end })
+
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = tostring(math.random(100000, 999999))
+ScreenGui.ResetOnSpawn = false
+ScreenGui.IgnoreGuiInset = true
+ScreenGui.DisplayOrder = 999
+ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+
+local FOVCircle = Instance.new("Frame")
+FOVCircle.Size = UDim2.fromOffset(Settings.SilentFOV * 2, Settings.SilentFOV * 2)
+FOVCircle.AnchorPoint = Vector2.new(0.5, 0.5)
+FOVCircle.Position = UDim2.fromScale(0.5, 0.5)
+FOVCircle.BackgroundTransparency = 1
+FOVCircle.Visible = Settings.SilentEnabled -- Inicia invisível
+FOVCircle.Parent = ScreenGui
+
+local CircleCorner = Instance.new("UICorner")
+CircleCorner.CornerRadius = UDim.new(1, 0)
+CircleCorner.Parent = FOVCircle
+
+local CircleStroke = Instance.new("UIStroke")
+CircleStroke.Color = Color3.fromRGB(65, 145, 255)
+CircleStroke.Thickness = 1.5
+CircleStroke.Parent = FOVCircle
+
+local function isVisible(targetModel)
+    if not Settings.SilentVisible then return true end
+    local hrp = targetModel:FindFirstChild("HumanoidRootPart")
+    if not hrp then return false end
+    local char = LocalPlayer.Character
+    local localHRP = char and char:FindFirstChild("HumanoidRootPart")
+    if not localHRP then return false end
+    local params = RaycastParams.new()
+    params.FilterType = Enum.RaycastFilterType.Blacklist
+    params.FilterDescendantsInstances = {LocalPlayer.Character, targetModel}
+    local result = workspace:Raycast(hrp.Position, localHRP.Position - hrp.Position, params)
+    return result == nil
 end
 
-function hub.Scheduler.Step()
-    if not hub.State.Alive then return end
-    local now = osClock()
-    for name, job in pairs(hub.Scheduler.Jobs) do
-        if job.Running then continue end
-        if job.Error ~= nil then
-            local err = job.Error; job.Error = nil
-            if err then hub.Faults.Report(name, err) else hub.Faults.Clear(name) end
-        end
-        if now - job.Last < job.Interval then continue end
-        job.Last = now
-        job.Running = true
-        task.spawn(function()
-            local ok, err = pcall(job.Fn)
-            job.Error = (not ok) and tostring(err) or false
-            job.Running = false
-        end)
-    end
+local function inRange(hrp)
+    local localRoot = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+    if not localRoot then return true end
+    return (hrp.Position - localRoot.Position).Magnitude <= Settings.SilentRange
 end
 
-function hub.Scheduler.Boot()
-    if hub.Scheduler.Booted then return end
-    hub.Scheduler.Booted = true
-    hub:Connect(RunService.Heartbeat, hub.Scheduler.Step)
-end
-
-hub.AntiAfk = { Connection = nil, Status = "Off" }
-
-function hub.AntiAfk.OnIdled()
-    if not hub.Options.AntiAfk then return end
-    VirtualUser:CaptureController()
-    VirtualUser:ClickButton2(Vector2.zero)
-end
-
-function hub.AntiAfk.SetEnabled(on)
-    hub.Options.AntiAfk = on
-    if on then
-        if not hub.AntiAfk.Connection then
-            hub.AntiAfk.Connection = hub:Connect(LocalPlayer.Idled, hub.AntiAfk.OnIdled)
-        end
-        hub.AntiAfk.Status = "Armed"
-    else
-        if hub.AntiAfk.Connection then
-            hub.AntiAfk.Connection:Disconnect()
-            hub.AntiAfk.Connection = nil
-        end
-        hub.AntiAfk.Status = "Off"
-    end
-end
-
-hub.SilentAim = {
-    Target        = nil,
-    LastShotAt    = 0,
-    Hooked        = false,
-    OldNamecall   = nil,
-    CircleDrawing = nil,
-    CircleFrame   = nil,
-    InputConn     = nil,
-}
-local SA = hub.SilentAim
-
-function SA.GetPart(character)
-    if not character then return nil end
-    local partName = hub.Options.TargetPart or "Head"
-    local direct = character:FindFirstChild(partName)
-    if direct and direct:IsA("BasePart") then return direct end
-    if partName == "UpperTorso" then
-        local torso = character:FindFirstChild("Torso")
-        if torso then return torso end
-    end
-    if partName == "Head" then
-        local head = character:FindFirstChild("Head")
-        if head then return head end
-    end
-    local collider = character:FindFirstChild("Collider")
-    local custom = collider and collider:FindFirstChild(partName)
-    if custom and custom:IsA("BasePart") then return custom end
-    return character:FindFirstChild("HumanoidRootPart")
-end
-
-function SA.IsValidTarget(player)
-    if player == LocalPlayer then return false end
-    local char = player.Character
-    if not char then return false end
-    local hum = char:FindFirstChildOfClass("Humanoid")
-    if not hum or hum.Health <= 0 then return false end
-    local part = SA.GetPart(char)
-    if not part then return false end
-    local localChar = LocalPlayer.Character
-    local localRoot = localChar and localChar:FindFirstChild("HumanoidRootPart")
-    if localRoot and (part.Position - localRoot.Position).Magnitude > hub.Options.SilentAimRange then
-        return false
-    end
-    if hub.Options.SilentAimVisibleCheck then
-        local params = RaycastParams.new()
-        params.FilterType = Enum.RaycastFilterType.Exclude
-        params.FilterDescendantsInstances = { LocalPlayer.Character, char }
-        local camera = Workspace.CurrentCamera
-        if not camera then return false end
-        local result = Workspace:Raycast(camera.CFrame.Position, part.Position - camera.CFrame.Position, params)
-        if result then return false end
-    end
-    return true, part
-end
-
-function SA.FindTarget()
-    local camera = Workspace.CurrentCamera
-    if not camera then return nil end
-    local center = Vector2.new(camera.ViewportSize.X / 2, camera.ViewportSize.Y / 2)
-    local radius = hub.Options.SilentAimFov
-    local bestPart, bestDist = nil, radius
-    for _, player in ipairs(Players:GetPlayers()) do
-        local ok, part = SA.IsValidTarget(player)
-        if ok and part then
-            local screenPos, onScreen = camera:WorldToViewportPoint(part.Position)
-            if onScreen then
-                local dist = (Vector2.new(screenPos.X, screenPos.Y) - center).Magnitude
-                if dist < bestDist then
-                    bestPart, bestDist = part, dist
+local function getSilentTarget()
+    if not Settings.SilentEnabled then return nil end
+    local center = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)
+    local closest, shortestDist = nil, Settings.SilentFOV
+    for _, plr in ipairs(Players:GetPlayers()) do
+        if plr ~= LocalPlayer and plr.Character then
+            local hum = plr.Character:FindFirstChildOfClass("Humanoid")
+            local hrp = plr.Character:FindFirstChild("HumanoidRootPart")
+            if hum and hum.Health > 0 and hrp and inRange(hrp) and isVisible(plr.Character) then
+                local part = plr.Character:FindFirstChild(Settings.SilentPart) or hrp
+                local screenPos, onScreen = Camera:WorldToViewportPoint(part.Position)
+                if onScreen and screenPos.Z > 0 then
+                    local d = (Vector2.new(screenPos.X, screenPos.Y) - center).Magnitude
+                    if d < shortestDist then
+                        closest, shortestDist = part, d
+                    end
                 end
             end
         end
     end
-    return bestPart
+    return closest
 end
 
-local RayMethods = {
-    FindPartOnRayWithIgnoreList = { MinArgs = 3, Types = { "Instance", "Ray", "table", "boolean", "boolean" } },
-    FindPartOnRayWithWhitelist  = { MinArgs = 3, Types = { "Instance", "Ray", "table", "boolean" } },
-    FindPartOnRay               = { MinArgs = 2, Types = { "Instance", "Ray", "Instance", "boolean", "boolean" } },
-    Raycast                     = { MinArgs = 3, Types = { "Instance", "Vector3", "Vector3", "RaycastParams" } },
+local function getAimbotTarget()
+    if not Settings.AimbotEnabled then return nil end
+    local center = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)
+    local closest, shortestDist = nil, Settings.AimbotFOV
+    for _, plr in ipairs(Players:GetPlayers()) do
+        if plr ~= LocalPlayer and plr.Character then
+            local hum = plr.Character:FindFirstChildOfClass("Humanoid")
+            local hrp = plr.Character:FindFirstChild("HumanoidRootPart")
+            if hum and hum.Health > 0 and hrp then
+                local part = plr.Character:FindFirstChild(Settings.AimbotPart) or hrp
+                local screenPos, onScreen = Camera:WorldToViewportPoint(part.Position)
+                if onScreen and screenPos.Z > 0 then
+                    local d = (Vector2.new(screenPos.X, screenPos.Y) - center).Magnitude
+                    if d < shortestDist then
+                        closest, shortestDist = part, d
+                    end
+                end
+            end
+        end
+    end
+    return closest
+end
+
+RunService.RenderStepped:Connect(function()
+    FOVCircle.Size = UDim2.fromOffset(Settings.SilentFOV * 2, Settings.SilentFOV * 2)
+    FOVCircle.Visible = Settings.SilentEnabled -- Só aparece se o Silent estiver ativado
+    
+    pcall(function()
+        currentTarget = getSilentTarget()
+        if currentTarget then
+            if currentHighlight and currentHighlight.Parent ~= currentTarget.Parent then
+                currentHighlight:Destroy()
+                currentHighlight = nil
+            end
+            if not currentHighlight then
+                currentHighlight = Instance.new("Highlight")
+                currentHighlight.FillColor = Color3.fromRGB(65, 145, 255)
+                currentHighlight.OutlineColor = Color3.fromRGB(65, 145, 255)
+                currentHighlight.FillTransparency = 1
+                currentHighlight.OutlineTransparency = 0
+                currentHighlight.Parent = currentTarget.Parent
+            end
+        else
+            if currentHighlight then currentHighlight:Destroy() currentHighlight = nil end
+        end
+
+        local aimTarget = getAimbotTarget()
+        if aimTarget and Settings.AimbotEnabled then
+            local targetCFrame = CFrame.new(Camera.CFrame.Position, aimTarget.Position)
+            Camera.CFrame = Camera.CFrame:Lerp(targetCFrame, Settings.AimbotSmooth)
+        end
+    end)
+end)
+
+local espTable = {}
+
+local function CreateESP(player)
+    if espTable[player] then return end
+    
+    local box = Drawing.new("Square")
+    box.Visible = false
+    box.Color = Settings.ESPColor
+    box.Thickness = 1
+    box.Filled = false
+    
+    local healthBg = Drawing.new("Square")
+    healthBg.Visible = false
+    healthBg.Color = Color3.fromRGB(40, 40, 40)
+    healthBg.Thickness = 1
+    healthBg.Filled = true
+    
+    local healthBar = Drawing.new("Square")
+    healthBar.Visible = false
+    healthBar.Color = Color3.fromRGB(0, 255, 0)
+    healthBar.Thickness = 1
+    healthBar.Filled = true
+    
+    local nameText = Drawing.new("Text")
+    nameText.Visible = false
+    nameText.Color = Color3.fromRGB(255, 255, 255)
+    nameText.Size = 14
+    nameText.Center = true
+    nameText.Outline = true
+    nameText.Font = 2
+    
+    local distText = Drawing.new("Text")
+    distText.Visible = false
+    distText.Color = Color3.fromRGB(200, 200, 200)
+    distText.Size = 14
+    distText.Center = true
+    distText.Outline = true
+    distText.Font = 2
+
+    espTable[player] = {
+        Box = box,
+        HealthBg = healthBg,
+        HealthBar = healthBar,
+        Name = nameText,
+        Distance = distText
+    }
+end
+
+local function RemoveESP(player)
+    if espTable[player] then
+        for _, drawing in pairs(espTable[player]) do
+            drawing:Remove()
+        end
+        espTable[player] = nil
+    end
+end
+
+Players.PlayerAdded:Connect(CreateESP)
+Players.PlayerRemoving:Connect(RemoveESP)
+for _, p in ipairs(Players:GetPlayers()) do CreateESP(p) end
+
+RunService.RenderStepped:Connect(function()
+    for _, player in pairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer and espTable[player] then
+            local esp = espTable[player]
+            local char = player.Character
+            
+            if not Settings.ESPEnabled or not char then
+                esp.Box.Visible = false
+                esp.HealthBg.Visible = false
+                esp.HealthBar.Visible = false
+                esp.Name.Visible = false
+                esp.Distance.Visible = false
+                continue
+            end
+            
+            local hum = char:FindFirstChildOfClass("Humanoid")
+            local hrp = char:FindFirstChild("HumanoidRootPart")
+            local head = char:FindFirstChild("Head")
+            
+            if hum and hum.Health > 0 and hrp and head then
+                local headPos, headOnScreen = Camera:WorldToViewportPoint(head.Position + Vector3.new(0, 0.5, 0))
+                local hrpPos, hrpOnScreen = Camera:WorldToViewportPoint(hrp.Position)
+                local footPos, footOnScreen = Camera:WorldToViewportPoint(hrp.Position - Vector3.new(0, 3, 0))
+                
+                if headOnScreen and hrpOnScreen and footOnScreen and headPos.Z > 0 then
+                    local height = math.abs(footPos.Y - headPos.Y)
+                    local width = height / 2
+                    local x = headPos.X - width / 2
+                    local y = headPos.Y
+                    
+                    if Settings.ESPBox then
+                        esp.Box.Visible = true
+                        esp.Box.Size = Vector2.new(width, height)
+                        esp.Box.Position = Vector2.new(x, y)
+                        esp.Box.Color = Settings.ESPColor
+                    else
+                        esp.Box.Visible = false
+                    end
+                    
+                    if Settings.ESPHealthBar and hum.Health > 0 then
+                        local hpPercent = hum.Health / hum.MaxHealth
+                        local barHeight = height
+                        local barWidth = 2
+                        local barX = x - 6
+                        local barY = y
+                        
+                        esp.HealthBg.Visible = true
+                        esp.HealthBg.Size = Vector2.new(barWidth, barHeight)
+                        esp.HealthBg.Position = Vector2.new(barX, barY)
+                        
+                        esp.HealthBar.Visible = true
+                        esp.HealthBar.Size = Vector2.new(barWidth, barHeight * hpPercent)
+                        esp.HealthBar.Position = Vector2.new(barX, barY + barHeight - (barHeight * hpPercent))
+                        esp.HealthBar.Color = Color3.fromRGB(0, 255, 0):Lerp(Color3.fromRGB(255, 0, 0), 1 - hpPercent)
+                    else
+                        esp.HealthBg.Visible = false
+                        esp.HealthBar.Visible = false
+                    end
+                    
+                    if Settings.ESPName then
+                        esp.Name.Visible = true
+                        esp.Name.Text = player.Name
+                        esp.Name.Position = Vector2.new(x + width / 2, y - 18)
+                    else
+                        esp.Name.Visible = false
+                    end
+                    
+                    if Settings.ESPDistance then
+                        esp.Distance.Visible = true
+                        local dist = (LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")) and (hrp.Position - LocalPlayer.Character.HumanoidRootPart.Position).Magnitude or 0
+                        esp.Distance.Text = "[" .. math.floor(dist) .. "m]"
+                        esp.Distance.Position = Vector2.new(x + width / 2, y + height + 5)
+                    else
+                        esp.Distance.Visible = false
+                    end
+                else
+                    esp.Box.Visible = false
+                    esp.HealthBg.Visible = false
+                    esp.HealthBar.Visible = false
+                    esp.Name.Visible = false
+                    esp.Distance.Visible = false
+                end
+            else
+                esp.Box.Visible = false
+                esp.HealthBg.Visible = false
+                esp.HealthBar.Visible = false
+                esp.Name.Visible = false
+                esp.Distance.Visible = false
+            end
+        end
+    end
+end)
+
+local ExpectedArguments = {
+    FindPartOnRayWithIgnoreList = { ArgCountRequired = 3, Args = { "Instance", "Ray", "table", "boolean", "boolean" } },
+    FindPartOnRayWithWhitelist = { ArgCountRequired = 3, Args = { "Instance", "Ray", "table", "boolean" } },
+    FindPartOnRay = { ArgCountRequired = 2, Args = { "Instance", "Ray", "Instance", "boolean", "boolean" } },
+    Raycast = { ArgCountRequired = 3, Args = { "Instance", "Vector3", "Vector3", "RaycastParams" } }
 }
 
-local function ArgsMatch(args, spec)
-    if #args < spec.MinArgs then return false end
-    local matches = 0
-    for pos, arg in next, args do
-        if typeof(arg) == spec.Types[pos] then matches += 1 end
+local function ValidateArguments(Args, RayMethod)
+    local Matches = 0
+    if #Args < RayMethod.ArgCountRequired then return false end
+    for Pos, Argument in next, Args do
+        if typeof(Argument) == RayMethod.Args[Pos] then Matches = Matches + 1 end
     end
-    return matches >= spec.MinArgs
+    return Matches >= RayMethod.ArgCountRequired
 end
 
-local function ExtractOriginDir(method, args)
-    if method == "FindPartOnRayWithIgnoreList" or method == "FindPartOnRayWithWhitelist" or method == "FindPartOnRay" then
-        local ray = args[2]
-        if typeof(ray) == "Ray" then return ray.Origin, ray.Direction end
-    elseif method == "Raycast" then
-        local origin, direction = args[2], args[3]
-        if typeof(origin) == "Vector3" and typeof(direction) == "Vector3" then
-            return origin, direction
+local function tryGetOriginDirection(Method, Arguments)
+    if Method == "FindPartOnRayWithIgnoreList" or Method == "FindPartOnRayWithWhitelist" or Method == "FindPartOnRay" then
+        local A_Ray = Arguments[2]
+        if typeof(A_Ray) == "Ray" then return A_Ray.Origin, A_Ray.Direction end
+    elseif Method == "Raycast" then
+        local A_Origin, A_Direction = Arguments[2], Arguments[3]
+        if typeof(A_Origin) == "Vector3" and typeof(A_Direction) == "Vector3" then
+            return A_Origin, A_Direction
         end
     end
     return nil, nil
 end
 
-local function IsLocalShooting(args, method, origin, direction)
-    local localChar = LocalPlayer.Character
-    if not localChar then return false end
-    if not direction or direction.Magnitude < 1 then return false end
-    local camera = Workspace.CurrentCamera
-    if camera and origin and (origin - camera.CFrame.Position).Magnitude <= 15 then return true end
-    local localRoot = localChar:FindFirstChild("HumanoidRootPart")
-    if localRoot and origin and (origin - localRoot.Position).Magnitude <= 10 then return true end
+local function isLocalPlayerShooting(Arguments, Method, Origin, OriginalDirection)
+    local LocalChar = LocalPlayer.Character
+    if not LocalChar then return false end
+    local rayLength = OriginalDirection and OriginalDirection.Magnitude or 0
+    if rayLength < 30 then return false end
+    if Origin and (Origin - Camera.CFrame.Position).Magnitude <= 5 then return true end
+
     local ignoreList
-    if method == "Raycast" then
-        local params = args[4]
+    if Method == "Raycast" then
+        local params = Arguments[4]
         if typeof(params) == "RaycastParams" then ignoreList = params.FilterDescendantsInstances end
-    elseif method == "FindPartOnRayWithIgnoreList" or method == "FindPartOnRay" then
-        if typeof(args[3]) == "table" then ignoreList = args[3] end
+    elseif Method == "FindPartOnRayWithIgnoreList" or Method == "FindPartOnRay" then
+        if typeof(Arguments[3]) == "table" then ignoreList = Arguments[3] end
     end
     if ignoreList then
         for _, inst in next, ignoreList do
-            if inst == localChar or inst == localRoot then return true end
+            if inst == LocalChar then return true end
         end
     end
     return false
 end
 
-local function RewriteArgs(method, args, newDir)
-    if method == "FindPartOnRayWithIgnoreList" and ArgsMatch(args, RayMethods.FindPartOnRayWithIgnoreList) then
-        args[2] = Ray.new(args[2].Origin, newDir)
-    elseif method == "FindPartOnRayWithWhitelist" and ArgsMatch(args, RayMethods.FindPartOnRayWithWhitelist) then
-        args[2] = Ray.new(args[2].Origin, newDir)
-    elseif method == "FindPartOnRay" and ArgsMatch(args, RayMethods.FindPartOnRay) then
-        args[2] = Ray.new(args[2].Origin, newDir)
-    elseif method == "Raycast" and ArgsMatch(args, RayMethods.Raycast) then
-        args[3] = newDir
-    end
-end
+local hookOk, hookErr = pcall(function()
+    local oldNamecall
+    oldNamecall = hookmetamethod(game, "__namecall", newcclosure(function(...)
+        local Method = getnamecallmethod()
+        local Arguments = {...}
+        local self = Arguments[1]
 
-function SA.RandomDelay()
-    local minD = hub.Options.SilentAimDelayMin
-    local maxD = hub.Options.SilentAimDelayMax
-    if maxD < minD then maxD = minD end
-    return minD + math.random() * (maxD - minD)
-end
-
-function SA.Apply()
-    if SA.Hooked then return end
-    if not hub.Caps.Namecall then
-        warn("[Hub] SilentAim: executor lacks hookmetamethod")
-        return
-    end
-    local ok, err = pcall(function()
-        local mt = Util.GetRawMetatable(game)
-        local old = mt.__namecall
-        SA.OldNamecall = old
-        setreadonly(mt, false)
-        mt.__namecall = newcclosure(function(...)
-            local method = getnamecallmethod()
-            local args = { ... }
-            local self = args[1]
-            if self == Workspace and not checkcaller() then
-                local origin, direction = ExtractOriginDir(method, args)
-                if origin and direction and IsLocalShooting(args, method, origin, direction) then
-                    local targetPart = SA.Target
-                    if hub.Options.SilentAimEnabled and targetPart and targetPart.Parent then
-                        local now = osClock()
-                        if now - SA.LastShotAt >= SA.RandomDelay() then
-                            if math.random(1, 100) <= hub.Options.SilentAimHitChance then
-                                SA.LastShotAt = now
-                                local newDir = (targetPart.Position - origin).Unit * direction.Magnitude
-                                RewriteArgs(method, args, newDir)
-                            end
+        if self == workspace and not checkcaller() then
+            local Origin, Direction = tryGetOriginDirection(Method, Arguments)
+            if Origin and Direction and isLocalPlayerShooting(Arguments, Method, Origin, Direction) then
+                if Settings.SilentEnabled and currentTarget and currentTarget.Parent then
+                    if math.random(1, 100) <= Settings.SilentHitChance then
+                        task.wait(math.random(15, 45) / 1000)
+                        local newDir = (currentTarget.Position - Origin).Unit * Direction.Magnitude
+                        if Method == "FindPartOnRayWithIgnoreList" and ValidateArguments(Arguments, ExpectedArguments.FindPartOnRayWithIgnoreList) then
+                            Arguments[2] = Ray.new(Origin, newDir)
+                        elseif Method == "FindPartOnRayWithWhitelist" and ValidateArguments(Arguments, ExpectedArguments.FindPartOnRayWithWhitelist) then
+                            Arguments[2] = Ray.new(Origin, newDir)
+                                                elseif Method == "FindPartOnRay" and ValidateArguments(Arguments, ExpectedArguments.FindPartOnRay) then
+                            Arguments[2] = Ray.new(Origin, newDir)
+                        elseif Method == "Raycast" and ValidateArguments(Arguments, ExpectedArguments.Raycast) then
+                            Arguments[3] = newDir
                         end
                     end
-                    local packed = table.pack(old(unpack(args)))
-                    return table.unpack(packed, 1, packed.n)
+                end
+                local rets = table.pack(oldNamecall(unpack(Arguments)))
+                return table.unpack(rets, 1, rets.n)
+            end
+        end
+        return oldNamecall(...)
+    end))
+end)
+
+task.spawn(function()
+    while task.wait(0.5) do
+        pcall(function()
+            if Settings.SpeedEnabled then
+                local char = LocalPlayer.Character
+                local hum = char and char:FindFirstChildOfClass("Humanoid")
+                if hum then hum.WalkSpeed = Settings.SpeedValue end
+            else
+                local char = LocalPlayer.Character
+                local hum = char and char:FindFirstChildOfClass("Humanoid")
+                if hum and hum.WalkSpeed ~= 16 then hum.WalkSpeed = 16 end
+            end
+            
+            if Settings.JumpEnabled then
+                local char = LocalPlayer.Character
+                local hum = char and char:FindFirstChildOfClass("Humanoid")
+                if hum then hum.JumpPower = Settings.JumpValue end
+            end
+            
+            if Settings.NoclipEnabled then
+                local char = LocalPlayer.Character
+                if char then
+                    for _, v in pairs(char:GetDescendants()) do
+                        if v:IsA("BasePart") and v.CanCollide then v.CanCollide = false end
+                    end
                 end
             end
-            return old(...)
         end)
-        setreadonly(mt, true)
-        SA.Hooked = true
-    end)
-    if not ok then
-        warn("[Hub] SilentAim hook failed: " .. tostring(err))
-        SA.Hooked = false
     end
+end)
+
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if gameProcessed then return end
+    if Settings.FlyEnabled then
+        local char = LocalPlayer.Character
+        local hrp = char and char:FindFirstChild("HumanoidRootPart")
+        if hrp then
+            local bodyVel = Instance.new("BodyVelocity")
+            bodyVel.MaxForce = Vector3.new(9e9, 9e9, 9e9)
+            bodyVel.Velocity = Vector3.zero
+            bodyVel.Parent = hrp
+            
+            local connection
+            connection = RunService.RenderStepped:Connect(function()
+                local moveDir = Vector3.zero
+                local camCFrame = Camera.CFrame
+                if UserInputService:IsKeyDown(Enum.KeyCode.W) then moveDir += camCFrame.LookVector end
+                if UserInputService:IsKeyDown(Enum.KeyCode.S) then moveDir -= camCFrame.LookVector end
+                if UserInputService:IsKeyDown(Enum.KeyCode.A) then moveDir -= camCFrame.RightVector end
+                if UserInputService:IsKeyDown(Enum.KeyCode.D) then moveDir += camCFrame.RightVector end
+                if UserInputService:IsKeyDown(Enum.KeyCode.Space) then moveDir += Vector3.new(0, 1, 0) end
+                if UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) then moveDir -= Vector3.new(0, 1, 0) end
+                
+                if moveDir.Magnitude > 0 then
+                    bodyVel.Velocity = moveDir.Unit * Settings.FlySpeed
+                else
+                    bodyVel.Velocity = Vector3.zero
+                end
+            end)
+            
+            while Settings.FlyEnabled and bodyVel.Parent do
+                task.wait(0.1)
+            end
+            connection:Disconnect()
+            bodyVel:Destroy()
+        end
+    end
+end)
+
+if not hookOk then
+    local cleanErr = string.gsub(tostring(hookErr), "%.lua:%d+:", "")
+    warn("[SA] erro interno:", cleanErr)
 end
-
-function SA.Restore()
-    if not SA.Hooked or not SA.OldNamecall then return end
-    pcall(function()
-        local mt = Util.GetRawMetatable(game)
-        setreadonly(mt, false)
-        mt.__namecall = SA.OldNamecall
-        setreadonly(mt, true)
-    end)
-    SA.OldNamecall = nil
-    SA.Hooked = false
-end
-
-function SA.CameraSnap()
-    if not hub.Options.CameraSnapEnabled then return end
-    local target = SA.Target
-    if not target or not target.Parent then return end
-    local camera = Workspace.CurrentCamera
-    if not camera then return end
-    local origin = camera.CFrame.Position
-    local want = CFrame.lookAt(origin, target.Position)
-    local smooth = math.clamp(hub.Options.CameraSnapSmooth or 1, 1, 30)
-    if smooth <= 1 then
-        camera.CFrame = want
-    else
-        camera.CFrame = camera.CFrame:Lerp(want, 1 / smooth)
-    end
-end
-
-function SA.OnInputBegan(input, processed)
-    if processed then return end
-    if input.UserInputType == Enum.UserInputType.MouseButton1
-        or input.UserInputType == Enum.UserInputType.MouseButton2
-        or input.KeyCode == Enum.KeyCode.ButtonR2 then
-        SA.CameraSnap()
-    end
-end
-
-function SA.StartCameraSnap()
-    if SA.InputConn then return end
-    SA.InputConn = UserInputService.InputBegan:Connect(SA.OnInputBegan)
-end
-
-function SA.StopCameraSnap()
-    if SA.InputConn then
-        SA.InputConn:Disconnect()
-        SA.InputConn = nil
-    end
-end
-
-function SA.BuildCircle()
-    if SA.CircleDrawing or SA.CircleFrame then return end
-    if hub.Caps.Drawing then
-        local circle = Drawing.new("Circle")
-        circle.Thickness = 1.5
-        circle.NumSides  = 64
-        circle.Filled    = false
-        circle.Color     = hub.Config.FovColor
-        circle.Visible   = false
-                SA.CircleDrawing = circle
-        return
-    end
-    local ring = Instance.new("Frame")
-    ring.Name = "Circle"
-    ring.AnchorPoint = Vector2.new(0.5, 0.5)
-    ring.BackgroundTransparency = 1
-    local corner = Instance.new("UICorner")
-    corner.CornerRadius = UDim.new(1, 0)
-    corner.Parent = ring
-    local stroke = Instance.new("UIStroke")
-    stroke.Color = hub.Config.FovColor
-    stroke.Thickness = 1.5
-    stroke.Parent = ring
-    ring.Parent = Util.Overlay()
-    SA.CircleFrame = ring
-end
-
-function SA.UpdateCircle()
-    if not hub.Options.ShowFov then
-        if SA.CircleDrawing then SA.CircleDrawing.Visible = false end
-        if SA.CircleFrame then SA.CircleFrame.Visible = false end
-        return
-    end
-    SA.BuildCircle()
-    local camera = Workspace.CurrentCamera
-    if not camera then return end
-    local center = Vector2.new(camera.ViewportSize.X / 2, camera.ViewportSize.Y / 2)
-    local radius = hub.Options.SilentAimFov
-    if SA.CircleDrawing then
-        SA.CircleDrawing.Position = center
-        SA.CircleDrawing.Radius   = radius
-        SA.CircleDrawing.Visible  = true
-        return
-    end
-    if SA.CircleFrame then
-        SA.CircleFrame.Position = UDim2.fromOffset(center.X, center.Y)
-        SA.CircleFrame.Size     = UDim2.fromOffset(radius * 2, radius * 2)
-        SA.CircleFrame.Visible  = true
-    end
-end
-
-function SA.Destroy()
-    SA.Restore()
-    SA.StopCameraSnap()
-    if SA.CircleDrawing then
-        pcall(function() SA.CircleDrawing:Remove() end)
-        SA.CircleDrawing = nil
-    end
-    if SA.CircleFrame then
-        SA.CircleFrame:Destroy()
-        SA.CircleFrame = nil
-    end
-end
-
-hub.Scheduler.Every("SA.Target", 0.05, function()
-    if not (hub.Options.SilentAimEnabled or hub.Options.CameraSnapEnabled) then
-        SA.Target = nil
-        return
-    end
-    SA.Target = SA.FindTarget()
-end)
-
-hub.Scheduler.Every("SA.Circle", 0, function()
-    SA.UpdateCircle()
-end)
-
-hub.Scheduler.Every("SA.Hook", 1, function()
-    if hub.Options.SilentAimEnabled and not SA.Hooked then
-        SA.Apply()
-    elseif not hub.Options.SilentAimEnabled and SA.Hooked then
-        SA.Restore()
-    end
-    if hub.Options.CameraSnapEnabled then
-        SA.StartCameraSnap()
-    else
-        SA.StopCameraSnap()
-    end
-end)
-
-local Library = Util.LoadLibrary(hub.Config.UiSource)
-if not Library then
-    warn("[Hub] menu unavailable, aborting UI build")
-    return
-end
-hub.Library = Library
-pcall(hub.Banner.Step, "Library")
-
-local Window = Library:Window({
-    Title = "Hub",
-    SubTitle = "Universal Silent Aim",
-    TabWidth = 160,
-    Size = UDim2.fromOffset(560, 460),
-    Theme = "Dark",
-})
-
-local AimTab = Window:Tab({ Title = "Silent Aim", Icon = "crosshair" })
-
-AimTab:Toggle({
-    Title = "Silent Aim",
-    Description = "Rewrites your shot direction to the locked target.",
-    Default = false,
-    Flag = "SilentAimEnabled",
-}, function(state)
-    hub.Options.SilentAimEnabled = state
-    if not state then SA.Target = nil end
-end)
-
-AimTab:Toggle({
-    Title = "Camera Snap (fallback)",
-    Description = "Snaps your view to the target on click. Works in games without local raycast.",
-    Default = false,
-    Flag = "CameraSnapEnabled",
-}, function(state)
-    hub.Options.CameraSnapEnabled = state
-end)
-
-AimTab:Slider({
-    Title = "Camera Snap Smooth",
-    Min = 1, Max = 30, Default = 1,
-    Flag = "CameraSnapSmooth",
-}, function(value)
-    hub.Options.CameraSnapSmooth = value
-end)
-
-AimTab:Toggle({
-    Title = "Show FOV",
-    Default = true,
-    Flag = "ShowFov",
-}, function(state)
-    hub.Options.ShowFov = state
-end)
-
-AimTab:Slider({
-    Title = "FOV Radius",
-    Min = 20, Max = 600, Default = 150,
-    Flag = "SilentAimFov",
-}, function(value)
-    hub.Options.SilentAimFov = value
-end)
-
-AimTab:Slider({
-    Title = "Max Range",
-    Min = 100, Max = 3000, Default = 1000,
-    Flag = "SilentAimRange",
-}, function(value)
-    hub.Options.SilentAimRange = value
-end)
-
-AimTab:Slider({
-    Title = "Hit Chance (%)",
-    Min = 1, Max = 100, Default = 100,
-    Flag = "SilentAimHitChance",
-}, function(value)
-    hub.Options.SilentAimHitChance = value
-end)
-
-AimTab:Slider({
-    Title = "Delay Min (s)",
-    Min = 0, Max = 1, Default = 0.05, Decimals = 2,
-    Flag = "SilentAimDelayMin",
-}, function(value)
-    hub.Options.SilentAimDelayMin = value
-end)
-
-AimTab:Slider({
-    Title = "Delay Max (s)",
-    Min = 0, Max = 1, Default = 0.15, Decimals = 2,
-    Flag = "SilentAimDelayMax",
-}, function(value)
-    hub.Options.SilentAimDelayMax = value
-end)
-
-AimTab:Dropdown({
-    Title = "Target Part",
-    Options = { "Head", "HumanoidRootPart", "UpperTorso", "LowerTorso" },
-    Default = "Head",
-    Flag = "TargetPart",
-}, function(value)
-    hub.Options.TargetPart = value
-end)
-
-AimTab:Toggle({
-    Title = "Visible Check",
-    Description = "Require line of sight from camera to target.",
-    Default = false,
-    Flag = "SilentAimVisibleCheck",
-}, function(state)
-    hub.Options.SilentAimVisibleCheck = state
-end)
-
-local MiscTab = Window:Tab({ Title = "Misc", Icon = "settings" })
-
-MiscTab:Toggle({
-    Title = "Anti AFK",
-    Default = false,
-    Flag = "AntiAfk",
-}, function(state)
-    hub.AntiAfk.SetEnabled(state)
-end)
-
-MiscTab:Button({ Title = "Copy Discord" }, function()
-    if Util.SetClipboard then Util.SetClipboard(hub.Config.Discord) end
-end)
-
-MiscTab:Button({ Title = "Unload Script" }, function()
-    if type(environment.HubUnload) == "function" then
-        pcall(environment.HubUnload)
-    end
-end)
-
-local InfoTab = Window:Tab({ Title = "Info", Icon = "info" })
-
-local logLines = {}
-for _, entry in ipairs(hub.Config.UpdateLog) do
-    table.insert(logLines, string.format("[%s]  %s", entry[1], entry[2]))
-end
-
-InfoTab:Label({ Title = "Update Log" })
-InfoTab:Paragraph({ Title = table.concat(logLines, "\n\n") })
-InfoTab:Label({ Title = "Discord: " .. hub.Config.Discord })
-InfoTab:Label({ Title = "Build: Universal Silent Aim" })
-
-pcall(hub.Banner.Step, "UI")
-
-function environment.HubUnload()
-    if not hub.State.Alive then return end
-    hub.State.Alive = false
-
-    pcall(SA.Destroy)
-    pcall(hub.AntiAfk.SetEnabled, false)
-    if hub.AntiAfk.Connection then
-        pcall(function() hub.AntiAfk.Connection:Disconnect() end)
-        hub.AntiAfk.Connection = nil
-    end
-
-    for _, conn in ipairs(hub.State.Connections) do
-        pcall(function() conn:Disconnect() end)
-    end
-    table.clear(hub.State.Connections)
-
-    if hub.State.Overlay then
-        pcall(function() hub.State.Overlay:Destroy() end)
-        hub.State.Overlay = nil
-    end
-
-    if Library and Library.Unload then pcall(Library.Unload, Library) end
-    warn("[Hub] unloaded")
-end
-
-hub.Scheduler.Boot()
-pcall(hub.Banner.Step, "Boot")
-pcall(hub.Banner.Ready)

@@ -382,7 +382,7 @@ pcall(function()
 end)
 
 -- ═══════════════════════════════════════════════
---   LÓGICA DA HITBOX (BASEADA NO SCRIPT DO ALEXIS)
+--   LÓGICA DA HITBOX
 -- ═══════════════════════════════════════════════
 local hitboxOriginals = {}
 
@@ -451,7 +451,7 @@ LocalPlayer.CharacterAdded:Connect(function()
 end)
 
 -- ═══════════════════════════════════════════════
---   LÓGICA DO ESP (QUADRADO)
+--   LÓGICA DO ESP
 -- ═══════════════════════════════════════════════
 local espDrawings = {}
 
@@ -717,7 +717,7 @@ HitboxSection:Toggle({
 local EspSection = EspTab:Section({ Title = "ESP" })
 
 EspSection:Toggle({
-    Title = "Ativar ESP",
+    Title = "ESP",
     Flag = "Esp",
     Value = false,
     Callback = function(v) ESP.Enabled = v end,

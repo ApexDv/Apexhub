@@ -551,10 +551,6 @@ local Window = WindUI:CreateWindow({
 -- Sistema de Configuração
 local ConfigManager = Window.ConfigManager
 local CurrentConfigName = "default"
--- Desativa o autoload de config
-if Window.ConfigManager then
-    Window.ConfigManager:SetAutoLoad(false)
-end
 local AimbotTab = Window:Tab({ Title = "", Icon = "rbxassetid://122878673716704" })
 local SilentTab = Window:Tab({ Title = "", Icon = "rbxassetid://122014945028597" })
 local HitboxTab = Window:Tab({ Title = "", Icon = "rbxassetid://117329818290748" })

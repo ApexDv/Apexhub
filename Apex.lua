@@ -610,13 +610,6 @@ HitboxSection:Toggle({
 })
 
 HitboxSection:Toggle({
-    Title = "Ignorar Time",
-    Desc = "Não aplica hitbox nos aliados",
-    Value = true,
-    Callback = function(v) Hitbox.TeamCheck = v end,
-})
-
-HitboxSection:Toggle({
     Title = "Humanize",
     Desc = "Varia o tamanho aleatoriamente pra não ser óbvio",
     Value = true,

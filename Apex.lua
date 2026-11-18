@@ -38,11 +38,8 @@ local SA = {
 
 local Hitbox = {
     Enabled     = false,
-    Part        = "Hitbox",
-    Size        = 5, 
-    Hide        = false, 
-    TeamCheck   = true,
-    Jitter      = true,
+    Size        = 17, 
+    ShowVisual  = true, 
 }
 
 local ESP = {
@@ -385,62 +382,64 @@ pcall(function()
 end)
 
 -- ═══════════════════════════════════════════════
---   LÓGICA DA HITBOX (QUADRADA)
+--   LÓGICA DA HITBOX (BASEADA NO SCRIPT DO ALEXIS)
 -- ═══════════════════════════════════════════════
 local hitboxOriginals = {}
 
-local function getHitboxPart(character)
-    return character:FindFirstChild("Hitbox") or character:FindFirstChild("Head") or character:FindFirstChild("HumanoidRootPart")
-end
-
-local function isAllyHitbox(plr)
-    if not Hitbox.TeamCheck then return false end
-    return plr.Team ~= nil and plr.Team == LocalPlayer.Team
-end
-
 local function applyHitbox()
-    for _, plr in ipairs(Players:GetPlayers()) do
-        if plr ~= LocalPlayer and plr.Character and not isAllyHitbox(plr) then
-            local part = getHitboxPart(plr.Character)
-            if part then
-                if not hitboxOriginals[part] then
-                    hitboxOriginals[part] = part.Size
+    for _, v in ipairs(Players:GetPlayers()) do
+        if v ~= LocalPlayer then
+            pcall(function()
+                local character = v.Character
+                if character and character:FindFirstChild("HumanoidRootPart") then
+                    local hrp = character.HumanoidRootPart
+                    
+                    if not hitboxOriginals[hrp] then
+                        hitboxOriginals[hrp] = {
+                            Size = hrp.Size,
+                            Transparency = hrp.Transparency,
+                            BrickColor = hrp.BrickColor,
+                            Material = hrp.Material,
+                            CanCollide = hrp.CanCollide
+                        }
+                    end
+                    
+                    hrp.Size = Vector3.new(Hitbox.Size, Hitbox.Size, Hitbox.Size)
+                    hrp.CanCollide = false
+                    
+                    if Hitbox.ShowVisual then
+                        hrp.Transparency = 0.7
+                        hrp.BrickColor = BrickColor.new("Bright red")
+                        hrp.Material = Enum.Material.Neon
+                    else
+                        hrp.Transparency = 1
+                        hrp.Material = Enum.Material.Plastic
+                    end
                 end
-                
-                local finalSize = Hitbox.Size
-                if Hitbox.Jitter then
-                    local j = math.random(-2, 2) / 10
-                    finalSize = finalSize + j
-                end
-                
-                local maxAxis = math.max(hitboxOriginals[part].X, hitboxOriginals[part].Y, hitboxOriginals[part].Z)
-                local cubeSize = maxAxis * finalSize
-                
-                part.Size = Vector3.new(cubeSize, cubeSize, cubeSize)
-                part.CanCollide = false
-                part.Transparency = Hitbox.Hide and 1 or 0.5
-            end
+            end)
         end
     end
 end
 
 local function resetHitbox()
-    for part, originalSize in pairs(hitboxOriginals) do
-        if part and part.Parent then
-            part.Size = originalSize
-            part.Transparency = 0
-            part.CanCollide = true
+    for hrp, original in pairs(hitboxOriginals) do
+        if hrp and hrp.Parent then
+            pcall(function()
+                hrp.Size = original.Size
+                hrp.Transparency = original.Transparency
+                hrp.BrickColor = original.BrickColor
+                hrp.Material = original.Material
+                hrp.CanCollide = original.CanCollide
+            end)
         end
     end
     hitboxOriginals = {}
 end
 
 task.spawn(function()
-    while task.wait(math.random(8, 15) / 10) do 
+    while task.wait(0.5) do
         if Hitbox.Enabled then
-            pcall(applyHitbox)
-        else
-            pcall(resetHitbox)
+            applyHitbox()
         end
     end
 end)
@@ -518,9 +517,9 @@ local function drawESP()
                                 bar.Position = Vector2.new(topScreen.X - width / 2 - barWidth - 2, topScreen.Y + (height - barHeight))
                                 bar.Color = ESP.HealthColor
                                 bar.Thickness = 1
-                                bar.Filled = true
+                                                                bar.Filled = true
                                 bar.Visible = true
-                                                            table.insert(espDrawings, bar)
+                                table.insert(espDrawings, bar)
                             end
                         end
                     end
@@ -678,30 +677,33 @@ HitboxSection:Toggle({
     Value = false,
     Callback = function(v) 
         Hitbox.Enabled = v 
-        if not v then resetHitbox() end
+        if v then
+            applyHitbox()
+        else
+            resetHitbox()
+        end
     end,
 })
 
 HitboxSection:Slider({
-    Title = "Tamanho da Hitbox",
-    Desc = "Ajuste o tamanho do cubo",
+    Title = "Tamanho",
+    Desc = "Ajusta o tamanho do cubo (5 a 60)",
     Step = 1,
-    Value = { Min = 2, Max = 20, Default = 5 },
-    Callback = function(val) Hitbox.Size = val end,
+    Value = { Min = 5, Max = 60, Default = 17 },
+    Callback = function(val) 
+        Hitbox.Size = val 
+        if Hitbox.Enabled then applyHitbox() end
+    end,
 })
 
 HitboxSection:Toggle({
-    Title = "Invisível",
-    Desc = "Deixa a hitbox invisível",
-    Value = false,
-    Callback = function(v) Hitbox.Hide = v end,
-})
-
-HitboxSection:Toggle({
-    Title = "Humanize",
-    Desc = "Varia o tamanho aleatoriamente",
+    Title = "Mostrar Visual",
+    Desc = "Mostra a caixa vermelha em volta do player",
     Value = true,
-    Callback = function(v) Hitbox.Jitter = v end,
+    Callback = function(v) 
+        Hitbox.ShowVisual = v 
+        if Hitbox.Enabled then applyHitbox() end
+    end,
 })
 
 -- ═══════════════════════════════════════════════

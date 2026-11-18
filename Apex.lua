@@ -5,7 +5,75 @@ local RunService  = game:GetService("RunService")
 local UserInput   = game:GetService("UserInputService")
 local Camera      = workspace.CurrentCamera
 local LocalPlayer = Players.LocalPlayer
+local Hitbox = {
+    Enabled = false,
+    Part = "Hitbox",
+    Size = 5, 
+    Hide = false, 
+    TeamCheck = true,
+    Jitter = true,
+}
 
+local hitboxOriginals = {}
+
+local function getHitboxPart(character)
+    return character:FindFirstChild("Hitbox") or character:FindFirstChild("Head") or character:FindFirstChild("HumanoidRootPart")
+end
+
+local function isAlly(plr)
+    if not Hitbox.TeamCheck then return false end
+    return plr.Team ~= nil and plr.Team == LocalPlayer.Team
+end
+
+local function applyHitbox()
+    for _, plr in ipairs(Players:GetPlayers()) do
+        if plr ~= LocalPlayer and plr.Character and not isAlly(plr) then
+            local part = getHitboxPart(plr.Character)
+            if part then
+                if not hitboxOriginals[part] then
+                    hitboxOriginals[part] = part.Size
+                end
+                
+                local finalSize = Hitbox.Size
+                if Hitbox.Jitter then
+                    local j = math.random(-2, 2) / 10
+                    finalSize = finalSize + j
+                end
+                
+                part.Size = hitboxOriginals[part] * finalSize
+                part.CanCollide = false
+                part.Transparency = Hitbox.Hide and 1 or 0.5
+            end
+        end
+    end
+end
+
+local function resetHitbox()
+    for part, originalSize in pairs(hitboxOriginals) do
+        if part and part.Parent then
+            part.Size = originalSize
+            part.Transparency = 0
+            part.CanCollide = true
+        end
+    end
+    hitboxOriginals = {}
+end
+
+task.spawn(function()
+    while task.wait(math.random(8, 15) / 10) do 
+        if Hitbox.Enabled then
+            pcall(applyHitbox)
+        else
+            pcall(resetHitbox)
+        end
+    end
+end)
+
+LocalPlayer.CharacterAdded:Connect(function()
+    if Hitbox.Enabled then
+        hitboxOriginals = {}
+    end
+end)
 local S = {
     on          = false,
     keybind     = Enum.KeyCode.Q,
@@ -515,10 +583,45 @@ pcall(function()
 end)
 
 local HitboxSection = HitboxTab:Section({ Title = "📦 Hitbox" })
-HitboxSection:Toggle({ Title = "Ativar Hitbox", Value = false, Callback = function(v) end })
-HitboxSection:Dropdown({ Title = "Parte", Values = { "Head", "Torso", "HumanoidRootPart", "UpperTorso", "LowerTorso" }, Value = "Head", Callback = function(o) end })
-HitboxSection:Toggle({ Title = "Mostrar Visual", Value = false, Callback = function(v) end })
+local HitboxSection = HitboxTab:Section({ Title = "📦 Hitbox" })
 
+HitboxSection:Toggle({
+    Title = "Ativar Hitbox",
+    Value = false,
+    Callback = function(v) 
+        Hitbox.Enabled = v 
+        if not v then resetHitbox() end
+    end,
+})
+
+HitboxSection:Slider({
+    Title = "Tamanho da Hitbox",
+    Desc = "Ajusta o multiplicador de tamanho (2x a 20x)",
+    Step = 1,
+    Value = { Min = 2, Max = 20, Default = 5 },
+    Callback = function(val) Hitbox.Size = val end,
+})
+
+HitboxSection:Toggle({
+    Title = "Deixar Invisível",
+    Desc = "Deixa a hitbox invisível",
+    Value = false,
+    Callback = function(v) Hitbox.Hide = v end,
+})
+
+HitboxSection:Toggle({
+    Title = "Ignorar Time",
+    Desc = "Não aplica hitbox nos aliados",
+    Value = true,
+    Callback = function(v) Hitbox.TeamCheck = v end,
+})
+
+HitboxSection:Toggle({
+    Title = "Humanize",
+    Desc = "Varia o tamanho aleatoriamente pra não ser óbvio",
+    Value = true,
+    Callback = function(v) Hitbox.Jitter = v end,
+})
 local EspSection = EspTab:Section({ Title = "👁️ ESP" })
 EspSection:Toggle({ Title = "Ativar ESP", Value = false, Callback = function(v) end })
 EspSection:Toggle({ Title = "Box", Value = true, Callback = function(v) end })

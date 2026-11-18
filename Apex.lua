@@ -5,159 +5,10 @@ local RunService  = game:GetService("RunService")
 local UserInput   = game:GetService("UserInputService")
 local Camera      = workspace.CurrentCamera
 local LocalPlayer = Players.LocalPlayer
-local Hitbox = {
-    Enabled = false,
-    Part = "Hitbox",
-    Size = 5, 
-    Hide = false, 
-    TeamCheck = true,
-    Jitter = true,
-}
 
-local hitboxOriginals = {}
-
-local function getHitboxPart(character)
-    return character:FindFirstChild("Hitbox") or character:FindFirstChild("Head") or character:FindFirstChild("HumanoidRootPart")
-end
-
-local function isAlly(plr)
-    if not Hitbox.TeamCheck then return false end
-    return plr.Team ~= nil and plr.Team == LocalPlayer.Team
-end
-
-local function applyHitbox()
-    for _, plr in ipairs(Players:GetPlayers()) do
-        if plr ~= LocalPlayer and plr.Character and not isAlly(plr) then
-            local part = getHitboxPart(plr.Character)
-            if part then
-                if not hitboxOriginals[part] then
-                    hitboxOriginals[part] = part.Size
-                end
-                
-                local finalSize = Hitbox.Size
-                if Hitbox.Jitter then
-                    local j = math.random(-2, 2) / 10
-                    finalSize = finalSize + j
-                end
-                
-                part.Size = hitboxOriginals[part] * finalSize
-                part.CanCollide = false
-                part.Transparency = Hitbox.Hide and 1 or 0.5
-            end
-        end
-    end
-end
-
-local function resetHitbox()
-    for part, originalSize in pairs(hitboxOriginals) do
-        if part and part.Parent then
-            part.Size = originalSize
-            part.Transparency = 0
-            part.CanCollide = true
-        end
-    end
-    hitboxOriginals = {}
-end
-
-task.spawn(function()
-    while task.wait(math.random(8, 15) / 10) do 
-        if Hitbox.Enabled then
-            pcall(applyHitbox)
-        else
-            pcall(resetHitbox)
-        end
-    end
-end)
-
-LocalPlayer.CharacterAdded:Connect(function()
-    if Hitbox.Enabled then
-        hitboxOriginals = {}
-    end
-end)
-local ESP = {
-    Enabled = false,
-    ShowBox = true,
-    ShowHealth = true,
-    Color = Color3.fromRGB(255, 0, 128),
-    HealthColor = Color3.fromRGB(0, 255, 0),
-    MaxDistance = 1000,
-}
-
-local espDrawings = {}
-
-local function clearDrawings()
-    for _, d in pairs(espDrawings) do
-        if d.Remove then d:Remove() end
-    end
-    espDrawings = {}
-end
-
-local function drawESP()
-    clearDrawings()
-    
-    if not ESP.Enabled then return end
-    
-    for _, plr in ipairs(Players:GetPlayers()) do
-        if plr ~= LocalPlayer and plr.Character then
-            local hum = plr.Character:FindFirstChildOfClass("Humanoid")
-            local head = plr.Character:FindFirstChild("Head")
-            local root = plr.Character:FindFirstChild("HumanoidRootPart")
-            
-            if hum and hum.Health > 0 and head and root then
-                local distance = (root.Position - Camera.CFrame.Position).Magnitude
-                
-                if distance <= ESP.MaxDistance then
-                    local headPos, onScreenHead = Camera:WorldToViewportPoint(head.Position + Vector3.new(0, 0.5, 0))
-                    local rootPos, onScreenRoot = Camera:WorldToViewportPoint(root.Position - Vector3.new(0, 3, 0))
-                    
-                    if onScreenHead and onScreenRoot and headPos.Z > 0 and rootPos.Z > 0 then
-                        local height = math.abs(rootPos.Y - headPos.Y)
-                        local width = height / 2
-                        
-                        if ESP.ShowBox then
-                            local box = Drawing.new("Square")
-                            box.Size = Vector2.new(width, height)
-                            box.Position = Vector2.new(headPos.X - width / 2, headPos.Y)
-                            box.Color = ESP.Color
-                            box.Thickness = 1
-                            box.Filled = false
-                            box.Visible = true
-                            table.insert(espDrawings, box)
-                        end
-                        
-                        if ESP.ShowHealth then
-                            local healthPct = math.clamp(hum.Health / hum.MaxHealth, 0, 1)
-                            local barWidth = 3
-                            local barHeight = height * healthPct
-                            
-                            local bg = Drawing.new("Square")
-                            bg.Size = Vector2.new(barWidth, height)
-                            bg.Position = Vector2.new(headPos.X - width / 2 - barWidth - 2, headPos.Y)
-                            bg.Color = Color3.fromRGB(0, 0, 0)
-                            bg.Thickness = 1
-                            bg.Filled = true
-                            bg.Visible = true
-                            table.insert(espDrawings, bg)
-                            
-                            local bar = Drawing.new("Square")
-                            bar.Size = Vector2.new(barWidth, barHeight)
-                            bar.Position = Vector2.new(headPos.X - width / 2 - barWidth - 2, headPos.Y + (height - barHeight))
-                            bar.Color = ESP.HealthColor
-                            bar.Thickness = 1
-                            bar.Filled = true
-                            bar.Visible = true
-                            table.insert(espDrawings, bar)
-                        end
-                    end
-                end
-            end
-        end
-    end
-end
-
-RunService.RenderStepped:Connect(function()
-    pcall(drawESP)
-end)
+-- ═══════════════════════════════════════════════
+--   TABELAS DE CONFIGURAÇÃO
+-- ═══════════════════════════════════════════════
 local S = {
     on          = false,
     keybind     = Enum.KeyCode.Q,
@@ -185,6 +36,27 @@ local SA = {
     HideFov     = false,
 }
 
+local Hitbox = {
+    Enabled     = false,
+    Part        = "Hitbox",
+    Size        = 5, 
+    Hide        = false, 
+    TeamCheck   = true,
+    Jitter      = true,
+}
+
+local ESP = {
+    Enabled     = false,
+    ShowBox     = true,
+    ShowHealth  = true,
+    Color       = Color3.fromRGB(255, 0, 128),
+    HealthColor = Color3.fromRGB(0, 255, 0),
+    MaxDistance = 1000,
+}
+
+-- ═══════════════════════════════════════════════
+--   LÓGICA DO AIMBOT
+-- ═══════════════════════════════════════════════
 local fovCircle = Drawing.new("Circle")
 fovCircle.Thickness = 2
 fovCircle.NumSides = 60
@@ -208,7 +80,7 @@ local target, targetPart, targetPlr = nil, nil, nil
 
 local function rnd(a, b) return a + math.random()*(b-a) end
 
-local function isAlly(plr)
+local function isAllyAimbot(plr)
     if not S.teamCheck then return false end
     return plr.Team ~= nil and plr.Team == LocalPlayer.Team
 end
@@ -233,7 +105,7 @@ local function validTarget(plr)
     if not hum or hum.Health <= 0 or not hrp then return false end
     local lhrp = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
     if lhrp and (hrp.Position - lhrp.Position).Magnitude > S.maxRange then return false end
-    if isAlly(plr) then return false end
+    if isAllyAimbot(plr) then return false end
     if not hasLOS(plr.Character) then return false end
     return true
 end
@@ -323,163 +195,9 @@ RunService.RenderStepped:Connect(function()
     end)
 end)
 
-local Window = WindUI:CreateWindow({
-    Title = "APEX HUB",
-    Icon = "crown",
-    Author = "APEX",
-    Folder = "ApexHub",
-    Size = UDim2.fromOffset(580, 460),
-    Transparent = true,
-    Theme = "Dark",
-    User = { Enabled = true, Anonymous = true },
-    SideBarWidth = 200,
-    HasOutline = true,
-})
-
-local AimbotTab = Window:Tab({ Title = "", Icon = "rbxassetid://122878673716704" })
-local SilentTab = Window:Tab({ Title = "", Icon = "rbxassetid://122014945028597" })
-local HitboxTab = Window:Tab({ Title = "", Icon = "rbxassetid://117329818290748" })
-local EspTab    = Window:Tab({ Title = "", Icon = "rbxassetid://127234874352422" })
-local ConfigTab = Window:Tab({ Title = "", Icon = "rbxassetid://106205298246017" })
-
-local AimSection = AimbotTab:Section({ Title = "Aimbot" })
-
-AimSection:Toggle({
-    Title = "Aimbot",
-    Desc = "Crava sua Mira na Cabeça doa player",
-    Icon = "crosshair",
-    Value = false,
-    Callback = function(v)
-        S.on = v
-        S.showFov = v
-        if not v then 
-            target, targetPart, targetPlr = nil, nil, nil 
-        end
-    end,
-})
-
-AimSection:Dropdown({
-    Title = "Alvo",
-    Values = { "Head", "Torso", "HumanoidRootPart", "UpperTorso", "LowerTorso" },
-    Value = "Head",
-    Multi = false,
-    Callback = function(o) S.part = o end,
-})
-
-AimSection:Slider({
-    Title = "Ajustar FOV",
-    Desc = "Ajusta o raio do círculo na tela",
-    Step = 1,
-    Value = {
-        Min = 50,
-        Max = 800,
-        Default = 200,
-    },
-    Callback = function(val) 
-        S.fov = val 
-    end,
-})
-
-AimSection:Slider({
-    Title = "Distância",
-    Desc = "Alcance máximo para travar no alvo",
-    Step = 10,
-    Value = {
-        Min = 100,
-        Max = 3000,
-        Default = 1500,
-    },
-    Callback = function(val) 
-        S.maxRange = val 
-    end,
-})
-
-AimSection:Toggle({
-    Title = "Sticky",
-    Desc = "Mantém o mesmo alvo",
-    Value = true,
-    Callback = function(v) S.sticky = v end,
-})
-
-AimSection:Toggle({
-    Title = "Esconder FOV",
-    Desc = "Deixa o FOV invisível (mesmo com o Aimbot ligado)",
-    Value = false,
-    Callback = function(v) 
-        S.hideFov = v 
-    end,
-})
-
-AimSection:Colorpicker({
-    Title = "Cor do FOV",
-    Default = Color3.fromRGB(255, 0, 128),
-    Callback = function(c) S.fovColor = c end,
-})
-
-local SilentSection = SilentTab:Section({ Title = "Silent Aim" })
-
-SilentSection:Toggle({
-    Title = "Silent Aim",
-    Value = false,
-    Callback = function(v) SA.Enabled = v end,
-})
-
-SilentSection:Dropdown({
-    Title = "Alvo",
-    Values = { "Head", "Torso", "HumanoidRootPart", "UpperTorso", "LowerTorso" },
-    Value = "Head",
-    Multi = false,
-    Callback = function(o) SA.TargetPart = o end,
-})
-
-SilentSection:Slider({
-    Title = "Tamanho da FOV",
-    Desc = "Raio da área de busca do alvo",
-    Step = 1,
-    Value = {
-        Min = 50,
-        Max = 800,
-        Default = 150,
-    },
-    Callback = function(val) 
-        SA.FOVRadius = val 
-    end,
-})
-
-SilentSection:Slider({
-    Title = "Alcance",
-    Desc = "Distância máxima do alvo",
-    Step = 10,
-    Value = {
-        Min = 100,
-        Max = 3000,
-        Default = 1000,
-    },
-    Callback = function(val) 
-        SA.Range = val 
-    end,
-})
-
-SilentSection:Slider({
-    Title = "Acertos",
-    Desc = "Chance de acerto do silent (0 a 100%)",
-    Step = 1,
-    Value = {
-        Min = 0,
-        Max = 100,
-        Default = 100,
-    },
-    Callback = function(val) 
-        SA.HitChance = val 
-    end,
-})
-
-SilentSection:Toggle({
-    Title = "Esconder FOV",
-    Value = false,
-    Callback = function(v) SA.HideFov = v end,
-})
-
+-- ═══════════════════════════════════════════════
+--   LÓGICA DO SILENT AIM
+-- ═══════════════════════════════════════════════
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "UniversalSilentAimFOV"
 ScreenGui.ResetOnSpawn = false
@@ -508,7 +226,7 @@ local currentTarget = nil
 local currentHighlight = nil
 local currentPlr = nil
 
-local function isValidTarget(plr)
+local function isValidTargetSA(plr)
     if plr == LocalPlayer or not plr.Character then return false end
     local hum = plr.Character:FindFirstChildOfClass("Humanoid")
     local hrp = plr.Character:FindFirstChild("HumanoidRootPart")
@@ -519,7 +237,7 @@ local function isValidTarget(plr)
     return true
 end
 
-local function getTarget()
+local function getTargetSA()
     if not SA.Enabled then return nil, nil end
     
     local center = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)
@@ -528,7 +246,7 @@ local function getTarget()
     local shortestDist = SA.FOVRadius
     
     for _, plr in ipairs(Players:GetPlayers()) do
-        if isValidTarget(plr) then
+        if isValidTargetSA(plr) then
             local part = plr.Character:FindFirstChild(SA.TargetPart) or plr.Character:FindFirstChild("HumanoidRootPart")
             if part then
                 local screenPos, onScreen = Camera:WorldToViewportPoint(part.Position)
@@ -555,7 +273,7 @@ RunService.RenderStepped:Connect(function()
     end
     
     pcall(function()
-        local targetPlr, targetPart = getTarget()
+        local targetPlr, targetPart = getTargetSA()
         currentTarget = targetPart
         currentPlr = targetPlr
         
@@ -666,7 +384,293 @@ pcall(function()
     end))
 end)
 
-local HitboxSection = HitboxTab:Section({ Title = "Hitbox" })
+-- ═══════════════════════════════════════════════
+--   LÓGICA DA HITBOX (QUADRADA)
+-- ═══════════════════════════════════════════════
+local hitboxOriginals = {}
+
+local function getHitboxPart(character)
+    return character:FindFirstChild("Hitbox") or character:FindFirstChild("Head") or character:FindFirstChild("HumanoidRootPart")
+end
+
+local function isAllyHitbox(plr)
+    if not Hitbox.TeamCheck then return false end
+    return plr.Team ~= nil and plr.Team == LocalPlayer.Team
+end
+
+local function applyHitbox()
+    for _, plr in ipairs(Players:GetPlayers()) do
+        if plr ~= LocalPlayer and plr.Character and not isAllyHitbox(plr) then
+            local part = getHitboxPart(plr.Character)
+            if part then
+                if not hitboxOriginals[part] then
+                    hitboxOriginals[part] = part.Size
+                end
+                
+                local finalSize = Hitbox.Size
+                if Hitbox.Jitter then
+                    local j = math.random(-2, 2) / 10
+                    finalSize = finalSize + j
+                end
+                
+                local maxAxis = math.max(hitboxOriginals[part].X, hitboxOriginals[part].Y, hitboxOriginals[part].Z)
+                local cubeSize = maxAxis * finalSize
+                
+                part.Size = Vector3.new(cubeSize, cubeSize, cubeSize)
+                part.CanCollide = false
+                part.Transparency = Hitbox.Hide and 1 or 0.5
+            end
+        end
+    end
+end
+
+local function resetHitbox()
+    for part, originalSize in pairs(hitboxOriginals) do
+        if part and part.Parent then
+            part.Size = originalSize
+            part.Transparency = 0
+            part.CanCollide = true
+        end
+    end
+    hitboxOriginals = {}
+end
+
+task.spawn(function()
+    while task.wait(math.random(8, 15) / 10) do 
+        if Hitbox.Enabled then
+            pcall(applyHitbox)
+        else
+            pcall(resetHitbox)
+        end
+    end
+end)
+
+LocalPlayer.CharacterAdded:Connect(function()
+    if Hitbox.Enabled then
+        hitboxOriginals = {}
+    end
+end)
+
+-- ═══════════════════════════════════════════════
+--   LÓGICA DO ESP (QUADRADO)
+-- ═══════════════════════════════════════════════
+local espDrawings = {}
+
+local function clearDrawings()
+    for _, d in pairs(espDrawings) do
+        if d.Remove then d:Remove() end
+    end
+    espDrawings = {}
+end
+
+local function drawESP()
+    clearDrawings()
+    
+    if not ESP.Enabled then return end
+    
+    for _, plr in ipairs(Players:GetPlayers()) do
+        if plr ~= LocalPlayer and plr.Character then
+            local hum = plr.Character:FindFirstChildOfClass("Humanoid")
+            
+            if hum and hum.Health > 0 then
+                local cf, size = plr.Character:GetBoundingBox()
+                local topPos = cf.Position + Vector3.new(0, size.Y / 2, 0)
+                local bottomPos = cf.Position - Vector3.new(0, size.Y / 2, 0)
+                
+                local distance = (cf.Position - Camera.CFrame.Position).Magnitude
+                
+                if distance <= ESP.MaxDistance then
+                    local topScreen, onScreenTop = Camera:WorldToViewportPoint(topPos)
+                    local bottomScreen, onScreenBottom = Camera:WorldToViewportPoint(bottomPos)
+                    
+                    if onScreenTop and onScreenBottom and topScreen.Z > 0 and bottomScreen.Z > 0 then
+                        local height = math.abs(bottomScreen.Y - topScreen.Y)
+                        local width = height -- Quadrado
+                        
+                        if height > 5 and height < 1000 then
+                            if ESP.ShowBox then
+                                local box = Drawing.new("Square")
+                                box.Size = Vector2.new(width, height)
+                                box.Position = Vector2.new(topScreen.X - width / 2, topScreen.Y)
+                                box.Color = ESP.Color
+                                box.Thickness = 1
+                                box.Filled = false
+                                box.Visible = true
+                                table.insert(espDrawings, box)
+                            end
+                            
+                            if ESP.ShowHealth then
+                                local healthPct = math.clamp(hum.Health / hum.MaxHealth, 0, 1)
+                                local barWidth = 3
+                                local barHeight = height * healthPct
+                                
+                                local bg = Drawing.new("Square")
+                                bg.Size = Vector2.new(barWidth, height)
+                                bg.Position = Vector2.new(topScreen.X - width / 2 - barWidth - 2, topScreen.Y)
+                                bg.Color = Color3.fromRGB(0, 0, 0)
+                                bg.Thickness = 1
+                                bg.Filled = true
+                                bg.Visible = true
+                                table.insert(espDrawings, bg)
+                                
+                                local bar = Drawing.new("Square")
+                                bar.Size = Vector2.new(barWidth, barHeight)
+                                bar.Position = Vector2.new(topScreen.X - width / 2 - barWidth - 2, topScreen.Y + (height - barHeight))
+                                bar.Color = ESP.HealthColor
+                                bar.Thickness = 1
+                                bar.Filled = true
+                                bar.Visible = true
+                                                            table.insert(espDrawings, bar)
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+end
+
+RunService.RenderStepped:Connect(function()
+    pcall(drawESP)
+end)
+
+-- ═══════════════════════════════════════════════
+--   WIND UI
+-- ═══════════════════════════════════════════════
+local Window = WindUI:CreateWindow({
+    Title = "APEX HUB",
+    Icon = "crown",
+    Author = "APEX",
+    Folder = "ApexHub",
+    Size = UDim2.fromOffset(580, 460),
+    Transparent = true,
+    Theme = "Dark",
+    User = { Enabled = true, Anonymous = true },
+    SideBarWidth = 200,
+    HasOutline = true,
+})
+
+local AimbotTab = Window:Tab({ Title = "", Icon = "rbxassetid://122878673716704" })
+local SilentTab = Window:Tab({ Title = "", Icon = "rbxassetid://122014945028597" })
+local HitboxTab = Window:Tab({ Title = "", Icon = "rbxassetid://117329818290748" })
+local EspTab    = Window:Tab({ Title = "", Icon = "rbxassetid://127234874352422" })
+local ConfigTab = Window:Tab({ Title = "", Icon = "rbxassetid://106205298246017" })
+
+-- ═══════════════════════════════════════════════
+--   UI - AIMBOT
+-- ═══════════════════════════════════════════════
+local AimSection = AimbotTab:Section({ Title = "Aimbot" })
+
+AimSection:Toggle({
+    Title = "Aimbot",
+    Desc = "Crava sua mira no alvo",
+    Icon = "crosshair",
+    Value = false,
+    Callback = function(v)
+        S.on = v
+        S.showFov = v
+        if not v then 
+            target, targetPart, targetPlr = nil, nil, nil 
+        end
+    end,
+})
+
+AimSection:Dropdown({
+    Title = "Alvo",
+    Values = { "Head", "Torso", "HumanoidRootPart", "UpperTorso", "LowerTorso" },
+    Value = "Head",
+    Multi = false,
+    Callback = function(o) S.part = o end,
+})
+
+AimSection:Slider({
+    Title = "Ajustar FOV",
+    Desc = "Ajusta o raio do círculo na tela",
+    Step = 1,
+    Value = { Min = 50, Max = 800, Default = 200 },
+    Callback = function(val) S.fov = val end,
+})
+
+AimSection:Slider({
+    Title = "Distância",
+    Desc = "Alcance máximo para travar no alvo",
+    Step = 10,
+    Value = { Min = 100, Max = 3000, Default = 1500 },
+    Callback = function(val) S.maxRange = val end,
+})
+
+AimSection:Toggle({
+    Title = "Sticky",
+    Desc = "Mantém o mesmo alvo",
+    Value = true,
+    Callback = function(v) S.sticky = v end,
+})
+
+AimSection:Toggle({
+    Title = "Esconder FOV",
+    Desc = "Deixa o FOV invisível (mesmo com o Aimbot ligado)",
+    Value = false,
+    Callback = function(v) S.hideFov = v end,
+})
+
+AimSection:Colorpicker({
+    Title = "Cor do FOV",
+    Default = Color3.fromRGB(255, 0, 128),
+    Callback = function(c) S.fovColor = c end,
+})
+
+-- ═══════════════════════════════════════════════
+--   UI - SILENT AIM
+-- ═══════════════════════════════════════════════
+local SilentSection = SilentTab:Section({ Title = "Silent Aim" })
+
+SilentSection:Toggle({
+    Title = "Silent Aim",
+    Value = false,
+    Callback = function(v) SA.Enabled = v end,
+})
+
+SilentSection:Dropdown({
+    Title = "Alvo",
+    Values = { "Head", "Torso", "HumanoidRootPart", "UpperTorso", "LowerTorso" },
+    Value = "Head",
+    Multi = false,
+    Callback = function(o) SA.TargetPart = o end,
+})
+
+SilentSection:Slider({
+    Title = "Tamanho da FOV",
+    Desc = "Raio da área de busca do alvo",
+    Step = 1,
+    Value = { Min = 50, Max = 800, Default = 150 },
+    Callback = function(val) SA.FOVRadius = val end,
+})
+
+SilentSection:Slider({
+    Title = "Alcance",
+    Desc = "Distância máxima do alvo",
+    Step = 10,
+    Value = { Min = 100, Max = 3000, Default = 1000 },
+    Callback = function(val) SA.Range = val end,
+})
+
+SilentSection:Slider({
+    Title = "Acertos",
+    Desc = "Chance de acerto do silent (0 a 100%)",
+    Step = 1,
+    Value = { Min = 0, Max = 100, Default = 100 },
+    Callback = function(val) SA.HitChance = val end,
+})
+
+SilentSection:Toggle({
+    Title = "Esconder FOV",
+    Value = false,
+    Callback = function(v) SA.HideFov = v end,
+})
+
+-- ═══════════════════════════════════════════════
+--   UI - HITBOX
+-- ═══════════════════════════════════════════════
 local HitboxSection = HitboxTab:Section({ Title = "Hitbox" })
 
 HitboxSection:Toggle({
@@ -680,7 +684,7 @@ HitboxSection:Toggle({
 
 HitboxSection:Slider({
     Title = "Tamanho da Hitbox",
-    Desc = "Ajuste o Tamanho da Hitbox",
+    Desc = "Ajuste o tamanho do cubo",
     Step = 1,
     Value = { Min = 2, Max = 20, Default = 5 },
     Callback = function(val) Hitbox.Size = val end,
@@ -695,12 +699,15 @@ HitboxSection:Toggle({
 
 HitboxSection:Toggle({
     Title = "Humanize",
-    Desc = "Varia o tamanho aleatoriamente pra não ser óbvio",
+    Desc = "Varia o tamanho aleatoriamente",
     Value = true,
     Callback = function(v) Hitbox.Jitter = v end,
 })
+
+-- ═══════════════════════════════════════════════
+--   UI - ESP
+-- ═══════════════════════════════════════════════
 local EspSection = EspTab:Section({ Title = "ESP" })
-local EspSection = EspTab:Section({ Title = "👁️ ESP" })
 
 EspSection:Toggle({
     Title = "Ativar ESP",
@@ -739,17 +746,21 @@ EspSection:Slider({
     Value = { Min = 100, Max = 3000, Default = 1000 },
     Callback = function(val) ESP.MaxDistance = val end,
 })
-local ConfigSection = ConfigTab:Section({ Title = "⚙️ Configurações" })
-ConfigSection:Button({ Title = "💾 Salvar Config", Callback = function()
+
+-- ═══════════════════════════════════════════════
+--   UI - CONFIG
+-- ═══════════════════════════════════════════════
+local ConfigSection = ConfigTab:Section({ Title = "Configurações" })
+ConfigSection:Button({ Title = "Salvar Config", Callback = function()
     WindUI:Notify({ Title = "APEX HUB", Content = "Config salva!", Duration = 3 })
 end })
-ConfigSection:Button({ Title = "📂 Carregar Config", Callback = function()
+ConfigSection:Button({ Title = "Carregar Config", Callback = function()
     WindUI:Notify({ Title = "APEX HUB", Content = "Config carregada!", Duration = 3 })
 end })
-ConfigSection:Button({ Title = "🔄 Resetar Tudo", Callback = function()
+ConfigSection:Button({ Title = "Resetar Tudo", Callback = function()
     WindUI:Notify({ Title = "APEX HUB", Content = "Tudo resetado!", Duration = 3 })
 end })
-ConfigSection:Button({ Title = "💬 Discord", Callback = function()
+ConfigSection:Button({ Title = "Discord", Callback = function()
     setclipboard("https://discord.gg/apexhub")
     WindUI:Notify({ Title = "APEX HUB", Content = "Link copiado!", Duration = 3 })
 end })

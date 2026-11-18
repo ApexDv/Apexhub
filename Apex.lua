@@ -582,8 +582,8 @@ pcall(function()
     end))
 end)
 
-local HitboxSection = HitboxTab:Section({ Title = "📦 Hitbox" })
-local HitboxSection = HitboxTab:Section({ Title = "📦 Hitbox" })
+local HitboxSection = HitboxTab:Section({ Title = "Hitbox" })
+local HitboxSection = HitboxTab:Section({ Title = "Hitbox" })
 
 HitboxSection:Toggle({
     Title = "Ativar Hitbox",
@@ -596,14 +596,14 @@ HitboxSection:Toggle({
 
 HitboxSection:Slider({
     Title = "Tamanho da Hitbox",
-    Desc = "Ajusta o multiplicador de tamanho (2x a 20x)",
+    Desc = "Ajuste o Tamanho da Hitbox",
     Step = 1,
     Value = { Min = 2, Max = 20, Default = 5 },
     Callback = function(val) Hitbox.Size = val end,
 })
 
 HitboxSection:Toggle({
-    Title = "Deixar Invisível",
+    Title = "Invisível",
     Desc = "Deixa a hitbox invisível",
     Value = false,
     Callback = function(v) Hitbox.Hide = v end,
@@ -622,7 +622,7 @@ HitboxSection:Toggle({
     Value = true,
     Callback = function(v) Hitbox.Jitter = v end,
 })
-local EspSection = EspTab:Section({ Title = "👁️ ESP" })
+local EspSection = EspTab:Section({ Title = "ESP" })
 EspSection:Toggle({ Title = "Ativar ESP", Value = false, Callback = function(v) end })
 EspSection:Toggle({ Title = "Box", Value = true, Callback = function(v) end })
 EspSection:Toggle({ Title = "Nome", Value = true, Callback = function(v) end })
@@ -648,7 +648,7 @@ ConfigSection:Button({ Title = "💬 Discord", Callback = function()
 end })
 
 WindUI:Notify({
-    Title = "🚀 APEX HUB",
+    Title = "APEX HUB",
     Content = "Aimbot carregado!",
     Icon = "check",
     Duration = 5,

@@ -548,7 +548,9 @@ local Window = WindUI:CreateWindow({
     SideBarWidth = 200,
     HasOutline = true,
 })
-
+-- Sistema de Configuração
+local ConfigManager = Window.ConfigManager
+local CurrentConfigName = "default"
 local AimbotTab = Window:Tab({ Title = "", Icon = "rbxassetid://122878673716704" })
 local SilentTab = Window:Tab({ Title = "", Icon = "rbxassetid://122014945028597" })
 local HitboxTab = Window:Tab({ Title = "", Icon = "rbxassetid://117329818290748" })
@@ -750,18 +752,62 @@ EspSection:Slider({
 })
 
 -- ═══════════════════════════════════════════════
---   UI - CONFIG
+--   UI - CONFIG (SALVAR/CARREGAR REAL)
 -- ═══════════════════════════════════════════════
 local ConfigSection = ConfigTab:Section({ Title = "Configurações" })
-ConfigSection:Button({ Title = "Salvar Config", Callback = function()
-    WindUI:Notify({ Title = "APEX HUB", Content = "Config salva!", Duration = 3 })
-end })
-ConfigSection:Button({ Title = "Carregar Config", Callback = function()
-    WindUI:Notify({ Title = "APEX HUB", Content = "Config carregada!", Duration = 3 })
-end })
-ConfigSection:Button({ Title = "Resetar Tudo", Callback = function()
-    WindUI:Notify({ Title = "APEX HUB", Content = "Tudo resetado!", Duration = 3 })
-end })
+
+local ConfigNameInput = ConfigSection:Input({
+    Title = "Nome da Config",
+    Value = CurrentConfigName,
+    Callback = function(value)
+        CurrentConfigName = value
+    end,
+})
+
+local ConfigDropdown = ConfigSection:Dropdown({
+    Title = "Configs Salvas",
+    Values = ConfigManager:AllConfigs(),
+    Callback = function(value)
+        CurrentConfigName = value
+        ConfigNameInput:Set(value)
+    end,
+})
+
+ConfigSection:Button({
+    Title = "Salvar Config",
+    Callback = function()
+        local config = ConfigManager:CreateConfig(CurrentConfigName)
+        if config:Save() then
+            ConfigDropdown:Refresh(ConfigManager:AllConfigs())
+            WindUI:Notify({ Title = "APEX HUB", Content = "Config salva com sucesso!", Duration = 3 })
+        else
+            WindUI:Notify({ Title = "APEX HUB", Content = "Erro ao salvar config.", Duration = 3 })
+        end
+    end,
+})
+
+ConfigSection:Button({
+    Title = "Carregar Config",
+    Callback = function()
+        local config = ConfigManager:CreateConfig(CurrentConfigName)
+        if config:Load() then
+            WindUI:Notify({ Title = "APEX HUB", Content = "Config carregada!", Duration = 3 })
+        else
+            WindUI:Notify({ Title = "APEX HUB", Content = "Erro ao carregar config.", Duration = 3 })
+        end
+    end,
+})
+
+ConfigSection:Button({
+    Title = "Deletar Config",
+    Callback = function()
+        local config = ConfigManager:CreateConfig(CurrentConfigName)
+        config:Delete()
+        ConfigDropdown:Refresh(ConfigManager:AllConfigs())
+        WindUI:Notify({ Title = "APEX HUB", Content = "Config deletada!", Duration = 3 })
+    end,
+})
+
 ConfigSection:Button({ Title = "Discord", Callback = function()
     setclipboard("https://discord.gg/apexhub")
     WindUI:Notify({ Title = "APEX HUB", Content = "Link copiado!", Duration = 3 })

@@ -74,6 +74,90 @@ LocalPlayer.CharacterAdded:Connect(function()
         hitboxOriginals = {}
     end
 end)
+local ESP = {
+    Enabled = false,
+    ShowBox = true,
+    ShowHealth = true,
+    Color = Color3.fromRGB(255, 0, 128),
+    HealthColor = Color3.fromRGB(0, 255, 0),
+    MaxDistance = 1000,
+}
+
+local espDrawings = {}
+
+local function clearDrawings()
+    for _, d in pairs(espDrawings) do
+        if d.Remove then d:Remove() end
+    end
+    espDrawings = {}
+end
+
+local function drawESP()
+    clearDrawings()
+    
+    if not ESP.Enabled then return end
+    
+    for _, plr in ipairs(Players:GetPlayers()) do
+        if plr ~= LocalPlayer and plr.Character then
+            local hum = plr.Character:FindFirstChildOfClass("Humanoid")
+            local head = plr.Character:FindFirstChild("Head")
+            local root = plr.Character:FindFirstChild("HumanoidRootPart")
+            
+            if hum and hum.Health > 0 and head and root then
+                local distance = (root.Position - Camera.CFrame.Position).Magnitude
+                
+                if distance <= ESP.MaxDistance then
+                    local headPos, onScreenHead = Camera:WorldToViewportPoint(head.Position + Vector3.new(0, 0.5, 0))
+                    local rootPos, onScreenRoot = Camera:WorldToViewportPoint(root.Position - Vector3.new(0, 3, 0))
+                    
+                    if onScreenHead and onScreenRoot and headPos.Z > 0 and rootPos.Z > 0 then
+                        local height = math.abs(rootPos.Y - headPos.Y)
+                        local width = height / 2
+                        
+                        if ESP.ShowBox then
+                            local box = Drawing.new("Square")
+                            box.Size = Vector2.new(width, height)
+                            box.Position = Vector2.new(headPos.X - width / 2, headPos.Y)
+                            box.Color = ESP.Color
+                            box.Thickness = 1
+                            box.Filled = false
+                            box.Visible = true
+                            table.insert(espDrawings, box)
+                        end
+                        
+                        if ESP.ShowHealth then
+                            local healthPct = math.clamp(hum.Health / hum.MaxHealth, 0, 1)
+                            local barWidth = 3
+                            local barHeight = height * healthPct
+                            
+                            local bg = Drawing.new("Square")
+                            bg.Size = Vector2.new(barWidth, height)
+                            bg.Position = Vector2.new(headPos.X - width / 2 - barWidth - 2, headPos.Y)
+                            bg.Color = Color3.fromRGB(0, 0, 0)
+                            bg.Thickness = 1
+                            bg.Filled = true
+                            bg.Visible = true
+                            table.insert(espDrawings, bg)
+                            
+                            local bar = Drawing.new("Square")
+                            bar.Size = Vector2.new(barWidth, barHeight)
+                            bar.Position = Vector2.new(headPos.X - width / 2 - barWidth - 2, headPos.Y + (height - barHeight))
+                            bar.Color = ESP.HealthColor
+                            bar.Thickness = 1
+                            bar.Filled = true
+                            bar.Visible = true
+                            table.insert(espDrawings, bar)
+                        end
+                    end
+                end
+            end
+        end
+    end
+end
+
+RunService.RenderStepped:Connect(function()
+    pcall(drawESP)
+end)
 local S = {
     on          = false,
     keybind     = Enum.KeyCode.Q,
@@ -616,15 +700,45 @@ HitboxSection:Toggle({
     Callback = function(v) Hitbox.Jitter = v end,
 })
 local EspSection = EspTab:Section({ Title = "ESP" })
-EspSection:Toggle({ Title = "Ativar ESP", Value = false, Callback = function(v) end })
-EspSection:Toggle({ Title = "Box", Value = true, Callback = function(v) end })
-EspSection:Toggle({ Title = "Nome", Value = true, Callback = function(v) end })
-EspSection:Toggle({ Title = "Barra de Vida", Value = true, Callback = function(v) end })
-EspSection:Toggle({ Title = "Tracer", Value = false, Callback = function(v) end })
-EspSection:Toggle({ Title = "Distância", Value = false, Callback = function(v) end })
-EspSection:Colorpicker({ Title = "Cor do ESP", Default = Color3.fromRGB(255, 0, 128), Callback = function(c) end })
-EspSection:Toggle({ Title = "Cor do Time", Value = false, Callback = function(v) end })
+local EspSection = EspTab:Section({ Title = "👁️ ESP" })
 
+EspSection:Toggle({
+    Title = "Ativar ESP",
+    Value = false,
+    Callback = function(v) ESP.Enabled = v end,
+})
+
+EspSection:Toggle({
+    Title = "Box",
+    Value = true,
+    Callback = function(v) ESP.ShowBox = v end,
+})
+
+EspSection:Toggle({
+    Title = "Barra de Vida",
+    Value = true,
+    Callback = function(v) ESP.ShowHealth = v end,
+})
+
+EspSection:Colorpicker({
+    Title = "Cor da Box",
+    Default = Color3.fromRGB(255, 0, 128),
+    Callback = function(c) ESP.Color = c end,
+})
+
+EspSection:Colorpicker({
+    Title = "Cor da Vida",
+    Default = Color3.fromRGB(0, 255, 0),
+    Callback = function(c) ESP.HealthColor = c end,
+})
+
+EspSection:Slider({
+    Title = "Distância Máxima",
+    Desc = "Distância que o ESP para de aparecer",
+    Step = 10,
+    Value = { Min = 100, Max = 3000, Default = 1000 },
+    Callback = function(val) ESP.MaxDistance = val end,
+})
 local ConfigSection = ConfigTab:Section({ Title = "⚙️ Configurações" })
 ConfigSection:Button({ Title = "💾 Salvar Config", Callback = function()
     WindUI:Notify({ Title = "APEX HUB", Content = "Config salva!", Duration = 3 })

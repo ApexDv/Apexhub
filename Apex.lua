@@ -564,6 +564,7 @@ local AimSection = AimbotTab:Section({ Title = "Aimbot" })
 
 AimSection:Toggle({
     Title = "Aimbot",
+    Flag = "Aimbot",
     Desc = "Crava sua mira no alvo",
     Icon = "crosshair",
     Value = false,
@@ -627,6 +628,7 @@ local SilentSection = SilentTab:Section({ Title = "Silent Aim" })
 
 SilentSection:Toggle({
     Title = "Silent Aim",
+    Flag = "Silent Aim",
     Value = false,
     Callback = function(v) SA.Enabled = v end,
 })
@@ -676,6 +678,7 @@ local HitboxSection = HitboxTab:Section({ Title = "Hitbox" })
 
 HitboxSection:Toggle({
     Title = "Ativar Hitbox",
+    Flag = "Hitbox",
     Value = false,
     Callback = function(v) 
         Hitbox.Enabled = v 
@@ -715,6 +718,7 @@ local EspSection = EspTab:Section({ Title = "ESP" })
 
 EspSection:Toggle({
     Title = "Ativar ESP",
+    Flag = "Esp",
     Value = false,
     Callback = function(v) ESP.Enabled = v end,
 })

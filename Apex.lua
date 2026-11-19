@@ -736,7 +736,7 @@ EspSection:Toggle({
 
 EspSection:Colorpicker({
     Title = "Cor da Box",
-    Default = Color3.fromRGB(255, 0, 128),
+    Default = Color3.fromRGB(0, 130, 255),
     Callback = function(c) ESP.Color = c end,
 })
 

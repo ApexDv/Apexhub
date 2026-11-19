@@ -802,9 +802,9 @@ WindUI:Notify({
 
 ShieldTab:Paragraph({
     Title = "Apex Hub",
-    Desc = "Entre no nosso Discord pra suporte, updates e configs.",
+    Desc = "Entrem no nosso Discord pra suporte, updates e configs.",
     Color = Color3.fromHex("#1756B8"),
-    Thumbnail = "rbxassetid://139687752061139",
+    Thumbnail = "rbxassetid://132044667205487",
     ThumbnailSize = 150,
     Buttons = {
         {

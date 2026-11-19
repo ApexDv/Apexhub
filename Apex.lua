@@ -32,7 +32,7 @@ local SA = {
     FOVRadius   = 150,
     TargetPart  = "Head",
     HitChance   = 100,
-    Range       = 1000,
+    Range       = 10000000000000000000000000,
     HideFov     = false,
 }
 
@@ -652,13 +652,13 @@ SilentSection:Slider({
     Title = "Alcance",
     Desc = "Distância máxima do alvo",
     Step = 10,
-    Value = { Min = 100, Max = 3000, Default = 1000 },
+    Value = { Min = 100, Max = 300000000, Default = 1000 },
     Callback = function(val) SA.Range = val end,
 })
 
 SilentSection:Slider({
     Title = "Acertos",
-    Desc = "Chance de acerto do silent (0 a 100%)",
+    Desc = "Chance de acerto do silent",
     Step = 1,
     Value = { Min = 0, Max = 100, Default = 100 },
     Callback = function(val) SA.HitChance = val end,

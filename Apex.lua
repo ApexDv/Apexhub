@@ -616,7 +616,7 @@ AimSection:Toggle({
 
 AimSection:Colorpicker({
     Title = "Cor do FOV",
-    Default = Color3.fromRGB(0, 120, 255),
+    Color3.fromRGB(0, 120, 255)
     Callback = function(c) S.fovColor = c end,
 })
 

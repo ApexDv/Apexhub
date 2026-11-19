@@ -1,10 +1,5 @@
-local WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
-
-local Players     = game:GetService("Players")
-local RunService  = game:GetService("RunService")
-local UserInput   = game:GetService("UserInputService")
-local Camera      = workspace.CurrentCamera
-local LocalPlayer = Players.LocalPlayer
+local repo = "https://raw.githubusercontent.com/deividcomsono/Obsidian/main/"
+local Library = loadstring(game:HttpGet(repo .. "Library.lua"))()
 
 -- ═══════════════════════════════════════════════
 --   TABELAS DE CONFIGURAÇÕES

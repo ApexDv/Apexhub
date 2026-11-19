@@ -32,7 +32,7 @@ local SA = {
     FOVRadius   = 150,
     TargetPart  = "Head",
     HitChance   = 100,
-    Range       = 1000000000000000",
+    Range       = 100000000,
     HideFov     = false,
 }
 

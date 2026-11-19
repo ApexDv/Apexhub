@@ -577,7 +577,7 @@ AimSection:Toggle({
 
 AimSection:Dropdown({
     Title = "Alvo",
-    Values = { "Head", "Torso", "HumanoidRootPart", "UpperTorso", "LowerTorso" },
+    Values = { "Head", "Torso", "UpperTorso", "LowerTorso" },
     Value = "Head",
     Multi = false,
     Callback = function(o) S.part = o end,

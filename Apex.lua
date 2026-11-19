@@ -454,6 +454,7 @@ end)
 --   LÓGICA DO ESP (QUADRADO)
 -- ═══════════════════════════════════════════════
 local espDrawings = {}
+local espDrawings = {}
 
 local function clearDrawings()
     for _, d in pairs(espDrawings) do
@@ -470,25 +471,27 @@ local function drawESP()
     for _, plr in ipairs(Players:GetPlayers()) do
         if plr ~= LocalPlayer and plr.Character then
             local hum = plr.Character:FindFirstChildOfClass("Humanoid")
-            local head = plr.Character:FindFirstChild("Head")
-            local root = plr.Character:FindFirstChild("HumanoidRootPart")
             
-            if hum and hum.Health > 0 and head and root then
-                local distance = (root.Position - Camera.CFrame.Position).Magnitude
+            if hum and hum.Health > 0 then
+                local cf, size = plr.Character:GetBoundingBox()
+                local topPos = cf.Position + Vector3.new(0, size.Y / 2, 0)
+                local bottomPos = cf.Position - Vector3.new(0, size.Y / 2, 0)
+                
+                local distance = (cf.Position - Camera.CFrame.Position).Magnitude
                 
                 if distance <= ESP.MaxDistance then
-                    local headPos, onScreenHead = Camera:WorldToViewportPoint(head.Position + Vector3.new(0, 0.5, 0))
-                    local rootPos, onScreenRoot = Camera:WorldToViewportPoint(root.Position - Vector3.new(0, 3, 0))
+                    local topScreen, onScreenTop = Camera:WorldToViewportPoint(topPos)
+                    local bottomScreen, onScreenBottom = Camera:WorldToViewportPoint(bottomPos)
                     
-                    if onScreenHead and onScreenRoot and headPos.Z > 0 and rootPos.Z > 0 then
-                        local height = math.abs(rootPos.Y - headPos.Y)
+                    if onScreenTop and onScreenBottom and topScreen.Z > 0 and bottomScreen.Z > 0 then
+                        local height = math.abs(bottomScreen.Y - topScreen.Y)
                         local width = height
                         
                         if height > 5 and height < 1000 then
                             if ESP.ShowBox then
                                 local box = Drawing.new("Square")
                                 box.Size = Vector2.new(width, height)
-                                box.Position = Vector2.new(headPos.X - width / 2, headPos.Y)
+                                box.Position = Vector2.new(topScreen.X - width / 2, topScreen.Y)
                                 box.Color = ESP.Color
                                 box.Thickness = 1
                                 box.Filled = false
@@ -503,7 +506,7 @@ local function drawESP()
                                 
                                 local bg = Drawing.new("Square")
                                 bg.Size = Vector2.new(barWidth, height)
-                                bg.Position = Vector2.new(headPos.X - width / 2 - barWidth - 2, headPos.Y)
+                                bg.Position = Vector2.new(topScreen.X - width / 2 - barWidth - 2, topScreen.Y)
                                 bg.Color = Color3.fromRGB(0, 0, 0)
                                 bg.Thickness = 1
                                 bg.Filled = true
@@ -512,11 +515,11 @@ local function drawESP()
                                 
                                 local bar = Drawing.new("Square")
                                 bar.Size = Vector2.new(barWidth, barHeight)
-                                bar.Position = Vector2.new(headPos.X - width / 2 - barWidth - 2, headPos.Y + (height - barHeight))
+                                bar.Position = Vector2.new(topScreen.X - width / 2 - barWidth - 2, topScreen.Y + (height - barHeight))
                                 bar.Color = ESP.HealthColor
                                 bar.Thickness = 1
                                 bar.Filled = true
-                                bar.Visible = true
+                                                             bar.Visible = true
                                 table.insert(espDrawings, bar)
                             end
                         end
@@ -530,6 +533,7 @@ end
 RunService.RenderStepped:Connect(function()
     pcall(drawESP)
 end)
+
 -- ═══════════════════════════════════════════════
 --   WIND UI
 -- ═══════════════════════════════════════════════

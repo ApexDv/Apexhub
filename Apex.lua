@@ -549,10 +549,7 @@ local Window = WindUI:CreateWindow({
     SideBarWidth = 200,
     HasOutline = true,
 })
-local ShieldTab = Window:Tab({
-    Title = "",
-    Icon = "shield"
-})
+local ShieldTab = Window:Tab({ Title = "", Icon = "rbxassetid://106509993556171" })
 local AimbotTab = Window:Tab({ Title = "", Icon = "rbxassetid://122878673716704" })
 local SilentTab = Window:Tab({ Title = "", Icon = "rbxassetid://122014945028597" })
 local HitboxTab = Window:Tab({ Title = "", Icon = "rbxassetid://117329818290748" })

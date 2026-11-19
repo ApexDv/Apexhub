@@ -551,6 +551,15 @@ local Window = WindUI:CreateWindow({
 -- Sistema de Configuração
 local ConfigManager = Window.ConfigManager
 local CurrentConfigName = "default"
+local ConfigManager = Window.ConfigManager
+local CurrentConfigName = "default"
+
+-- FORÇA O WINDUI A IGNORAR SAVES ANTIGOS
+if ConfigManager then
+    local success, err = pcall(function()
+        ConfigManager:SetAutoLoad(false)
+    end)
+end
 local AimbotTab = Window:Tab({ Title = "", Icon = "rbxassetid://122878673716704" })
 local SilentTab = Window:Tab({ Title = "", Icon = "rbxassetid://122014945028597" })
 local HitboxTab = Window:Tab({ Title = "", Icon = "rbxassetid://117329818290748" })

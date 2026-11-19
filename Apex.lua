@@ -24,7 +24,7 @@ local S = {
     humanize    = true,  
     showFov     = false,
     hideFov     = false,
-    fovColor    = Color3.fromRGB(255, 0, 128),
+    fovColor = Color3.fromRGB(0, 120, 255),
 }
 
 local SA = {

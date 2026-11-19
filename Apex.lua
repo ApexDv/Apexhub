@@ -7,7 +7,7 @@ local Camera      = workspace.CurrentCamera
 local LocalPlayer = Players.LocalPlayer
 
 -- ═══════════════════════════════════════════════
---   TABELAS DE CONFIGURAÇÃO
+--   TABELAS DE CONFIGURAÇÕES
 -- ═══════════════════════════════════════════════
 local S = {
     on          = false,
@@ -451,7 +451,7 @@ LocalPlayer.CharacterAdded:Connect(function()
 end)
 
 -- ═══════════════════════════════════════════════
---   LÓGICA DO ESP (QUADRADO)
+--   LÓGICA DO ESP
 -- ═══════════════════════════════════════════════
 local espDrawings = {}
 local espDrawings = {}
@@ -563,6 +563,7 @@ local AimSection = AimbotTab:Section({ Title = "Aimbot" })
 
 AimSection:Toggle({
     Title = "Aimbot",
+    Flag = "Aimbot",
     Desc = "Crava sua mira no alvo",
     Icon = "crosshair",
     Value = false,
@@ -626,6 +627,7 @@ local SilentSection = SilentTab:Section({ Title = "Silent Aim" })
 
 SilentSection:Toggle({
     Title = "Silent Aim",
+    Flag = "Silent aim",
     Value = false,
     Callback = function(v) SA.Enabled = v end,
 })
@@ -639,7 +641,7 @@ SilentSection:Dropdown({
 })
 
 SilentSection:Slider({
-    Title = "Tamanho da FOV",
+    Title = "Tamanho do FOV",
     Desc = "Raio da área de busca do alvo",
     Step = 1,
     Value = { Min = 50, Max = 800, Default = 150 },
@@ -674,7 +676,7 @@ SilentSection:Toggle({
 local HitboxSection = HitboxTab:Section({ Title = "Hitbox" })
 
 HitboxSection:Toggle({
-    Title = "Ativar Hitbox",
+    Title = "Hitbox",
     Value = false,
     Callback = function(v) 
         Hitbox.Enabled = v 
@@ -688,7 +690,7 @@ HitboxSection:Toggle({
 
 HitboxSection:Slider({
     Title = "Tamanho",
-    Desc = "Ajusta o tamanho do cubo (5 a 60)",
+    Desc = "Ajusta o tamanho da Hitbox",
     Step = 1,
     Value = { Min = 5, Max = 60, Default = 17 },
     Callback = function(val) 
@@ -713,7 +715,8 @@ HitboxSection:Toggle({
 local EspSection = EspTab:Section({ Title = "ESP" })
 
 EspSection:Toggle({
-    Title = "Ativar ESP",
+    Title = "ESP",
+    Flag = "Esp",
     Value = false,
     Callback = function(v) ESP.Enabled = v end,
 })
@@ -743,8 +746,8 @@ EspSection:Colorpicker({
 })
 
 EspSection:Slider({
-    Title = "Distância Máxima",
-    Desc = "Distância que o ESP para de aparecer",
+    Title = "Distância",
+    Desc = "Distância do Esp",
     Step = 10,
     Value = { Min = 100, Max = 3000, Default = 1000 },
     Callback = function(val) ESP.MaxDistance = val end,

@@ -539,7 +539,7 @@ end)
 -- ═══════════════════════════════════════════════
 local Window = WindUI:CreateWindow({
     Title = "APEX HUB",
-    Icon = "crown",
+    Icon = "rbxassetid://132044667205487",
     Author = "APEX",
     Folder = "ApexHub",
     Size = UDim2.fromOffset(580, 460),

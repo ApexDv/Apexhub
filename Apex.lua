@@ -46,7 +46,7 @@ local ESP = {
     Enabled     = false,
     ShowBox     = true,
     ShowHealth  = true,
-    Color       = Color3.fromRGB(255, 0, 128),
+    Color       = Color3.fromRGB(0, 120, 255),
     HealthColor = Color3.fromRGB(0, 255, 0),
     MaxDistance = 1000,
 }

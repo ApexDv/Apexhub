@@ -32,7 +32,7 @@ local SA = {
     FOVRadius   = 150,
     TargetPart  = "Head",
     HitChance   = 100,
-    Range       = 10000000000000000000000000,
+    Range       = 1000000000000000",
     HideFov     = false,
 }
 
@@ -616,7 +616,7 @@ AimSection:Toggle({
 
 AimSection:Colorpicker({
     Title = "Cor do FOV",
-    Default = Color3.fromRGB(255, 0, 128),
+    Default = Color3.fromRGB(0, 120, 255),
     Callback = function(c) S.fovColor = c end,
 })
 
@@ -652,7 +652,7 @@ SilentSection:Slider({
     Title = "Alcance",
     Desc = "Distância máxima do alvo",
     Step = 10,
-    Value = { Min = 100, Max = 300000000, Default = 1000 },
+    Value = { Min = 100, Max = 30000, Default = 1000 },
     Callback = function(val) SA.Range = val end,
 })
 

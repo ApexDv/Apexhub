@@ -550,6 +550,10 @@ local Window = WindUI:CreateWindow({
     HasOutline = true,
 })
 local ShieldTab = Window:Tab({ Title = "", Icon = "rbxassetid://91754324662625" })
+local ShieldTab = Window:Tab({
+    Title = "Welcome",
+    Icon = "shield"
+})
 local AimbotTab = Window:Tab({ Title = "", Icon = "rbxassetid://122878673716704" })
 local SilentTab = Window:Tab({ Title = "", Icon = "rbxassetid://122014945028597" })
 local HitboxTab = Window:Tab({ Title = "", Icon = "rbxassetid://117329818290748" })
@@ -795,4 +799,30 @@ WindUI:Notify({
     Content = "Aimbot carregado!",
     Icon = "check",
     Duration = 5,
+})
+-- ═════════════════════════════════
+--   UI - WELCOME
+-- ═════════════════════════════════
+
+ShieldTab:Paragraph({
+    Title = "Apex Hub",
+    Desc = "Entre no nosso Discord pra suporte, updates e configs.",
+    Color = Color3.fromHex("#1756B8"),
+    Thumbnail = "rbxassetid://139687752061139",
+    ThumbnailSize = 150,
+    Buttons = {
+        {
+            Icon = "square-arrow-out-up-right",
+            Title = "Copiar Discord",
+            Callback = function()
+                setclipboard("https://discord.gg/seulink")
+
+                WindUI:Notify({
+                    Title = "Apex Hub",
+                    Content = "Link copiado!",
+                    Duration = 3,
+                })
+            end,
+        }
+    }
 })

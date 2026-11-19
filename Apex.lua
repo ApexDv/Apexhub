@@ -453,6 +453,15 @@ end)
 -- ═══════════════════════════════════════════════
 --   LÓGICA DO ESP (QUADRADO)
 -- ═══════════════════════════════════════════════
+local espDrawings = {}
+
+local function clearDrawings()
+    for _, d in pairs(espDrawings) do
+        if d.Remove then d:Remove() end
+    end
+    espDrawings = {}
+end
+
 local function drawESP()
     clearDrawings()
     
@@ -464,21 +473,17 @@ local function drawESP()
             local head = plr.Character:FindFirstChild("Head")
             local root = plr.Character:FindFirstChild("HumanoidRootPart")
             
-            -- Precisa do Humanoid, da Head e do Root
             if hum and hum.Health > 0 and head and root then
-                -- Distância do jogador local até o alvo
                 local distance = (root.Position - Camera.CFrame.Position).Magnitude
                 
                 if distance <= ESP.MaxDistance then
-                    -- Pega o topo da cabeça e a base do pé (ignora a hitbox gigante)
                     local headPos, onScreenHead = Camera:WorldToViewportPoint(head.Position + Vector3.new(0, 0.5, 0))
                     local rootPos, onScreenRoot = Camera:WorldToViewportPoint(root.Position - Vector3.new(0, 3, 0))
                     
                     if onScreenHead and onScreenRoot and headPos.Z > 0 and rootPos.Z > 0 then
                         local height = math.abs(rootPos.Y - headPos.Y)
-                        local width = height -- Quadrado
+                        local width = height
                         
-                        -- Filtro pra evitar caixa gigante no céu
                         if height > 5 and height < 1000 then
                             if ESP.ShowBox then
                                 local box = Drawing.new("Square")
@@ -521,6 +526,10 @@ local function drawESP()
         end
     end
 end
+
+RunService.RenderStepped:Connect(function()
+    pcall(drawESP)
+end)
 -- ═══════════════════════════════════════════════
 --   WIND UI
 -- ═══════════════════════════════════════════════

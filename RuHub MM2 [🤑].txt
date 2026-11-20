@@ -1,0 +1,394 @@
+-- =================================================================
+--                   🔪 RuHub | MM2 MAX EDITION 🔪
+-- =================================================================
+
+-- Загрузка библиотеки Rayfield с кастомной темой (Красный цвет элементов)
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+
+-- Настройка главного окна в красном стиле
+local Window = Rayfield:CreateWindow({
+   Name = "🔪 RuHub | MM2 MAX",
+   LoadingTitle = "RuHub загружается...",
+   LoadingSubtitle = "Кровавая тема активирована",
+   ConfigurationSaving = {
+      Enabled = true,
+      FolderName = "RuHub_Configs",
+      FileName = "MM2_Max"
+   },
+   Discord = {
+      Enabled = false,
+      Invite = "", 
+      RememberJoins = true
+   },
+   KeySystem = false
+})
+
+-- Изменение цветовой палитры Rayfield на темно-красную (Кровавую)
+-- Настройки применяются к элементам интерфейса библиотеки
+Window:ModifyTheme({
+    TextColor = Color3.fromRGB(255, 255, 255),
+    Background = Color3.fromRGB(20, 20, 20),
+    Backdrop = Color3.fromRGB(30, 10, 10),
+    SectionSideBar = Color3.fromRGB(15, 15, 15),
+    ElementColor = Color3.fromRGB(35, 15, 15),
+    AccentColor = Color3.fromRGB(180, 0, 0)
+})
+
+---------------------------------------------------------
+-- ПЕРЕМЕННЫЕ И СЛУЖБЫ ROBLOX
+---------------------------------------------------------
+local LocalPlayer = game.Players.LocalPlayer
+local RunService = game:GetService("RunService")
+local Workspace = game:GetService("Workspace")
+local UserInputService = game:GetService("UserInputService")
+
+local ESP_Enabled = false
+local Noclip = false
+local AutoCoin = false
+
+---------------------------------------------------------
+-- ФУНКЦИЯ ОПРЕДЕЛЕНИЯ РОЛИ ИГРОКА
+---------------------------------------------------------
+local function GetPlayerRole(player)
+    local isMurderer = false
+    local isSheriff = false
+
+    if player.Character then
+        if player.Character:FindFirstChild("Knife") then isMurderer = true end
+        if player.Character:FindFirstChild("Gun") then isSheriff = true end
+    end
+    if player:FindFirstChild("Backpack") then
+        if player.Backpack:FindFirstChild("Knife") then isMurderer = true end
+        if player.Backpack:FindFirstChild("Gun") then isSheriff = true end
+    end
+
+    if isMurderer then 
+        return "Murderer", Color3.fromRGB(255, 0, 0) -- Красный
+    elseif isSheriff then 
+        return "Sheriff", Color3.fromRGB(0, 0, 255)  -- Синий
+    else 
+        return "Innocent", Color3.fromRGB(0, 255, 0) -- Зеленый
+    end
+end
+
+---------------------------------------------------------
+-- ВКЛАДКА: ⚔️ БОЙ
+---------------------------------------------------------
+local CombatTab = Window:CreateTab("⚔️ Бой", 4483362458)
+
+CombatTab:CreateSection("Шериф")
+
+CombatTab:CreateButton({
+   Name = "🔫 Точный выстрел в Мардера (Silent Aim)",
+   Callback = function()
+       local murderer = nil
+       for _, p in pairs(game.Players:GetPlayers()) do
+           if GetPlayerRole(p) == "Murderer" then 
+               murderer = p 
+               break 
+           end
+       end
+
+       if murderer and murderer.Character and murderer.Character:FindFirstChild("HumanoidRootPart") then
+           local gun = LocalPlayer.Backpack:FindFirstChild("Gun") or LocalPlayer.Character:FindFirstChild("Gun")
+           
+           if gun then
+               LocalPlayer.Character.Humanoid:EquipTool(gun)
+               task.wait(0.05) -- задержка на экипировку
+
+               local targetPart = murderer.Character:FindFirstChild("HumanoidRootPart") or murderer.Character:FindFirstChild("UpperTorso")
+               if targetPart then
+                   -- Разворачиваем камеру на Мардера
+                   Workspace.CurrentCamera.CFrame = CFrame.new(Workspace.CurrentCamera.CFrame.Position, targetPart.Position)
+                   
+                   -- Стреляем
+                   gun:Activate()
+                   
+                   -- Посылаем сигнал выстрела на сервер для 100% попадания
+                   local shootEvent = gun:FindFirstChild("Shoot") or gun:FindFirstChild("KnifeServer")
+                   if shootEvent and shootEvent:IsA("RemoteEvent") then
+                       shootEvent:FireServer(targetPart.Position)
+                   end
+
+                   Rayfield:Notify({Title = "🎯 Попадание!", Content = "Вы выстрелили точно в " .. murderer.Name, Duration = 2, Image = 4483362458})
+               end
+           else
+               Rayfield:Notify({Title = "Ошибка", Content = "У вас нет пистолета!", Duration = 3, Image = 4483362458})
+           end
+       else
+           Rayfield:Notify({Title = "Ошибка", Content = "Мардер не найден или мертв!", Duration = 3, Image = 4483362458})
+       end
+   end,
+})
+
+CombatTab:CreateSection("Убийца")
+
+CombatTab:CreateButton({
+   Name = "🔪 Убить всех (Только для Мардера)",
+   Callback = function()
+       local knife = LocalPlayer.Backpack:FindFirstChild("Knife") or LocalPlayer.Character:FindFirstChild("Knife")
+       if knife then
+           LocalPlayer.Character.Humanoid:EquipTool(knife)
+           for _, p in pairs(game.Players:GetPlayers()) do
+               if p ~= LocalPlayer and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+                   -- Быстрый телепорт за спину и удар
+                   LocalPlayer.Character.HumanoidRootPart.CFrame = p.Character.HumanoidRootPart.CFrame * CFrame.new(0, 0, 1.5)
+                   task.wait(0.15)
+                   knife:Activate()
+               end
+           end
+       else
+           Rayfield:Notify({Title = "Ошибка", Content = "У вас нет ножа в инвентаре!", Duration = 3, Image = 4483362458})
+       end
+   end,
+})
+
+---------------------------------------------------------
+-- ВКЛАДКА: 💰 ФАРМ
+---------------------------------------------------------
+local FarmTab = Window:CreateTab("💰 Фарм", 4483362458)
+
+FarmTab:CreateToggle({
+   Name = "Авто-сбор монет",
+   CurrentValue = false,
+   Flag = "AutoCoinToggle",
+   Callback = function(Value)
+       AutoCoin = Value
+       task.spawn(function()
+           while AutoCoin do
+               task.wait(0.2)
+               if Workspace:FindFirstChild("Normal") and Workspace.Normal:FindFirstChild("CoinContainer") then
+                   for _, coin in pairs(Workspace.Normal.CoinContainer:GetChildren()) do
+                       if not AutoCoin then break end
+                       if (coin.Name == "Coin_Server" or coin.Name == "Coin") and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                           LocalPlayer.Character.HumanoidRootPart.CFrame = coin.CFrame
+                           task.wait(0.25) -- Задержка против кика античитом
+                       end
+                   end
+               end
+           end
+       end)
+   end,
+})
+
+FarmTab:CreateButton({
+   Name = "🔫 Телепорт к выпавшему пистолету",
+   Callback = function()
+       local gunDrop = Workspace:FindFirstChild("GunDrop")
+       if gunDrop and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+           LocalPlayer.Character.HumanoidRootPart.CFrame = gunDrop.CFrame
+           Rayfield:Notify({Title = "Успех", Content = "Вы у пистолета!", Duration = 2, Image = 4483362458})
+       else
+           Rayfield:Notify({Title = "Упс", Content = "Пистолет еще на руках или не выпал.", Duration = 2.5, Image = 4483362458})
+       end
+   end,
+})
+
+---------------------------------------------------------
+-- ВКЛАДКА: 👁 ВИЗУАЛ (ESP)
+---------------------------------------------------------
+local VisualTab = Window:CreateTab("👁 ESP", 4483362458)
+
+VisualTab:CreateToggle({
+   Name = "Умный ESP (Роли над головой)",
+   CurrentValue = false,
+   Flag = "ESP_Toggle",
+   Callback = function(Value)
+       ESP_Enabled = Value
+       if not Value then
+           -- Полная очистка при отключении ESP
+           for _, v in pairs(game.Players:GetPlayers()) do
+               if v.Character then
+                   if v.Character:FindFirstChild("RuHub_Highlight") then v.Character.RuHub_Highlight:Destroy() end
+                   if v.Character:FindFirstChild("RuHub_HeadText") then v.Character.RuHub_HeadText:Destroy() end
+               end
+           end
+       end
+   end,
+})
+
+-- Обновление ESP в каждом кадре
+RunService.RenderStepped:Connect(function()
+    if not ESP_Enabled then return end
+    for _, player in pairs(game.Players:GetPlayers()) do
+        if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("Head") and player.Character:FindFirstChild("Humanoid") and player.Character.Humanoid.Health > 0 then
+            local role, color = GetPlayerRole(player)
+            
+            -- Создание/обновление силуэта
+            local highlight = player.Character:FindFirstChild("RuHub_Highlight")
+            if not highlight then
+                highlight = Instance.new("Highlight")
+                highlight.Name = "RuHub_Highlight"
+                highlight.Parent = player.Character
+                highlight.FillTransparency = 0.6
+            end
+            highlight.FillColor = color
+            highlight.OutlineColor = color
+
+            -- Создание/обновление текста с ролью над игроком
+            local headText = player.Character:FindFirstChild("RuHub_HeadText")
+            if not headText then
+                headText = Instance.new("BillboardGui")
+                headText.Name = "RuHub_HeadText"
+                headText.Parent = player.Character
+                headText.Size = UDim2.new(0, 100, 0, 50)
+                headText.StudsOffset = Vector3.new(0, 2.5, 0)
+                headText.AlwaysOnTop = true
+
+                local textLabel = Instance.new("TextLabel")
+                textLabel.Parent = headText
+                textLabel.Size = UDim2.new(1, 0, 1, 0)
+                textLabel.BackgroundTransparency = 1
+                textLabel.TextScaled = true
+                textLabel.Font = Enum.Font.FredokaOne
+            end
+            headText.TextLabel.Text = role
+            headText.TextLabel.TextColor3 = color
+        end
+    end
+end)
+
+---------------------------------------------------------
+-- ВКЛАДКА: 🏃 ИГРОК
+---------------------------------------------------------
+local PlayerTab = Window:CreateTab("🏃 Игрок", 4483362458)
+
+PlayerTab:CreateSlider({
+   Name = "Скорость (WalkSpeed)",
+   Range = {16, 120},
+   Increment = 1,
+   Suffix = " Speed",
+   CurrentValue = 16,
+   Flag = "SpeedSlider",
+   Callback = function(Value)
+      if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
+         LocalPlayer.Character.Humanoid.WalkSpeed = Value
+      end
+   end,
+})
+
+PlayerTab:CreateToggle({
+   Name = "Noclip (Прохождение сквозь стены)",
+   CurrentValue = false,
+   Flag = "NoclipToggle",
+   Callback = function(Value)
+       Noclip = Value
+   end,
+})
+
+-- Обработка прохода сквозь стены
+RunService.Stepped:Connect(function()
+    if Noclip and LocalPlayer.Character then
+        for _, part in pairs(LocalPlayer.Character:GetDescendants()) do
+            if part:IsA("BasePart") and part.CanCollide == true then
+                part.CanCollide = false
+            end
+        end
+    end
+end)
+
+---------------------------------------------------------
+-- КРАСНАЯ ПЛАВАЮЩАЯ КНОПКА (ПЕРЕМЕЩАЕМЫЙ UI - ТОЧНЫЙ ВЫСТРЕЛ)
+---------------------------------------------------------
+-- Удаляем старую кнопку, если она осталась от прошлых запусков скрипта
+if game.CoreGui:FindFirstChild("RuHub_FloatingBtn") then
+    game.CoreGui.RuHub_FloatingBtn:Destroy()
+end
+
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "RuHub_FloatingBtn"
+ScreenGui.Parent = game.CoreGui
+
+local ShootBtn = Instance.new("TextButton")
+ShootBtn.Parent = ScreenGui
+ShootBtn.BackgroundColor3 = Color3.fromRGB(150, 0, 0)
+ShootBtn.Position = UDim2.new(0.85, 0, 0.45, 0)
+ShootBtn.Size = UDim2.new(0, 160, 0, 55)
+ShootBtn.Font = Enum.Font.GothamBold
+ShootBtn.Text = "🎯 ТОЧНЫЙ ВЫСТРЕЛ"
+ShootBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+ShootBtn.TextSize = 13
+ShootBtn.BorderSizePixel = 1
+ShootBtn.BorderColor3 = Color3.fromRGB(255, 0, 0)
+
+-- Круглые края для кнопки
+local UICorner = Instance.new("UICorner")
+UICorner.CornerRadius = UDim.new(0, 10)
+UICorner.Parent = ShootBtn
+
+-- Скрипт перетаскивания (Drag) кнопки пальцем или мышкой
+local dragging, dragInput, dragStart, startPos
+
+ShootBtn.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true
+        dragStart = input.Position
+        startPos = ShootBtn.Position
+        
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
+end)
+
+ShootBtn.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+        dragInput = input
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if input == dragInput and dragging then
+        local delta = input.Position - dragStart
+        ShootBtn.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+    end
+end)
+
+-- Логика мгновенного убийства Мардера по клику на кнопку
+ShootBtn.MouseButton1Click:Connect(function()
+    local murderer = nil
+    for _, p in pairs(game.Players:GetPlayers()) do
+        if GetPlayerRole(p) == "Murderer" then 
+            murderer = p 
+            break 
+        end
+    end
+
+    if murderer and murderer.Character and murderer.Character:FindFirstChild("HumanoidRootPart") then
+        local gun = LocalPlayer.Backpack:FindFirstChild("Gun") or LocalPlayer.Character:FindFirstChild("Gun")
+        
+        if gun then
+            -- Экипировка пистолета
+            LocalPlayer.Character.Humanoid:EquipTool(gun)
+            task.wait(0.05)
+
+            local targetPart = murderer.Character:FindFirstChild("HumanoidRootPart") or murderer.Character:FindFirstChild("UpperTorso")
+            if targetPart then
+                -- Разворот камеры и авто-выстрел
+                Workspace.CurrentCamera.CFrame = CFrame.new(Workspace.CurrentCamera.CFrame.Position, targetPart.Position)
+                gun:Activate()
+                
+                local shootEvent = gun:FindFirstChild("Shoot") or gun:FindFirstChild("KnifeServer")
+                if shootEvent and shootEvent:IsA("RemoteEvent") then
+                    shootEvent:FireServer(targetPart.Position)
+                end
+                
+                Rayfield:Notify({Title = "🎯 Смертельный выстрел!", Content = "Вы ликвидировали убийцу " .. murderer.Name, Duration = 2.5, Image = 4483362458})
+            end
+        else
+            Rayfield:Notify({Title = "Нет оружия!", Content = "Пистолет шерифа отсутствует в инвентаре.", Duration = 2.5, Image = 4483362458})
+        end
+    else
+        Rayfield:Notify({Title = "Внимание", Content = "Убийца еще не взял оружие или мертв.", Duration = 2.5, Image = 4483362458})
+    end
+end)
+
+-- Уведомление о полной готовности
+Rayfield:Notify({
+   Title = "Успешно!",
+   Content = "RuHub MAX полностью загружен и готов к победам!",
+   Duration = 5,
+   Image = 4483362458,
+})

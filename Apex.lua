@@ -34,6 +34,7 @@ local SA = {
     HitChance   = 100,
     Range       = 100000000,
     HideFov     = false,
+    TeamCheck   = false,
 }
 
 local Hitbox = {
@@ -50,7 +51,11 @@ local ESP = {
     HealthColor = Color3.fromRGB(0, 255, 0),
     MaxDistance = 1000,
 }
-
+local function isTeamCheckPassed(Player, Toggle)
+    if not Toggle then return true end
+    if Player.Team == nil or LocalPlayer.Team == nil then return true end
+    return Player.Team ~= LocalPlayer.Team
+end
 -- ═══════════════════════════════════════════════
 --   LÓGICA DO AIMBOT
 -- ═══════════════════════════════════════════════
@@ -231,6 +236,9 @@ local function isValidTargetSA(plr)
     
     local localRoot = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
     if localRoot and (hrp.Position - localRoot.Position).Magnitude > SA.Range then return false end
+    
+    if not isTeamCheckPassed(plr, SA.TeamCheck) then return false end
+    
     return true
 end
 
@@ -614,6 +622,13 @@ AimSection:Toggle({
     Callback = function(v) S.hideFov = v end,
 })
 
+AimSection:Toggle({
+    Title = "Team Check",
+    Desc = "Não mira em aliados do mesmo time",
+    Value = S.teamCheck,
+    Callback = function(v) S.teamCheck = v end,
+})
+
 AimSection:Colorpicker({
     Title = "Cor do FOV",
     Default = Color3.fromRGB(0, 120, 255),
@@ -671,6 +686,12 @@ SilentSection:Toggle({
     Callback = function(v) SA.HideFov = v end,
 })
 
+SilentSection:Toggle({
+    Title = "Team Check",
+    Desc = "Não mira em aliados do mesmo time",
+    Value = SA.TeamCheck,
+    Callback = function(v) SA.TeamCheck = v end,
+})
 -- ═══════════════════════════════════════════════
 --   UI - HITBOX
 -- ═══════════════════════════════════════════════
@@ -778,6 +799,8 @@ end })
 S.on = false
 S.showFov = false
 S.hideFov = false
+SA.TeamCheck = false
+S.teamCheck = true
 SA.Enabled = false
 SA.HideFov = false
 Hitbox.Enabled = false

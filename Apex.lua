@@ -889,3 +889,25 @@ ShieldTab:Paragraph({
         }
     }
 })
+-- ═══════════════════════════════════════════════
+--   FORÇAR TUDO DESLIGADO AO INICIAR
+-- ═══════════════════════════════════════════════
+S.on = false
+S.showFov = false
+S.hideFov = false
+SA.Enabled = false
+SA.HideFov = false
+Hitbox.Enabled = false
+Hitbox.ShowVisual = false
+ESP.Enabled = false
+ESP.ShowBox = false
+ESP.ShowHealth = false
+
+-- Resets do Stretch:
+Stretch.Enabled = false
+stopStretch()
+
+if fovCircle then fovCircle.Visible = false end
+if FOVCircle then FOVCircle.Visible = false end
+if resetHitbox then resetHitbox() end
+if clearDrawings then clearDrawings() end

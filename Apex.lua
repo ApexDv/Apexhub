@@ -34,7 +34,6 @@ local SA = {
     HitChance   = 100,
     Range       = 100000000,
     HideFov     = false,
-    TeamCheck   = false,
 }
 
 local Hitbox = {
@@ -51,11 +50,7 @@ local ESP = {
     HealthColor = Color3.fromRGB(0, 255, 0),
     MaxDistance = 1000,
 }
-local function isTeamCheckPassed(Player, Toggle)
-    if not Toggle then return true end
-    if Player.Team == nil or LocalPlayer.Team == nil then return true end
-    return Player.Team ~= LocalPlayer.Team
-end
+
 -- ═══════════════════════════════════════════════
 --   LÓGICA DO AIMBOT
 -- ═══════════════════════════════════════════════
@@ -236,9 +231,6 @@ local function isValidTargetSA(plr)
     
     local localRoot = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
     if localRoot and (hrp.Position - localRoot.Position).Magnitude > SA.Range then return false end
-    
-    if not isTeamCheckPassed(plr, SA.TeamCheck) then return false end
-    
     return true
 end
 
@@ -462,7 +454,6 @@ end)
 --   LÓGICA DO ESP
 -- ═══════════════════════════════════════════════
 local espDrawings = {}
-local espDrawings = {}
 
 local function clearDrawings()
     for _, d in pairs(espDrawings) do
@@ -527,7 +518,7 @@ local function drawESP()
                                 bar.Color = ESP.HealthColor
                                 bar.Thickness = 1
                                 bar.Filled = true
-                                                             bar.Visible = true
+                                                                bar.Visible = true
                                 table.insert(espDrawings, bar)
                             end
                         end
@@ -541,6 +532,7 @@ end
 RunService.RenderStepped:Connect(function()
     pcall(drawESP)
 end)
+
 -- ═══════════════════════════════════════════════
 --   LÓGICA DO STRETCH
 -- ═══════════════════════════════════════════════
@@ -584,6 +576,7 @@ local function stopStretch()
 end
 
 startStretch()
+
 -- ═══════════════════════════════════════════════
 --   WIND UI
 -- ═══════════════════════════════════════════════
@@ -599,13 +592,14 @@ local Window = WindUI:CreateWindow({
     SideBarWidth = 200,
     HasOutline = true,
 })
+
 local ShieldTab = Window:Tab({ Title = "", Icon = "rbxassetid://106509993556171" })
 local AimbotTab = Window:Tab({ Title = "", Icon = "rbxassetid://122878673716704" })
-local AimbotTab = Window:Tab({ Title = "", Icon = "rbxassetid://107643532357936" })
 local SilentTab = Window:Tab({ Title = "", Icon = "rbxassetid://122014945028597" })
 local HitboxTab = Window:Tab({ Title = "", Icon = "rbxassetid://117329818290748" })
 local EspTab    = Window:Tab({ Title = "", Icon = "rbxassetid://127234874352422" })
 local ConfigTab = Window:Tab({ Title = "", Icon = "rbxassetid://106205298246017" })
+local StretchTab = Window:Tab({ Title = "EXPAND", Icon = "rbxassetid://10734898395562" })
 
 -- ═══════════════════════════════════════════════
 --   UI - AIMBOT
@@ -665,13 +659,6 @@ AimSection:Toggle({
     Callback = function(v) S.hideFov = v end,
 })
 
-AimSection:Toggle({
-    Title = "Team Check",
-    Desc = "Não mira em aliados do mesmo time",
-    Value = S.teamCheck,
-    Callback = function(v) S.teamCheck = v end,
-})
-
 AimSection:Colorpicker({
     Title = "Cor do FOV",
     Default = Color3.fromRGB(0, 120, 255),
@@ -679,6 +666,7 @@ AimSection:Colorpicker({
         S.fovColor = c
     end,
 })
+
 -- ═══════════════════════════════════════════════
 --   UI - SILENT AIM
 -- ═══════════════════════════════════════════════
@@ -729,12 +717,6 @@ SilentSection:Toggle({
     Callback = function(v) SA.HideFov = v end,
 })
 
-SilentSection:Toggle({
-    Title = "Team Check",
-    Desc = "Não mira em aliados do mesmo time",
-    Value = SA.TeamCheck,
-    Callback = function(v) SA.TeamCheck = v end,
-})
 -- ═══════════════════════════════════════════════
 --   UI - HITBOX
 -- ═══════════════════════════════════════════════
@@ -837,13 +819,40 @@ ConfigSection:Button({ Title = "Discord", Callback = function()
 end })
 
 -- ═══════════════════════════════════════════════
+--   UI - STRETCH
+-- ═══════════════════════════════════════════════
+local StretchSection = StretchTab:Section({ Title = "Stretch" })
+
+StretchSection:Toggle({
+    Title = "Tela Esticada",
+    Desc = "Ativa o efeito de stretch na câmera",
+    Value = false,
+    Callback = function(v)
+        Stretch.Enabled = v
+        if v then
+            startStretch()
+        else
+            stopStretch()
+        end
+    end,
+})
+
+StretchSection:Slider({
+    Title = "Força do Stretch",
+    Desc = "1.0 = normal | 0.75 = leve | 0.65 = médio | 0.55 = forte",
+    Step = 0.01,
+    Value = { Min = 0.50, Max = 1.00, Default = 0.65 },
+    Callback = function(val)
+        Stretch.Factor = val
+    end,
+})
+
+-- ═══════════════════════════════════════════════
 --   FORÇAR TUDO DESLIGADO AO INICIAR
 -- ═══════════════════════════════════════════════
 S.on = false
 S.showFov = false
 S.hideFov = false
-SA.TeamCheck = false
-S.teamCheck = true
 SA.Enabled = false
 SA.HideFov = false
 Hitbox.Enabled = false
@@ -851,6 +860,8 @@ Hitbox.ShowVisual = false
 ESP.Enabled = false
 ESP.ShowBox = false
 ESP.ShowHealth = false
+Stretch.Enabled = false
+stopStretch()
 
 if fovCircle then fovCircle.Visible = false end
 if FOVCircle then FOVCircle.Visible = false end
@@ -863,10 +874,10 @@ WindUI:Notify({
     Icon = "check",
     Duration = 5,
 })
--- ═════════════════════════════════
---   UI - WELCOME
--- ═════════════════════════════════
 
+-- ═══════════════════════════════════════════════
+--   UI - WELCOME
+-- ═══════════════════════════════════════════════
 ShieldTab:Paragraph({
     Title = "Apex Hub",
     Desc = "Entrem no nosso Discord pra suporte, updates e configs.",
@@ -879,7 +890,6 @@ ShieldTab:Paragraph({
             Title = "Copiar Discord",
             Callback = function()
                 setclipboard("https://discord.gg/seulink")
-
                 WindUI:Notify({
                     Title = "Apex Hub",
                     Content = "Link copiado!",
@@ -889,25 +899,3 @@ ShieldTab:Paragraph({
         }
     }
 })
--- ═══════════════════════════════════════════════
---   FORÇAR TUDO DESLIGADO AO INICIAR
--- ═══════════════════════════════════════════════
-S.on = false
-S.showFov = false
-S.hideFov = false
-SA.Enabled = false
-SA.HideFov = false
-Hitbox.Enabled = false
-Hitbox.ShowVisual = false
-ESP.Enabled = false
-ESP.ShowBox = false
-ESP.ShowHealth = false
-
--- Resets do Stretch:
-Stretch.Enabled = false
-stopStretch()
-
-if fovCircle then fovCircle.Visible = false end
-if FOVCircle then FOVCircle.Visible = false end
-if resetHitbox then resetHitbox() end
-if clearDrawings then clearDrawings() end

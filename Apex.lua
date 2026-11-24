@@ -541,7 +541,49 @@ end
 RunService.RenderStepped:Connect(function()
     pcall(drawESP)
 end)
+-- ═══════════════════════════════════════════════
+--   LÓGICA DO STRETCH
+-- ═══════════════════════════════════════════════
+local Stretch = {
+    Enabled = false,
+    Factor  = 0.65,
+    Connection = nil,
+    BindName = "ApexStretch",
+}
 
+local function applyStretch()
+    local cam = workspace.CurrentCamera
+    if not cam then return end
+    local m = CFrame.new(0, 0, 0,
+        1, 0, 0,
+        0, Stretch.Factor, 0,
+        0, 0, 1
+    )
+    cam.CFrame = cam.CFrame * m
+end
+
+local function startStretch()
+    if Stretch.Connection then
+        pcall(function() RunService:UnbindFromRenderStep(Stretch.BindName) end)
+        Stretch.Connection = nil
+    end
+    RunService:BindToRenderStep(Stretch.BindName, Enum.RenderPriority.Camera.Value + 1, function()
+        if Stretch.Enabled then
+            applyStretch()
+        end
+    end)
+    Stretch.Connection = true
+end
+
+local function stopStretch()
+    Stretch.Enabled = false
+    if Stretch.Connection then
+        pcall(function() RunService:UnbindFromRenderStep(Stretch.BindName) end)
+        Stretch.Connection = nil
+    end
+end
+
+startStretch()
 -- ═══════════════════════════════════════════════
 --   WIND UI
 -- ═══════════════════════════════════════════════

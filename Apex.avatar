@@ -1,0 +1,146 @@
+local plrs = game:GetService("Players")
+local rs = game:GetService("ReplicatedStorage")
+local theremote = rs.Events.CatalogGuiRemote
+
+local function rgb(c)
+	return {
+		r = math.floor(c.R * 255),
+		g = math.floor(c.G * 255),
+		b = math.floor(c.B * 255),
+		IsRGBTable = true
+	}
+end
+
+local function vector(v)
+	return {
+		X = v.X,
+		Y = v.Y,
+		Z = v.Z,
+		Vector3 = true
+	}
+end
+
+local function getLayeredAccessories(desc)
+	local result = {}
+
+	for _, accessory in desc:GetAccessories(true) do
+		if accessory.IsLayered then
+			table.insert(result, {
+				Rotation = vector(accessory.Rotation),
+				AssetId = accessory.AssetId,
+				AccessoryType = accessory.AccessoryType.Name,
+				Position = vector(accessory.Position),
+				Order = accessory.Order,
+				IsLayered = true,
+				Puffiness = accessory.Puffiness,
+				Scale = vector(accessory.Scale)
+			})
+		end
+	end
+
+	return result
+end
+
+local function copy(targetPlayer)
+	if not targetPlayer or not targetPlayer.Character then return end
+
+	local h = targetPlayer.Character:FindFirstChildOfClass("Humanoid")
+	if not h then return end
+
+	local desc = h:GetAppliedDescription()
+
+	local wear = {{
+		["Properties"] = {
+			["WalkAnimation"] = desc.WalkAnimation,
+			["MoodAnimation"] = desc.MoodAnimation,
+			["Face"] = desc.Face,
+			["ProportionScale"] = desc.ProportionScale,
+			["ClimbAnimation"] = desc.ClimbAnimation,
+			["Shirt"] = desc.Shirt,
+			["FaceAccessory"] = desc.FaceAccessory,
+			["RightArmColor"] = rgb(desc.RightArmColor),
+			["TorsoColor"] = rgb(desc.TorsoColor),
+			["RightLegColor"] = rgb(desc.RightLegColor),
+			["LeftLegColor"] = rgb(desc.LeftLegColor),
+			["LeftArmColor"] = rgb(desc.LeftArmColor),
+			["HeadColor"] = rgb(desc.HeadColor),
+			["HairAccessory"] = desc.HairAccessory,
+			["RightArm"] = desc.RightArm,
+			["Head"] = desc.Head,
+			["FallAnimation"] = desc.FallAnimation,
+			["DepthScale"] = desc.DepthScale,
+			["LeftArm"] = desc.LeftArm,
+			["HeightScale"] = desc.HeightScale,
+			["LeftLeg"] = desc.LeftLeg,
+			["WidthScale"] = desc.WidthScale,
+			["BodyTypeScale"] = desc.BodyTypeScale,
+			["RunAnimation"] = desc.RunAnimation,
+			["Pants"] = desc.Pants,
+			["WaistAccessory"] = desc.WaistAccessory,
+			["LayeredAccessories"] = getLayeredAccessories(desc),
+			["AccessoryRefinements"] = {},
+			["ShouldersAccessory"] = desc.ShouldersAccessory,
+			["NeckAccessory"] = desc.NeckAccessory,
+			["HatAccessory"] = desc.HatAccessory,
+			["FrontAccessory"] = desc.FrontAccessory,
+			["BackAccessory"] = desc.BackAccessory,
+			["SwimAnimation"] = desc.SwimAnimation,
+			["IdleAnimation"] = desc.IdleAnimation,
+			["Torso"] = desc.Torso,
+			["HeadScale"] = desc.HeadScale,
+			["JumpAnimation"] = desc.JumpAnimation,
+			["GraphicTShirt"] = desc.GraphicTShirt,
+			["RightLeg"] = desc.RightLeg
+		},
+		["Action"] = "CreateAndWearHumanoidDescription",
+		["RigType"] = h.RigType
+	}}
+
+	theremote:InvokeServer(unpack(wear))
+
+	rs.Events.SavedOutfitsRemote:InvokeServer({
+		OutfitName = "Saved-Fit",
+		Configs = {},
+		Action = "CreateNewOutfit"
+	})
+end
+
+local function Proximity(player, character)
+	if player == plrs.LocalPlayer then return end
+
+	local hrp = character:WaitForChild("HumanoidRootPart", 10)
+	if not hrp then return end
+
+	pcall(function()
+		local old = hrp:FindFirstChild("CopyPrompt")
+		if old then old:Destroy() end
+	end)
+
+	local prox = Instance.new("ProximityPrompt", hrp)
+	prox.Name = "CopyPrompt"
+	prox.MaxActivationDistance = 15
+	prox.ObjectText = "- " .. player.Name
+	prox.ActionText = "• Copiar"
+	prox.RequiresLineOfSight = false
+	prox.Triggered:Connect(function()
+		copy(player)
+	end)
+end
+
+local function setup(player)
+	if player == plrs.LocalPlayer then return end
+
+	if player.Character then
+		task.spawn(Proximity, player, player.Character)
+	end
+
+	player.CharacterAdded:Connect(function(char)
+		Proximity(player, char)
+	end)
+end
+
+for _, p in plrs:GetPlayers() do
+	setup(p)
+end
+
+plrs.PlayerAdded:Connect(setup)

@@ -24,7 +24,14 @@ local Tabs = {
     World    = Window:AddTab("World", "globe"),
     Settings = Window:AddTab("Settings", "settings"),
 }
-
+local Settings = {
+    Enabled = false,
+    FOVRadius = 150,
+    TargetPart = "Head",
+    HitChance = 100,
+    SilentAimRange = 1000,
+    VisibleCheck = false,
+}
 
 local Profile = Tabs.Home:AddLeftGroupbox("Profile")
 
@@ -58,3 +65,51 @@ SaveManager:BuildConfigSection(Tabs.Settings)
 ThemeManager:ApplyToTab(Tabs.Settings)
 
 SaveManager:LoadAutoloadConfig()
+local CombatGroup = Tabs.Combat:AddLeftGroupbox("Silent Aim")
+
+CombatGroup:AddToggle("EnableSA", {
+    Text = "Enabled",
+    Default = false,
+    Callback = function(Value) Settings.Enabled = Value end
+})
+
+CombatGroup:AddDropdown("TargetPart", {
+    Text = "Target Part",
+    Values = {"Head", "HumanoidRootPart", "UpperTorso"},
+    Default = "Head",
+    Callback = function(Value) Settings.TargetPart = Value end
+})
+
+CombatGroup:AddToggle("Wallcheck", {
+    Text = "Wallcheck",
+    Default = false,
+    Callback = function(Value) Settings.VisibleCheck = Value end
+})
+local VisualsGroup = Tabs.Visuals:AddLeftGroupbox("FOV")
+
+VisualsGroup:AddToggle("ShowFOV", {
+    Text = "FOV Circle",
+    Default = true,
+    Callback = function(Value) 
+        if _G.FOVCircle then _G.FOVCircle.Visible = Value end 
+    end
+})
+
+VisualsGroup:AddToggle("FOVFilled", {
+    Text = "FOV Circle Filled",
+    Default = false,
+    Callback = function(Value) 
+        if _G.FOVCircle then 
+            _G.FOVCircle.BackgroundTransparency = Value and 0.8 or 1
+        end
+    end
+})
+
+VisualsGroup:AddSlider("FOVRadius", {
+    Text = "Radius",
+    Min = 50, Max = 1000, Default = 150, Rounding = 0,
+    Callback = function(Value) 
+        Settings.FOVRadius = Value 
+        if _G.FOVCircle then _G.FOVCircle.Size = UDim2.fromOffset(Value * 2, Value * 2) end
+    end
+})
